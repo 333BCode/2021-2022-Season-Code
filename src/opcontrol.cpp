@@ -1,4 +1,5 @@
 #include "main.h"
+#include "drivetrain.hpp"
 #include "pros/misc.h"
 
 /**
