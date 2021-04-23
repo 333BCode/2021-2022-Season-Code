@@ -1,4 +1,5 @@
 #include "drivetrain.hpp"
+#include "util/conversions.hpp"
 
 Drivetrain base;
 
@@ -7,24 +8,6 @@ pros::Mutex Drivetrain::positionDataMutex {};
 long double Drivetrain::xPos    = 0;
 long double Drivetrain::yPos    = 0;
 long double Drivetrain::heading = 0;
-
-/**
- * Helpers
- */
-
-constexpr long double pi = 3.1415926535L;
-
-static constexpr long double radians(long double degrees) {
-    return degrees * pi / 180.0L;
-}
-
-static constexpr long double degrees(long double radians) {
-    return radians * 180.0L / pi;
-}
-
-/**
- * Drivetrain Functions
- */
 
 void Drivetrain::operator()(const State& newState) {
     state = newState;
@@ -91,67 +74,55 @@ void Drivetrain::supplyVoltage(int linearPow, int strafePow, int rotPow) {
 }
 
 long double Drivetrain::ticksToInches(int ticks) {
-    return trackingWheelDiameter * ticks * pi / 360.0L;
+    return trackingWheelDiameter * ticks * conversions::pi / 360;
 }
 
-void Drivetrain::odometry() {
+void Drivetrain::trackPosition() {
 
-    std::int32_t lastLeftValue      = 0;
-    std::int32_t lastRightValue     = 0;
-    std::int32_t lastMiddleValue    = 0;
-    double lastInertialAngle        = 0;
+    using conversions::radians;
+    using conversions::degrees;
 
-    inertial.reset();
-    do {
-        pros::delay(10);
-    } while (inertial.is_calibrating());
+    static int32_t lastLeftValue      = 0;
+    static int32_t lastRightValue     = 0;
+    static int32_t lastMiddleValue    = 0;
+    static double lastInertialAngle        = 0;
 
-    leftEncoder.reset();
-    rightEncoder.reset();
-    middleEncoder.reset();
+    /**
+     * Main Calculations
+     */
 
-    while (true) {
+    int32_t leftEncoderValue   = leftEncoder.get_value();
+    int32_t rightEncoderValue  = rightEncoder.get_value();
+    int32_t middleEncoderValue = middleEncoder.get_value();
+    double inertialAngle            = -inertial.get_rotation();
 
-        positionDataMutex.take(TIMEOUT_MAX);
-        std::uint32_t startTime = pros::millis();
+    long double leftDist    = ticksToInches(leftEncoderValue - lastLeftValue);
+    long double rightDist   = ticksToInches(rightEncoderValue - lastRightValue);
+    long double middleDist  = ticksToInches(middleEncoderValue - lastMiddleValue);
 
-        std::int32_t leftEncoderValue   = leftEncoder.get_value();
-        std::int32_t rightEncoderValue  = rightEncoder.get_value();
-        std::int32_t middleEncoderValue = middleEncoder.get_value();
-        double inertialAngle            = -inertial.get_rotation();
+    lastLeftValue   = leftEncoderValue;
+    lastRightValue  = rightEncoderValue;
+    lastMiddleValue = middleEncoderValue;
 
-        long double leftDist    = ticksToInches(leftEncoderValue - lastLeftValue);
-        long double rightDist   = ticksToInches(rightEncoderValue - lastRightValue);
-        long double middleDist  = ticksToInches(middleEncoderValue - lastMiddleValue);
+    long double angle = (rightDist - leftDist) / (2 * wheelSpacingParallel);
+    if (!isnanf(inertialAngle)) {
+        angle = (angle + radians(inertialAngle - lastInertialAngle)) / 2;
+        lastInertialAngle = inertialAngle;
+    }
 
-        lastLeftValue   = leftEncoderValue;
-        lastRightValue  = rightEncoderValue;
-        lastMiddleValue = middleEncoderValue;
+    long double distMain    = angle == 0 ? leftDist : 2 * (leftDist / angle + wheelSpacingParallel) * sin(angle / 2);
+    long double distSlide   = angle == 0 ? middleDist : 2 * (middleDist / angle + wheelSpacingPerpendicular) * sin(angle / 2);
 
-        long double angle = (rightDist - leftDist) / (2 * wheelSpacingParallel);
-        if (!isnanf(inertialAngle)) {
-            angle = (angle + radians(inertialAngle - lastInertialAngle)) / 2;
-            lastInertialAngle = inertialAngle;
-        }
+    long double theta = radians(heading) + angle / 2;
 
-        long double distMain    = angle == 0 ? leftDist : 2 * (leftDist / angle + wheelSpacingParallel) * sin(angle / 2);
-        long double distSlide   = angle == 0 ? middleDist : 2 * (middleDist / angle + wheelSpacingPerpendicular) * sin(angle / 2);
+    xPos += distMain * cos(theta) + distSlide * sin(theta);
+    yPos += distMain * sin(theta) - distSlide * cos(theta);
+    heading += degrees(angle);
 
-        long double theta = radians(heading) + angle / 2;
-
-        xPos += distMain * cos(theta) + distSlide * sin(theta);
-        yPos += distMain * sin(theta) - distSlide * cos(theta);
-        heading += degrees(angle);
-
-        if (heading >= 360) {
-            heading -= 360;
-        } else if (heading < 0) {
-            heading += 360;
-        }
-
-        positionDataMutex.give();
-        pros::Task::delay_until(&startTime, 10);
-
+    if (heading >= 360) {
+        heading -= 360;
+    } else if (heading < 0) {
+        heading += 360;
     }
 
 }

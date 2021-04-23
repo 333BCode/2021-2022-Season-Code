@@ -26,7 +26,7 @@ void opcontrol() {
 
     while (true) {
 
-        std::uint32_t startTime = pros::millis();
+        uint32_t startTime = pros::millis();
 
         int linearPow   = control.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y);
         int strafePow   = control.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_X);

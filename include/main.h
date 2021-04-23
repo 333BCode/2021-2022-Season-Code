@@ -71,11 +71,15 @@ void opcontrol(void);
 }
 #endif
 
+#include "gui/display.h"
+
 #ifdef __cplusplus
+
 /**
  * You can add C++-only headers here
  */
-#include "drivetrain.hpp"
+#include "util/scheduler.hpp"
+
 #endif
 
 #endif  // _PROS_MAIN_H_

@@ -1,9 +1,10 @@
 #include "main.h"
+#include "gui/display.h"
 
 /**
  * Tasks
  */
-pros::Task odometry(Drivetrain::odometry);
+pros::Task sideTasks(mainTasks);
 
 /**
  * Runs initialization code. This occurs as soon as the program is started.
@@ -11,7 +12,11 @@ pros::Task odometry(Drivetrain::odometry);
  * All other competition modes are blocked by initialize; it is recommended
  * to keep execution time for this mode under a few seconds.
  */
-void initialize() {}
+void initialize() {
+
+    initDisplay();
+
+}
 
 /**
  * Runs while the robot is in the disabled state of Field Management System or

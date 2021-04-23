@@ -22,7 +22,7 @@ public:
     static void supplyVoltage(int linearPow, int rotPow);
     static void supplyVoltage(int linearPow, int strafePow, int rotPow);
 
-    static void odometry();
+    friend void mainTasks();
 
 private:
 
@@ -50,6 +50,8 @@ private:
     static const long double trackingWheelDiameter;
 
     static long double ticksToInches(int ticks);
+
+    static void trackPosition();
 
 };
 
