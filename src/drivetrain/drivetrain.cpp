@@ -5,9 +5,9 @@ Drivetrain base;
 
 pros::Mutex Drivetrain::positionDataMutex {};
 
-long double Drivetrain::xPos    = 0;
-long double Drivetrain::yPos    = 0;
-long double Drivetrain::heading = 0;
+long double Drivetrain::xPos    = 72;
+long double Drivetrain::yPos    = 72;
+long double Drivetrain::heading = 90;
 
 void Drivetrain::operator()(const State& newState) {
     state = newState;
@@ -17,8 +17,8 @@ Drivetrain::State Drivetrain::getState() {
     return state;
 }
 
-std::array<int, 3> Drivetrain::getPosition() {
-    return {static_cast<int>(xPos), static_cast<int>(yPos), static_cast<int>(heading)};
+std::array<long double, 3> Drivetrain::getPosition() {
+    return {xPos, yPos, heading};
 }
 
 void Drivetrain::setPosition(long double newX, long double newY, long double newHeading) {

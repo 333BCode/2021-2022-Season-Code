@@ -71,8 +71,6 @@ void opcontrol(void);
 }
 #endif
 
-#include "gui/display.h"
-
 #ifdef __cplusplus
 
 /**

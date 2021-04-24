@@ -14,7 +14,7 @@ public:
     void operator()(const State& newState);
     static State getState();
 
-    static std::array<int, 3> getPosition();
+    static std::array<long double, 3> getPosition();
     static void setPosition(long double newX, long double newY, long double newHeading);
 
     static void supply(int linearPow, int rotPow);

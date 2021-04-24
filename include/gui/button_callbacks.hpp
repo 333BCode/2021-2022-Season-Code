@@ -3,14 +3,6 @@
 
 #include "display/lvgl.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-
-
-#ifdef __cplusplus
-}
-#endif
+lv_res_t setVirtualBotPos(lv_obj_t* tile);
 
 #endif
