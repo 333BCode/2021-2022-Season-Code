@@ -1,7 +1,7 @@
 #include "gui/display.hpp"
+#include "display/lv_core/lv_obj.h"
 #include "drivetrain.hpp"
 
-#include <cstdlib>
 #include <string>
 
 DisplayControl displayControl {};
@@ -10,7 +10,7 @@ static lv_obj_t * newButton(lv_obj_t* parent, lv_coord_t xPos, lv_coord_t yPos, 
     uint32_t freeNum, lv_res_t (*action)(lv_obj_t*), bool toggle)
 {
     
-    lv_obj_t* newBtn = lv_btn_create(lv_scr_act(), NULL);
+    lv_obj_t* newBtn = lv_btn_create(parent, NULL);
 
     lv_obj_set_pos(newBtn, xPos, yPos);
     lv_obj_set_size(newBtn, width, height);
@@ -127,7 +127,7 @@ DisplayControl::DisplayControl()
     lv_obj_set_style(virtualBotDirectionIndicator, &virtualBotDirectionIndicatorStyle);
 
     // Position Data
-    lv_obj_align(positionData, NULL, LV_ALIGN_IN_LEFT_MID, 0, 0);
+    lv_obj_align(positionData, NULL, LV_ALIGN_IN_TOP_LEFT, 0, 0);
     lv_label_set_text(positionData, "Odom starting up...");
     lv_obj_set_style(positionData, &positionDataStyle);
 
@@ -151,9 +151,9 @@ void DisplayControl::updateOdomData() {
         (odomData[0] / 24) * tileLength, (odomData[1] / 24) * tileLength);
 
     std::string newOdomReadout = "Values in inches and degrees:\n"
-        "X Position: " + std::to_string(round(odomData[0] * 1000) / 1000) + "\n"
-        "Y Position: " + std::to_string(round(odomData[1] * 1000) / 1000) + "\n"
-        "Heading:    " + std::to_string(round(odomData[2] * 1000) / 1000);
+        "X Position: " + std::to_string(round(odomData[0] * 1000) / 1000).substr(0, 6) + "\n"
+        "Y Position: " + std::to_string(round(odomData[1] * 1000) / 1000).substr(0, 6) + "\n"
+        "Heading:    " + std::to_string(round(odomData[2] * 1000) / 1000).substr(0, 6);
 
     lv_label_set_text(positionData, newOdomReadout.c_str());
 
