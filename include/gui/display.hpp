@@ -36,6 +36,7 @@ private:
      * Styles
      */
 
+    lv_style_t tabviewStyleIndic;
     lv_style_t tabviewStyle;
     lv_style_t tabviewBtnPressedStyle;
 

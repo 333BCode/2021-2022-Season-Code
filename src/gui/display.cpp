@@ -1,5 +1,7 @@
 #include "gui/display.hpp"
 #include "display/lv_core/lv_obj.h"
+#include "display/lv_core/lv_style.h"
+#include "display/lv_objx/lv_tabview.h"
 #include "drivetrain.hpp"
 
 #include <string>
@@ -37,6 +39,10 @@ static void setupStyle(lv_style_t* style, lv_style_t* copy, lv_color_t bodyColor
 
     style->text.color = textColor;
 
+    style->body.padding.inner = 0;
+    style->body.padding.hor = 0;
+    style->body.padding.ver = 0;
+
 }
 
 static void setupStyle(lv_style_t* style, lv_style_t* copy, lv_color_t bodyColor){
@@ -47,6 +53,10 @@ static void setupStyle(lv_style_t* style, lv_style_t* copy, lv_color_t bodyColor
     style->body.grad_color = bodyColor;
     style->body.border.width = 0;
     style->body.radius = 0;
+
+    style->body.padding.inner = 0;
+    style->body.padding.hor = 0;
+    style->body.padding.ver = 0;
 
 }
 
@@ -67,6 +77,8 @@ DisplayControl::DisplayControl()
      * Styles
      */
 
+    lv_style_copy(&tabviewStyleIndic, &lv_style_plain);
+    tabviewStyleIndic.body.padding.inner = 5;
     setupStyle(&tabviewStyle, &lv_style_plain_color, LV_COLOR_NAVY);
     setupStyle(&tabviewBtnPressedStyle, &lv_style_plain_color, LV_COLOR_CYAN);
 
@@ -85,9 +97,10 @@ DisplayControl::DisplayControl()
     positionDataStyle.text.opa = LV_OPA_100;
 
     /**
-     * Set up tabView
+     * Set up tabview
      */
 
+    lv_tabview_set_style(tabview, LV_TABVIEW_STYLE_INDIC, &tabviewStyleIndic);
     lv_tabview_set_style(tabview, LV_TABVIEW_STYLE_BTN_REL, &tabviewStyle);
     lv_tabview_set_style(tabview, LV_TABVIEW_STYLE_BTN_PR, &tabviewBtnPressedStyle);
 
