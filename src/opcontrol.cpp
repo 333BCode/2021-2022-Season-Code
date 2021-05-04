@@ -17,7 +17,7 @@
 
 void opcontrol() {
 
-    using drive::State;
+    using namespace drive;
 	
     pros::Controller control(pros::E_CONTROLLER_MASTER);
 

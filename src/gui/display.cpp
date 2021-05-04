@@ -1,7 +1,4 @@
 #include "gui/display.hpp"
-#include "display/lv_core/lv_obj.h"
-#include "display/lv_core/lv_style.h"
-#include "display/lv_objx/lv_tabview.h"
 #include "drivetrain.hpp"
 
 #include <string>

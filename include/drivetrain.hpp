@@ -6,6 +6,8 @@
 class Drivetrain final {
 public:
 
+    class Point;
+
     enum class State {
         enabled,
         enabledStrafing
@@ -45,6 +47,8 @@ private:
     static long double yPos;
     static long double heading;
 
+    static const long double defaultLookAheadDistance;
+
     static const long double wheelSpacingParallel;
     static const long double wheelSpacingPerpendicular;
     static const long double trackingWheelDiameter;
@@ -59,6 +63,34 @@ extern Drivetrain base;
 
 namespace drive {
     using State = Drivetrain::State;
+    using Point = Drivetrain::Point;
 }
+
+class Drivetrain::Point final {
+public:
+
+    Point(long double x, long double y, long double heading = NAN);
+
+    Point& withAction(std::function<void()>&& action, long double dist);
+    Point& withLookAhead(long double newLookAhead);
+
+private:
+
+    struct Action final {
+
+        Action(std::function<void()>&& newAction, long double dist);
+
+        std::function<void()> action;
+        long double distance;
+
+    };
+
+    long double x;
+    long double y;
+    long double heading;
+    long double lookAheadDistance;
+    std::vector<Action> actions;
+
+};
 
 #endif
