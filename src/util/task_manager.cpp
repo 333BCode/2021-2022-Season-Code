@@ -21,14 +21,16 @@ void mainTasks() {
         uint32_t startTime = pros::millis();
 
         Drivetrain::trackPosition();
-        Drivetrain::positionDataMutex.give();
-
+        
         ++frame;
         if (frame >= 50) { // call updateOdomData every 0.5 seconds
             frame = 0;
-            displayControl.updateOdomData();
+            displayControl.updateOdomData(true);
+        } else if (frame % 10 == 0) { // call every 0.1 seconds
+            displayControl.updateOdomData(false);
         }
 
+        Drivetrain::positionDataMutex.give();
         pros::Task::delay_until(&startTime, 10);
 
     }

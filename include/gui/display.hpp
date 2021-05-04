@@ -2,7 +2,6 @@
 #define DISPLAY_H
 
 #include "display/lvgl.h"
-#include "gui/button_callbacks.hpp"
 
 class DisplayControl final {
 public:
@@ -10,7 +9,7 @@ public:
     DisplayControl();
     ~DisplayControl();
 
-    void updateOdomData();
+    void updateOdomData(bool updateValues);
 
 private:
 
