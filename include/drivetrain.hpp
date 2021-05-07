@@ -24,7 +24,7 @@ public:
     static void supplyVoltage(int linearPow, int rotPow);
     static void supplyVoltage(int linearPow, int strafePow, int rotPow);
 
-    friend void mainTasks();
+    friend void mainTasks(void*);
 
 private:
 

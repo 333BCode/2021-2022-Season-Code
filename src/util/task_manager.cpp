@@ -1,8 +1,14 @@
-#include "util/task_manager.hpp"
 #include "drivetrain.hpp"
 #include "gui/display.hpp"
 
-void mainTasks() {
+/**
+ * Tasks
+ */
+
+void mainTasks(void*);
+pros::Task sideTasks(mainTasks);
+
+void mainTasks(void*) {
 
     static short frame = 0;
 
