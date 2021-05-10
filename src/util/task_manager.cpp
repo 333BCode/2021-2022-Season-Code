@@ -10,7 +10,7 @@ pros::Task sideTasks(mainTasks);
 
 void mainTasks(void*) {
 
-    static short frame = 0;
+    short frame = 0;
 
     Drivetrain::inertial.reset();
     do {
