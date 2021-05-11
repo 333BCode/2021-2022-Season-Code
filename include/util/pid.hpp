@@ -56,7 +56,7 @@ private:
     long double profilePower;
     long double startingVoltage;
     uint32_t startTime      {0};
-    uint32_t timeElapsed    {0};
+    long double elapsedTime {0};
 
     bool usingProfile {false};
 
