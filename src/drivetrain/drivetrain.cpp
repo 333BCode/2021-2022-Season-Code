@@ -1,9 +1,11 @@
 #include "drivetrain.hpp"
 #include "util/conversions.hpp"
 
+namespace drive {
+
 Drivetrain base;
 
-
+} // namespace drive
 
 pros::Mutex Drivetrain::positionDataMutex {};
 

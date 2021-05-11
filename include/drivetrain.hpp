@@ -59,11 +59,13 @@ private:
 
 };
 
-extern Drivetrain base;
-
 namespace drive {
+
+    extern Drivetrain base;
+    
     using State = Drivetrain::State;
     using Point = Drivetrain::Point;
+
 }
 
 class Drivetrain::Point final {
