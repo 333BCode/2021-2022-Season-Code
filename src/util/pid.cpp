@@ -30,12 +30,24 @@ void PID::setNewTarget(long double newTarget) {
 
     if (timeToMaxVoltage > 0) {
 
-        usingProfile    = true;
+        if (previousOutput > startingVoltage) {
 
-        /**
-         * TODO:
-         * Update profile start
-         */
+            long double ceiling = maxVoltage - startingVoltage;
+            if (previousOutput - startingVoltage >= ceiling) {
+                return;
+            }
+            long double denominator = pow(ceiling / 2, profilePower - 1);
+
+            usingProfile = true;
+
+            if (previousOutput < ceiling / 2) {
+                elapsedTime = pow(previousOutput * denominator, 1 / profilePower) * timeToMaxVoltage / ceiling;
+            } else {
+                elapsedTime = ceiling - pow((ceiling - previousOutput) * denominator, 1 / profilePower) * timeToMaxVoltage / ceiling;
+            }
+
+        }
+
     }
 
 }
@@ -46,12 +58,12 @@ void PID::alterTarget(long double newTarget) {
 
 int PID::calcPower(long double currPos) {
 
-    long double dt = pros::millis() - startTime;
-    if (dt / 1000 == 0) {
+    uint32_t currTime = pros::millis();
+    long double dt = (currTime - startTime) / 1000.0L;
+    if (dt == 0) {
         return previousOutput;
     }
-    startTime += dt;
-    dt /= 1000;
+    startTime = currTime;
 
     prevError = error;
     totalError += error * dt;
@@ -62,7 +74,8 @@ int PID::calcPower(long double currPos) {
     }
 
     error = target - currPos;
-    long double pidOutput = kP * error + kD * (error - prevError) / dt + integralTerm;
+    derivative = (error - prevError) / dt;
+    long double pidOutput = kP * error + kD * derivative + integralTerm;
 
     if (fabs(pidOutput) > maxVoltage) {
         pidOutput = maxVoltage * (pidOutput > 0 ? 1 : -1);
@@ -92,34 +105,12 @@ int PID::calcPower(long double currPos) {
 
     }
 
-    previousOutput = pidOutput;
+    pidOutput *= 1000;
+    previousOutput = fabs(pidOutput);
 
-    return static_cast<int>(pidOutput * 1000);
+    return pidOutput;
 
 }
-
-/*
-long double kP;
-long double kD;
-long double kI;
-long double integralCap;
-
-long double target      {0};
-long double error       {0};
-long double prevError   {0};
-long double derivative  {0};
-long double totalError  {0};
-
-long double timeToMaxVoltage;
-long double maxVoltage;
-long double profilePower;
-long double startingVoltage;
-uint32_t startTime      {0};
-
-bool usingProfile {false};
-
-int previousOutput {0};
-*/
 
 PID::AllConstants PID::getAllConstants() {
     return {
