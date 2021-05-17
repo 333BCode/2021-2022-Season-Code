@@ -105,10 +105,9 @@ int PID::calcPower(long double currPos) {
 
     }
 
-    pidOutput *= 1000;
     previousOutput = fabs(pidOutput);
 
-    return pidOutput;
+    return pidOutput * 1000;
 
 }
 

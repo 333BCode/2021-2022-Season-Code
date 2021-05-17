@@ -60,7 +60,7 @@ private:
 
     bool usingProfile {false};
 
-    unsigned int previousOutput {0};
+    long double previousOutput {0};
 
 };
 
