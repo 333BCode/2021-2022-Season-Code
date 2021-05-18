@@ -13,6 +13,10 @@ long double Drivetrain::xPos    = 72;
 long double Drivetrain::yPos    = 72;
 long double Drivetrain::heading = 90;
 
+long double Drivetrain::oldTargetX      = 72;
+long double Drivetrain::oldTargetY      = 72;
+long double Drivetrain::targetHeading   = 90;
+
 void Drivetrain::operator()(const State& newState) {
     state = newState;
 }
@@ -27,6 +31,7 @@ std::array<long double, 3> Drivetrain::getPosition() {
 
 void Drivetrain::setPosition(long double newX, long double newY, long double newHeading) {
     xPos = newX; yPos = newY; heading = newHeading;
+    oldTargetX = newX; oldTargetY = newY; targetHeading = newHeading;
 }
 
 void Drivetrain::supply(int linearPow, int rotPow) {
@@ -77,6 +82,13 @@ void Drivetrain::supplyVoltage(int linearPow, int strafePow, int rotPow) {
 
 }
 
+void Drivetrain::stop(const pros::motor_brake_mode_e_t brakeMode) {
+    frontLeftMotor.move(0); frontLeftMotor.set_brake_mode(brakeMode);
+    backLeftMotor.move(0); backLeftMotor.set_brake_mode(brakeMode);
+    frontRightMotor.move(0); frontRightMotor.set_brake_mode(brakeMode);
+    backRightMotor.move(0); backRightMotor.set_brake_mode(brakeMode);
+}
+
 long double Drivetrain::ticksToInches(int ticks) {
     return trackingWheelDiameter * ticks * conversions::pi / 360;
 }
@@ -86,10 +98,10 @@ void Drivetrain::trackPosition() {
     using conversions::radians;
     using conversions::degrees;
 
-    static int32_t lastLeftValue      = 0;
-    static int32_t lastRightValue     = 0;
-    static int32_t lastMiddleValue    = 0;
-    static double lastInertialAngle        = 0;
+    static int32_t lastLeftValue        = 0;
+    static int32_t lastRightValue       = 0;
+    static int32_t lastMiddleValue      = 0;
+    static double lastInertialAngle     = 0;
 
     /**
      * Main Calculations

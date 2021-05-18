@@ -18,7 +18,7 @@ Point::Point(long double x, long double y, long double heading)
 
 }
 
-Point& Point::withAction(std::function<void()>&& action, long double dist) {
+Point& Point::withAction(std::function<void()>&& action, double dist) {
     actions.emplace_back(std::move(action), dist);
     return *this;
 }
@@ -28,5 +28,5 @@ Point& Point::withLookAhead(long double newLookAhead) {
     return *this;
 }
 
-Point::Action::Action(std::function<void()>&& newAction, long double dist)
+Point::Action::Action(std::function<void()>&& newAction, double dist)
     : action {std::move(newAction)}, distance {dist} {}
