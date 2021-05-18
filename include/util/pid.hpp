@@ -8,7 +8,7 @@ namespace motor_control {
 class PID final {
 public:
 
-    struct AllConstants {
+    struct Constants {
 
         const long double kP;
         const long double kD;
@@ -33,7 +33,7 @@ public:
 
     int calcPower(long double currPos);
 
-    AllConstants getAllConstants();
+    Constants getConstants();
     void setConstants(long double p, long double d, long double i, long double integralCap);
     void setProfile(long double newTimeToMaxVoltage, long double newMaxVoltage,
         long double newProfilePower, long double newStartingVoltage);

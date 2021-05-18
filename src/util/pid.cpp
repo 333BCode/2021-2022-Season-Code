@@ -111,7 +111,7 @@ int PID::calcPower(long double currPos) {
 
 }
 
-PID::AllConstants PID::getAllConstants() {
+PID::Constants PID::getConstants() {
     return {
         kP, kD, kI, integralCap,
         timeToMaxVoltage, maxVoltage, profilePower, startingVoltage
