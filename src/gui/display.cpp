@@ -154,19 +154,19 @@ DisplayControl::~DisplayControl() {
 
 void DisplayControl::updateOdomData(bool updateValues) {
 
-    std::array<long double, 3> odomData = Drivetrain::getPosition();
+    Drivetrain::XYHPoint odomData = Drivetrain::getPosition();
     // divide by 24 (144 / 6) instead of 144 since 6 * tile length = field length
     lv_obj_set_pos(virtualBot,
-        (odomData[0] / 24) * tileLength, (odomData[1] / 24) * tileLength);
+        (odomData.x / 24) * tileLength, (odomData.y / 24) * tileLength);
     lv_obj_set_pos(virtualBotDirectionIndicator,
-        (odomData[0] / 24) * tileLength, (odomData[1] / 24) * tileLength);
+        (odomData.x / 24) * tileLength, (odomData.y / 24) * tileLength);
 
     if (updateValues) {
         
         std::string newOdomReadout = "Values in inches and degrees:\n"
-            "X Position: " + std::to_string(round(odomData[0] * 1000) / 1000).substr(0, 6) + "\n"
-            "Y Position: " + std::to_string(round(odomData[1] * 1000) / 1000).substr(0, 6) + "\n"
-            "Heading:    " + std::to_string(round(odomData[2] * 1000) / 1000).substr(0, 6);
+            "X Position: " + std::to_string(round(odomData.x        * 1000) / 1000).substr(0, 6) + "\n"
+            "Y Position: " + std::to_string(round(odomData.y        * 1000) / 1000).substr(0, 6) + "\n"
+            "Heading:    " + std::to_string(round(odomData.heading  * 1000) / 1000).substr(0, 6);
 
         lv_label_set_text(positionData, newOdomReadout.c_str());
 

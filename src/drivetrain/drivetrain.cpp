@@ -6,6 +6,8 @@ namespace drive {
 
     Drivetrain base;
 
+    Drivetrain::Point (*const forward)(long double) = Drivetrain::forward;
+
 } // namespace drive
 
 bool Drivetrain::calibrated = false;
@@ -36,7 +38,7 @@ Drivetrain::State Drivetrain::getState() {
     return state;
 }
 
-std::array<long double, 3> Drivetrain::getPosition() {
+Drivetrain::XYHPoint Drivetrain::getPosition() {
     return {xPos, yPos, heading};
 }
 

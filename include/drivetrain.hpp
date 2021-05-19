@@ -8,6 +8,8 @@ class Drivetrain final {
 public:
 
     class Point;
+    struct XYPoint;
+    struct XYHPoint;
 
     enum class State {
         enabled,
@@ -31,7 +33,7 @@ public:
     void operator()(const State& newState);
     static State getState();
 
-    static std::array<long double, 3> getPosition();
+    static XYHPoint getPosition();
     static void setPosition(long double newX, long double newY, long double newHeading);
 
     static void supply(int linearPow, int rotPow);
@@ -41,6 +43,9 @@ public:
 
     Drivetrain& operator<<(const Point& p);
     Drivetrain& operator>>(const Point& p);
+
+    static void turnTo(long double heading, ExitConditions exitConditions);
+    static Point forward(long double dist);
 
     static const ExitConditions defaultExitConditions;   
     static void stop(const pros::motor_brake_mode_e_t brakeMode = pros::E_MOTOR_BRAKE_COAST);
@@ -96,9 +101,9 @@ private:
 
     static int sign(long double num);
 
-    static std::array<long double, 2> purePursuitLookAhead(
+    static XYPoint purePursuitLookAhead(
         long double lookAheadDistance,
-        const std::array<long double, 2>& newEndpoint
+        XYPoint newEndpoint
     );
 
     static void trackPosition();
@@ -108,9 +113,14 @@ private:
 namespace drive {
 
     extern Drivetrain base;
+
+    extern Drivetrain::Point (*const forward)(long double);
     
+    using Point     = Drivetrain::Point;
+    using XYPoint   = Drivetrain::XYPoint;
+    using XYHPoint  = Drivetrain::XYHPoint;
+
     using State = Drivetrain::State;
-    using Point = Drivetrain::Point;
 
     using ExitConditions = Drivetrain::ExitConditions;
 
@@ -145,6 +155,17 @@ private:
     ExitConditions exitConditions {defaultExitConditions};
     std::vector<Action> actions;
 
+};
+
+struct Drivetrain::XYPoint {
+    long double x;
+    long double y;
+};
+
+struct Drivetrain::XYHPoint {
+    long double x;
+    long double y;
+    long double heading;
 };
 
 #endif

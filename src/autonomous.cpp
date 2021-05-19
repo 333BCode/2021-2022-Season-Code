@@ -16,8 +16,6 @@ Auton auton = Auton::skills;
 
 void autonomous() {
 
-    using namespace drive;
-
     while (!Drivetrain::isCalibrated()) {
         pros::delay(10);
     }
