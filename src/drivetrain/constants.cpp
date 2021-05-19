@@ -15,6 +15,7 @@ motor_control::PIDController Drivetrain::linearPID {
     0   // startingVoltage  (volts)
 
 };
+
 motor_control::PIDController Drivetrain::rotPID {
     
     1,  // kP
@@ -29,7 +30,20 @@ motor_control::PIDController Drivetrain::rotPID {
 
 };
 
+const Drivetrain::ExitConditions Drivetrain::defaultExitConditions {
+
+    4,  // inches
+    1,  // inches / second
+
+    10, // degrees
+    5,  // degrees per second
+
+    0.5 // seconds
+
+};
+
 const long double Drivetrain::defaultLookAheadDistance      = 5;
+const long double Drivetrain::minDistForTurning             = 6;
 
 const long double Drivetrain::wheelSpacingParallel          = 5.55;
 const long double Drivetrain::wheelSpacingPerpendicular     = 4;

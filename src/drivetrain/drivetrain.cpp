@@ -1,13 +1,17 @@
 #include "drivetrain.hpp"
+#include "pros/rtos.h"
 #include "util/conversions.hpp"
 
 namespace drive {
 
-Drivetrain base;
+    Drivetrain base;
 
 } // namespace drive
 
+bool Drivetrain::calibrated = false;
+
 pros::Mutex Drivetrain::positionDataMutex {};
+pros::Mutex Drivetrain::calibrationMutex {};
 
 long double Drivetrain::xPos    = 72;
 long double Drivetrain::yPos    = 72;
@@ -16,6 +20,13 @@ long double Drivetrain::heading = 90;
 long double Drivetrain::oldTargetX      = 72;
 long double Drivetrain::oldTargetY      = 72;
 long double Drivetrain::targetHeading   = 90;
+
+bool Drivetrain::isCalibrated() {
+    calibrationMutex.take(TIMEOUT_MAX);
+    bool isCalibrated = calibrated;
+    calibrationMutex.give();
+    return isCalibrated;
+}
 
 void Drivetrain::operator()(const State& newState) {
     state = newState;
@@ -87,6 +98,7 @@ void Drivetrain::stop(const pros::motor_brake_mode_e_t brakeMode) {
     backLeftMotor.move(0); backLeftMotor.set_brake_mode(brakeMode);
     frontRightMotor.move(0); frontRightMotor.set_brake_mode(brakeMode);
     backRightMotor.move(0); backRightMotor.set_brake_mode(brakeMode);
+    stopped = true;
 }
 
 long double Drivetrain::ticksToInches(int ticks) {

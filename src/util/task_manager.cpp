@@ -1,5 +1,6 @@
 #include "drivetrain.hpp"
 #include "gui/display.hpp"
+#include "pros/rtos.h"
 
 /**
  * Tasks
@@ -20,6 +21,10 @@ void mainTasks(void*) {
     Drivetrain::leftEncoder.reset();
     Drivetrain::rightEncoder.reset();
     Drivetrain::middleEncoder.reset();
+
+    Drivetrain::calibrationMutex.take(TIMEOUT_MAX);
+    Drivetrain::calibrated = true;
+    Drivetrain::calibrationMutex.give();
 
     while (true) {
 

@@ -3,8 +3,7 @@
 using namespace drive;
 
 Point::Point(long double x, long double y, long double heading)
-    : x {x}, y {y}, heading{heading},
-    lookAheadDistance {Drivetrain::defaultLookAheadDistance}, actions {}
+    : x {x}, y {y}, heading{heading}, actions {}
 {
     
     while (this->heading >= 360) {
@@ -25,6 +24,11 @@ Point& Point::withAction(std::function<void()>&& action, double dist) {
 
 Point& Point::withLookAhead(long double newLookAhead) {
     lookAheadDistance = newLookAhead;
+    return *this;
+}
+
+Point& Point::withExitConditions(const ExitConditions& conditions) {
+    exitConditions = conditions;
     return *this;
 }
 

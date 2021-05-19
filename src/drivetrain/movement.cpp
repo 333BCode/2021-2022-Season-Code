@@ -1,29 +1,124 @@
 #include "drivetrain.hpp"
+#include "util/conversions.hpp"
+#include "pros/rtos.h"
 
 using namespace drive;
+using namespace conversions;
+
+bool Drivetrain::stopped = false;
 
 Drivetrain& Drivetrain::operator<<(const Point& p) {
+
     return *this;
+
 }
 Drivetrain& Drivetrain::operator>>(const Point& p) {
+
+    stopped = false;
+
+    uint16_t count = 0;
+
+    linearPID.setNewTarget(0);
+    if (!isnanf(p.heading)) {
+        targetHeading = p.heading;
+    }
+    rotPID.setNewTarget(targetHeading);
+
+    bool canTurn = true;
+
+    while (!stopped) {
+
+        positionDataMutex.take(TIMEOUT_MAX);
+        uint32_t startTime = pros::millis();
+
+        int linearOutput = linearPID.calcPower(distance(p.x - xPos, p.y - yPos));
+        int rotOutput;
+        long double angleToPoint = atan2(p.y - yPos, p.x - xPos) - radians(heading);
+
+        if (state == State::enabledStrafing) {
+
+            /*
+             * Holonomic movement control
+             */
+
+            rotOutput = rotPID.calcPower(wrapAngle(targetHeading));
+            supplyVoltage(linearOutput * cos(angleToPoint), -linearOutput * sin(angleToPoint), rotOutput);
+
+        } else {
+
+            /*
+             * Linear movement control
+             */
+
+            if (canTurn && distance(p.x - xPos, p.y - yPos) < minDistForTurning) {
+                targetHeading = heading;
+                rotPID.alterTarget(targetHeading);
+                canTurn = false;
+            }
+            
+            if (canTurn) {
+
+                long double targetAngle = degrees(atan2(p.y - yPos, p.x - xPos));
+                if (targetAngle < 0) {targetAngle += 360;}
+                rotPID.alterTarget(targetAngle);
+                rotOutput = rotPID.calcPower(wrapAngle(targetAngle));
+            
+            } else {
+
+                rotOutput = rotPID.calcPower(wrapAngle(targetHeading));
+            
+            }
+
+            supplyVoltage(linearOutput * cos(angleToPoint), rotOutput);
+
+        }
+
+        executeActions(p);
+
+        positionDataMutex.give();
+
+        if (
+            fabs(linearPID.getError()) <= p.exitConditions.maxLinearError
+            && fabs(linearPID.getDerivative()) <= p.exitConditions.maxLinearDerivative
+            && fabs(rotPID.getError()) <= p.exitConditions.maxRotError
+            && fabs(rotPID.getDerivative()) <= p.exitConditions.maxRotDerivative
+        ) {
+            ++count;
+            if (count >= p.exitConditions.minTime * 100) {
+                break;
+            }
+        } else {
+            count = 0;
+        }
+
+        pros::Task::delay_until(&startTime, 10);
+
+    }
+
+    if (!stopped) {
+        stop();
+    }
+    oldTargetX = p.x;
+    oldTargetY = p.y;
+
     return *this;
+
 }
 
 void Drivetrain::executeActions(const Point& p) {
 
-    double error = fabs(1.9L);
+    double error = distance(p.x - xPos, p.y - yPos);
 
     for (size_t i = 0; i < p.actions.size(); ++i) {
 
         double& distance = const_cast<double&>(p.actions[i].distance);
 
-        if (distance != 0 && distance > error) {
+        if (distance != 0 && distance >= error) {
             p.actions[i].action();
             distance = 0;
         }
 
     }
-
 
 }
 
