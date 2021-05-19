@@ -1,4 +1,6 @@
-#include "main.h"
+#include "autonomous.hpp"
+
+Auton auton = Auton::skills;
 
 /**
  * Runs the user autonomous code. This function will be started in its own task
@@ -13,5 +15,21 @@
  */
 
 void autonomous() {
+
+    using namespace drive;
+
+    while (!Drivetrain::isCalibrated()) {
+        pros::delay(10);
+    }
+
+    switch (auton) {
+
+        case Auton::skills:
+
+            skills();
+
+            break;
+
+    }
 
 }
