@@ -121,10 +121,12 @@ void Drivetrain::trackPosition() {
      * Main Calculations
      */
 
-    int32_t leftEncoderValue   = leftEncoder.get_value();
-    int32_t rightEncoderValue  = rightEncoder.get_value();
-    int32_t middleEncoderValue = middleEncoder.get_value();
-    double inertialAngle            = -inertial.get_rotation();
+    int32_t leftEncoderValue    = leftEncoder.get_value();
+    int32_t rightEncoderValue   = rightEncoder.get_value();
+    int32_t middleEncoderValue  = middleEncoder.get_value();
+#ifdef USING_IMU
+    double inertialAngle        = -inertial.get_rotation();
+#endif
 
     long double leftDist    = ticksToInches(leftEncoderValue - lastLeftValue);
     long double rightDist   = ticksToInches(rightEncoderValue - lastRightValue);
@@ -135,10 +137,12 @@ void Drivetrain::trackPosition() {
     lastMiddleValue = middleEncoderValue;
 
     long double angle = (rightDist - leftDist) / (2 * wheelSpacingParallel);
+#ifdef USING_IMU
     if (!isnanf(inertialAngle)) {
         angle = (angle + radians(inertialAngle - lastInertialAngle)) / 2;
         lastInertialAngle = inertialAngle;
     }
+#endif
 
     long double distMain    = angle == 0 ? leftDist : 2 * (leftDist / angle + wheelSpacingParallel) * sin(angle / 2);
     long double distSlide   = angle == 0 ? middleDist : 2 * (middleDist / angle + wheelSpacingPerpendicular) * sin(angle / 2);

@@ -21,7 +21,7 @@ void opcontrol() {
 	
     pros::Controller control(pros::E_CONTROLLER_MASTER);
 
-    const double power = 2;
+    constexpr double power = 2;
     bool usingExponential = false;
 
     while (true) {

@@ -6,11 +6,15 @@ Point::Point(long double x, long double y, long double heading)
     : x {x}, y {y}, heading{heading}, actions {}
 {
     
-    while (this->heading >= 360) {
-        this->heading -= 360;
-    }
-    while (this->heading < 0) {
-        this->heading += 360;
+    if (!isnanf(heading)) {
+
+        while (this->heading >= 360) {
+            this->heading -= 360;
+        }
+        while (this->heading < 0) {
+            this->heading += 360;
+        }
+
     }
 
     actions.reserve(5);

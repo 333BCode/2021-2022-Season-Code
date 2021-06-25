@@ -13,10 +13,12 @@ void mainTasks(void*) {
 
     short frame = 0;
 
+#ifdef USING_IMU
     Drivetrain::inertial.reset();
     do {
         pros::delay(10);
     } while (Drivetrain::inertial.is_calibrating());
+#endif
 
     Drivetrain::leftEncoder.reset();
     Drivetrain::rightEncoder.reset();

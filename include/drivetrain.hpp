@@ -1,6 +1,8 @@
 #ifndef DRIVETRAIN_HPP
 #define DRIVETRAIN_HPP
 
+// #define USING_IMU
+
 #include "util/pid_controller.hpp"
 #include "api.h"
 
@@ -44,7 +46,7 @@ public:
     Drivetrain& operator<<(const Point& p);
     Drivetrain& operator>>(const Point& p);
 
-    static void turnTo(long double heading, ExitConditions exitConditions);
+    static void turnTo(long double heading, const ExitConditions& exitConditions);
     static Point forward(long double dist);
 
     static const ExitConditions defaultExitConditions;   
@@ -61,7 +63,9 @@ private:
 
     static bool calibrated;
 
+#ifdef USING_IMU
     static pros::Imu inertial;
+#endif
 
     static pros::ADIEncoder leftEncoder;
     static pros::ADIEncoder rightEncoder;

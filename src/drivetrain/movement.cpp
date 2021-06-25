@@ -71,6 +71,7 @@ Drivetrain& Drivetrain::operator<<(const Point& p) {
     return *this;
 
 }
+
 Drivetrain& Drivetrain::operator>>(const Point& p) {
 
     if (oldTargetX == p.x && oldTargetY == p.y) {
@@ -169,7 +170,7 @@ Drivetrain& Drivetrain::operator>>(const Point& p) {
 
 }
 
-void Drivetrain::turnTo(long double heading, ExitConditions exitConditions) {
+void Drivetrain::turnTo(long double heading, const ExitConditions& exitConditions) {
 
     targetHeading = heading;
 
