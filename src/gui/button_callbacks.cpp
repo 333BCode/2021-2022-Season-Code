@@ -4,7 +4,7 @@
 lv_res_t setVirtualBotPos(lv_obj_t* tile) {
 
     uint32_t tileID = lv_obj_get_free_num(tile);
-    Drivetrain::setPosition(tileID % 10 * 144.0 / 6.0, (tileID / 10) * 144.0 / 6.0, 90);
+    Drivetrain::setPosition(tileID % 10 * 24.0 + 12.0, 132.0 - (tileID / 10) * 24.0, 90);
 
     return LV_RES_OK;
 

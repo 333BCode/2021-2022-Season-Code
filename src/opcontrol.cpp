@@ -24,6 +24,9 @@ void opcontrol() {
     constexpr double power = 2;
     bool usingExponential = false;
 
+    // sets break modes to coast
+    base.stop();
+
     while (true) {
 
         uint32_t startTime = pros::millis();

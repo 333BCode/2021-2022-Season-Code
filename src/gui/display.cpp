@@ -1,4 +1,9 @@
 #include "gui/display.hpp"
+#include "display/lv_core/lv_obj.h"
+#include "display/lv_core/lv_style.h"
+#include "display/lv_misc/lv_color.h"
+#include "display/lv_objx/lv_btn.h"
+#include "display/lv_objx/lv_label.h"
 #include "gui/button_callbacks.hpp"
 #include "drivetrain.hpp"
 
@@ -59,15 +64,19 @@ static void setupStyle(lv_style_t* style, lv_style_t* copy, lv_color_t bodyColor
 }
 
 DisplayControl::DisplayControl()
-    
-    : tabview {lv_tabview_create(lv_scr_act(), NULL)},
-    odomTab {lv_tabview_add_tab(tabview, "Field")}, autonSelectionTab {lv_tabview_add_tab(tabview, "Auton")},
-    
-    odomPage {lv_obj_create(odomTab, NULL)}, autonSelectionPage {lv_obj_create(autonSelectionTab, NULL)},
-    
-    field {lv_obj_create(odomPage, NULL)},
-    virtualBot {lv_led_create(field, NULL)}, virtualBotDirectionIndicator {lv_line_create(field, NULL)},
-    positionData {lv_label_create(odomPage, NULL)}
+
+    : tabSpace {lv_obj_create(lv_scr_act(), NULL)}, tabSwitcher {lv_obj_create(lv_scr_act(), NULL)},
+
+    odomTab {lv_obj_create(tabSpace, NULL)},
+    positionData {lv_label_create(odomTab, NULL)},
+
+    autonSelectionTab {lv_obj_create(tabSpace, NULL)},
+
+    debugTab {lv_obj_create(tabSpace, NULL)},
+
+    field {lv_obj_create(tabSpace, NULL)},
+    redPlatform {lv_obj_create(field, NULL)},
+    bluePlatform {lv_obj_create(field, NULL)}
 
 {
 
@@ -94,57 +103,133 @@ DisplayControl::DisplayControl()
     positionDataStyle.text.color = LV_COLOR_WHITE;
     positionDataStyle.text.opa = LV_OPA_100;
 
-    /**
-     * Set up tabview
+    lv_style_copy(&pressedTextStyle, &positionDataStyle);
+    pressedTextStyle.text.color = LV_COLOR_BLACK;
+
+    setupStyle(&redPlatformStyle, &lv_style_plain_color, LV_COLOR_RED);
+    setupStyle(&bluePlatformStyle, &lv_style_plain_color, LV_COLOR_BLUE);
+
+    /*
+     * Set up tab system
      */
 
-    lv_tabview_set_style(tabview, LV_TABVIEW_STYLE_INDIC, &tabviewStyleIndic);
-    lv_tabview_set_style(tabview, LV_TABVIEW_STYLE_BTN_REL, &tabviewStyle);
-    lv_tabview_set_style(tabview, LV_TABVIEW_STYLE_BTN_PR, &tabviewBtnPressedStyle);
+    lv_obj_set_size(tabSwitcher, lv_obj_get_width(lv_scr_act()), tabBarHeight);
+    lv_obj_set_style(tabSwitcher, &tabviewStyleIndic);
 
-    lv_obj_set_style(odomTab, &tabviewStyle);
-    lv_obj_set_style(autonSelectionTab, &tabviewStyle);
+    odomSwitch = newButton(tabSwitcher, 0, 0, lv_obj_get_width(tabSwitcher) / 3.1, tabBarHeight - 5, 
+        0, changeTab, true);
+    lv_obj_align(odomSwitch, NULL, LV_ALIGN_IN_LEFT_MID, 4, 0);
+    lv_obj_set_free_ptr(odomSwitch, this);
+    lv_btn_set_style(odomSwitch, LV_BTN_STYLE_TGL_PR, &tabviewBtnPressedStyle);
+    lv_btn_set_style(odomSwitch, LV_BTN_STYLE_TGL_REL, &tabviewStyle);
+    lv_btn_set_state(odomSwitch, LV_BTN_STATE_TGL_PR);
+
+    odomSwitchText = lv_label_create(odomSwitch, NULL);
+    lv_obj_align(odomSwitchText, NULL, LV_ALIGN_CENTER, 0, 0);
+    lv_label_set_text(odomSwitchText, "Odom");
+    lv_obj_set_style(odomSwitchText, &pressedTextStyle);
+
+    autonSelectionSwitch = newButton(tabSwitcher, 0, 0, lv_obj_get_width(tabSwitcher) / 3.1, tabBarHeight - 5, 
+        1, changeTab, true);
+    lv_obj_align(autonSelectionSwitch, NULL, LV_ALIGN_CENTER, 0, 0);
+    lv_obj_set_free_ptr(autonSelectionSwitch, this);
+    lv_btn_set_style(autonSelectionSwitch, LV_BTN_STYLE_TGL_PR, &tabviewBtnPressedStyle);
+    lv_btn_set_style(autonSelectionSwitch, LV_BTN_STYLE_TGL_REL, &tabviewStyle);
+    lv_btn_set_state(autonSelectionSwitch, LV_BTN_STATE_TGL_REL);
+
+    autonSelectionSwitchText = lv_label_create(autonSelectionSwitch, NULL);
+    lv_obj_align(autonSelectionSwitchText, NULL, LV_ALIGN_CENTER, 0, 0);
+    lv_label_set_text(autonSelectionSwitchText, "Auton");
+    lv_obj_set_style(autonSelectionSwitchText, &positionDataStyle);
+
+    debugSwitch = newButton(tabSwitcher, 0, 0, lv_obj_get_width(tabSwitcher) / 3.1, tabBarHeight - 5, 
+        2, changeTab, true);
+    lv_obj_align(debugSwitch, NULL, LV_ALIGN_IN_RIGHT_MID, -4, 0);
+    lv_obj_set_free_ptr(debugSwitch, this);
+    lv_btn_set_style(debugSwitch, LV_BTN_STYLE_TGL_PR, &tabviewBtnPressedStyle);
+    lv_btn_set_style(debugSwitch, LV_BTN_STYLE_TGL_REL, &tabviewStyle);
+    lv_btn_set_state(debugSwitch, LV_BTN_STATE_TGL_REL);
+
+    debugSwitchText = lv_label_create(debugSwitch, NULL);
+    lv_obj_align(debugSwitchText, NULL, LV_ALIGN_CENTER, 0, 0);
+    lv_label_set_text(debugSwitchText, "Debug");
+    lv_obj_set_style(debugSwitchText, &positionDataStyle);
+
+    lv_obj_set_size(tabSpace, lv_obj_get_width(lv_scr_act()), lv_obj_get_height(lv_scr_act()) - tabBarHeight);
+    lv_obj_set_pos(tabSpace, 0, tabBarHeight);
 
     /**
-     * Set up odomTab
+     * Odom Tab
      */
     
-    lv_obj_set_size(odomPage, lv_obj_get_width(odomTab), lv_obj_get_height(odomTab));
-    lv_obj_align(odomPage, NULL, LV_ALIGN_CENTER, 0, 0);
-    lv_obj_set_style(odomPage, &odomPageStyle);
+    lv_obj_set_size(odomTab, lv_obj_get_width(tabSpace), lv_obj_get_height(tabSpace));
+    lv_obj_set_style(odomTab, &odomPageStyle);
 
-    // Field
-    lv_obj_set_size(field, lv_obj_get_height(odomPage) - 5, lv_obj_get_height(odomPage) - 5);
+    // Position Data
+    lv_obj_align(positionData, NULL, LV_ALIGN_IN_TOP_LEFT, 10, 20);
+    lv_label_set_text(positionData, "Odom starting up...");
+    lv_obj_set_style(positionData, &positionDataStyle);
+
+    /*
+     * Auton Selection Tab
+     */
+    
+    lv_obj_set_size(autonSelectionTab, lv_obj_get_width(tabSpace), lv_obj_get_height(tabSpace));
+    lv_obj_set_style(autonSelectionTab, &odomPageStyle);
+    lv_obj_set_hidden(autonSelectionTab, true);
+
+    /*
+     * Debug Tab
+     */
+    
+    lv_obj_set_size(debugTab, lv_obj_get_width(tabSpace), lv_obj_get_height(tabSpace));
+    lv_obj_set_style(debugTab, &odomPageStyle);
+    lv_obj_set_hidden(debugTab, true);
+
+    /*
+     * Field
+     */
+
+    lv_obj_set_size(field, lv_obj_get_height(tabSpace), lv_obj_get_height(tabSpace));
     lv_obj_align(field, NULL, LV_ALIGN_IN_RIGHT_MID, 0, 0);
     lv_obj_set_style(field, &fieldStyle);
 
     // Field Tiles
-    tileLength = lv_obj_get_height(odomPage) / 6.0;
+    tileLength = lv_obj_get_height(tabSpace) / 6.0;
 
     for (int i = 0; i < 6; ++i) {
         for (int j = 0; j < 6; ++j) {
+
+            // platform tiles
+            if ((j == 0 || j == 5) && (i == 2 || i == 3)) {
+                continue;
+            }
+
             lv_obj_t* newTile = newButton(field, tileLength * j, tileLength * i, tileLength, tileLength,
                 10 * i + j, setVirtualBotPos, false);
             lv_btn_set_style(newTile, LV_BTN_STYLE_PR, &fieldStyle);
             lv_btn_set_style(newTile, LV_BTN_STYLE_REL, &fieldStyle);
+        
         }
     }
 
+    lv_obj_set_size(redPlatform, tileLength, 2 * tileLength);
+    lv_obj_set_pos(redPlatform, 0, 2 * tileLength);
+    lv_obj_set_style(redPlatform, &redPlatformStyle);
+
+    lv_obj_set_size(bluePlatform, tileLength, 2 * tileLength);
+    lv_obj_set_pos(bluePlatform, 5 * tileLength, 2 * tileLength);
+    lv_obj_set_style(bluePlatform, &bluePlatformStyle);
+
     // Virtual Bot
+    virtualBot = lv_led_create(field, NULL);
+    virtualBotDirectionIndicator = lv_line_create(field, NULL);
+
     lv_led_on(virtualBot);
     lv_obj_set_size(virtualBot, tileLength / 1.5, tileLength / 1.5);
     lv_obj_set_style(virtualBot, &virtualBotStyle);
 
     lv_obj_set_style(virtualBotDirectionIndicator, &virtualBotDirectionIndicatorStyle);
-
-    // Position Data
-    lv_obj_align(positionData, NULL, LV_ALIGN_IN_TOP_LEFT, 0, 0);
-    lv_label_set_text(positionData, "Odom starting up...");
-    lv_obj_set_style(positionData, &positionDataStyle);
-
-    /**
-     * Set up autonSelectionTab
-     */
 
 }
 
@@ -152,18 +237,85 @@ DisplayControl::~DisplayControl() {
     lv_obj_clean(lv_scr_act());
 }
 
+lv_res_t changeTab(lv_obj_t* tab) {
+
+    uint32_t tabID = lv_obj_get_free_num(tab);
+    DisplayControl* displayControl = static_cast<DisplayControl*>(lv_obj_get_free_ptr(tab));
+
+    switch (tabID) {
+
+        case 0:
+
+            lv_btn_set_state(displayControl->odomSwitch, LV_BTN_STATE_TGL_PR);
+            lv_btn_set_state(displayControl->autonSelectionSwitch, LV_BTN_STATE_TGL_REL);
+            lv_btn_set_state(displayControl->debugSwitch, LV_BTN_STATE_TGL_REL);
+
+            lv_obj_set_hidden(displayControl->odomTab, false);
+            lv_obj_set_hidden(displayControl->autonSelectionTab, true);
+            lv_obj_set_hidden(displayControl->debugTab, true);
+
+            lv_obj_set_style(displayControl->odomSwitchText, &displayControl->pressedTextStyle);
+            lv_obj_set_style(displayControl->autonSelectionSwitchText, &displayControl->positionDataStyle);
+            lv_obj_set_style(displayControl->debugSwitchText, &displayControl->positionDataStyle);
+
+            lv_obj_set_hidden(displayControl->field, false);
+            lv_obj_align(displayControl->field, NULL, LV_ALIGN_IN_RIGHT_MID, 0, 0);
+
+            break;
+        case 1:
+
+            lv_btn_set_state(displayControl->odomSwitch, LV_BTN_STATE_TGL_REL);
+            lv_btn_set_state(displayControl->autonSelectionSwitch, LV_BTN_STATE_TGL_PR);
+            lv_btn_set_state(displayControl->debugSwitch, LV_BTN_STATE_TGL_REL);
+
+            lv_obj_set_hidden(displayControl->odomTab, true);
+            lv_obj_set_hidden(displayControl->autonSelectionTab, false);
+            lv_obj_set_hidden(displayControl->debugTab, true);
+
+            lv_obj_set_style(displayControl->odomSwitchText, &displayControl->positionDataStyle);
+            lv_obj_set_style(displayControl->autonSelectionSwitchText, &displayControl->pressedTextStyle);
+            lv_obj_set_style(displayControl->debugSwitchText, &displayControl->positionDataStyle);
+
+            lv_obj_set_hidden(displayControl->field, false);
+            lv_obj_align(displayControl->field, NULL, LV_ALIGN_CENTER, 0, 0);
+
+            break;
+        case 2:
+
+            lv_btn_set_state(displayControl->odomSwitch, LV_BTN_STATE_TGL_REL);
+            lv_btn_set_state(displayControl->autonSelectionSwitch, LV_BTN_STATE_TGL_REL);
+            lv_btn_set_state(displayControl->debugSwitch, LV_BTN_STATE_TGL_PR);
+
+            lv_obj_set_hidden(displayControl->odomTab, true);
+            lv_obj_set_hidden(displayControl->autonSelectionTab, true);
+            lv_obj_set_hidden(displayControl->debugTab, false);
+
+            lv_obj_set_style(displayControl->odomSwitchText, &displayControl->positionDataStyle);
+            lv_obj_set_style(displayControl->autonSelectionSwitchText, &displayControl->positionDataStyle);
+            lv_obj_set_style(displayControl->debugSwitchText, &displayControl->pressedTextStyle);
+
+            lv_obj_set_hidden(displayControl->field, true);
+
+            break;
+
+    }
+
+    return LV_RES_OK;
+
+}
+
 void DisplayControl::updateOdomData(bool updateValues) {
 
     Drivetrain::XYHPoint odomData = Drivetrain::getPosition();
     // divide by 24 (144 / 6) instead of 144 since 6 * tile length = field length
     lv_obj_set_pos(virtualBot,
-        (odomData.x / 24) * tileLength, (odomData.y / 24) * tileLength);
+        (odomData.x / 24) * tileLength - 12, 186 - (odomData.y / 24) * tileLength);
     lv_obj_set_pos(virtualBotDirectionIndicator,
-        (odomData.x / 24) * tileLength, (odomData.y / 24) * tileLength);
+        (odomData.x / 24) * tileLength - 12, 186 - (odomData.y / 24) * tileLength);
 
     if (updateValues) {
         
-        std::string newOdomReadout = "Values in inches and degrees:\n"
+        std::string newOdomReadout = "Values in inches\nand degrees:\n\n"
             "X Position: " + std::to_string(round(odomData.x        * 1000) / 1000).substr(0, 6) + "\n"
             "Y Position: " + std::to_string(round(odomData.y        * 1000) / 1000).substr(0, 6) + "\n"
             "Heading:    " + std::to_string(round(odomData.heading  * 1000) / 1000).substr(0, 6);
