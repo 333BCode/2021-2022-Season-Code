@@ -3,8 +3,6 @@
 
 #include "display/lvgl.h"
 
-lv_res_t changeTab(lv_obj_t* tab);
-
 class DisplayControl final {
 public:
 
