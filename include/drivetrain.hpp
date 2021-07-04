@@ -1,10 +1,15 @@
 #ifndef DRIVETRAIN_HPP
 #define DRIVETRAIN_HPP
 
-// #define USING_IMU
-
 #include "util/pid_controller.hpp"
 #include "api.h"
+
+// #define USING_IMU
+#define BRAIN_SCREEN_GAME_MODE
+
+#ifdef BRAIN_SCREEN_GAME_MODE
+    extern "C" void opcontrol();
+#endif
 
 class Drivetrain final {
 public:
@@ -53,6 +58,9 @@ public:
     static void stop(const pros::motor_brake_mode_e_t brakeMode = pros::E_MOTOR_BRAKE_COAST);
 
     friend void mainTasks(void*);
+#ifdef BRAIN_SCREEN_GAME_MODE
+    friend void opcontrol();
+#endif
 
 private:
 

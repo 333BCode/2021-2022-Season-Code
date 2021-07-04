@@ -5,7 +5,7 @@
 lv_res_t setVirtualBotPos(lv_obj_t* tile) {
 
     uint32_t tileID = lv_obj_get_free_num(tile);
-    Drivetrain::setPosition(tileID % 10 * 24.0 + 12.0, 132.0 - (tileID / 10) * 24.0, 90);
+    Drivetrain::setPosition(tileID % 10 * 24.0 + 12.0, (tileID / 10) * 24.0 + 12.0, 90);
 
     return LV_RES_OK;
 
@@ -72,6 +72,20 @@ lv_res_t changeTab(lv_obj_t* tab) {
 
             break;
 
+    }
+
+    return LV_RES_OK;
+
+}
+
+lv_res_t setAuton(lv_obj_t* autonSwitch) {
+
+    lv_btn_state_t state = lv_btn_get_state(autonSwitch);
+
+    if(state == LV_BTN_STATE_REL) {
+        lv_btn_set_state(autonSwitch, LV_BTN_STATE_TGL_PR);
+    } else {
+        lv_btn_set_state(autonSwitch, LV_BTN_STATE_REL);
     }
 
     return LV_RES_OK;

@@ -1,5 +1,10 @@
 #include "main.h"
 #include "drivetrain.hpp"
+#include "pros/rtos.h"
+
+#ifdef BRAIN_SCREEN_GAME_MODE
+#include "util/conversions.hpp"
+#endif
 
 /**
  * Runs the operator control code. This function will be started in its own task
@@ -32,14 +37,10 @@ void opcontrol() {
         uint32_t startTime = pros::millis();
 
         int linearPow   = control.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y);
-        int strafePow   = control.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_X);
         int rotPow      = control.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X);
 
         if (abs(linearPow) < 10) {
             linearPow = 0;
-        }
-        if (abs(strafePow) < 10) {
-            strafePow = 0;
         }
         if (abs(rotPow) < 10) {
             rotPow = 0;
@@ -47,22 +48,23 @@ void opcontrol() {
 
         if (usingExponential) {
             linearPow = (linearPow < 0 ? -1 : 1) * powf(abs(linearPow), power) / powf(127, power - 1);
-            linearPow = (strafePow < 0 ? -1 : 1) * powf(abs(strafePow), power) / powf(127, power - 1);
-            linearPow = (rotPow < 0 ? -1 : 1) * powf(abs(rotPow), power) / powf(127, power - 1);
+            rotPow = (rotPow < 0 ? -1 : 1) * powf(abs(rotPow), power) / powf(127, power - 1);
         }
 
-        base.supply(linearPow, strafePow, rotPow);
+#ifdef BRAIN_SCREEN_GAME_MODE
+        base.positionDataMutex.take(TIMEOUT_MAX);
+        base.setPosition(
+            base.xPos + linearPow * cos(conversions::radians(base.heading)) / 317.5,
+            base.yPos + linearPow * sin(conversions::radians(base.heading)) / 317.5,
+            base.heading - rotPow / 70.55
+        );
+        base.positionDataMutex.give();
+#else
+        base.supply(linearPow, rotPow);
+#endif
 
         if (control.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_Y)) {
             usingExponential = !usingExponential;
-        }
-
-        if (control.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A)) {
-            if (base.getState() == State::enabledStrafing) {
-                base(State::enabled);
-            } else {
-                base(State::enabledStrafing);
-            }
         }
 
         pros::Task::delay_until(&startTime, 10);

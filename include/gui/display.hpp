@@ -1,6 +1,7 @@
 #ifndef DISPLAY_H
 #define DISPLAY_H
 
+#include "display/lv_misc/lv_area.h"
 #include "display/lvgl.h"
 
 class DisplayControl final {
@@ -29,9 +30,14 @@ private:
     double tileLength;
     lv_obj_t* virtualBot;
     lv_obj_t* virtualBotDirectionIndicator;
+    lv_point_t directionIndicatorEndpoints[2];
     lv_obj_t* positionData;
 
     lv_obj_t* autonSelectionTab;
+    lv_obj_t* upperRedAutonSwitch;
+    lv_obj_t* lowerRedAutonSwitch;
+    lv_obj_t* upperBlueAutonSwitch;
+    lv_obj_t* lowerBlueAutonSwitch;
 
     lv_obj_t* debugTab;
 
@@ -57,6 +63,9 @@ private:
 
     lv_style_t redPlatformStyle;
     lv_style_t bluePlatformStyle;
+
+    lv_style_t autonBtnPr;
+    lv_style_t autonBtnRel;
 
 };
 

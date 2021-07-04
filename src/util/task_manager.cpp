@@ -33,8 +33,10 @@ void mainTasks(void*) {
         Drivetrain::positionDataMutex.take(TIMEOUT_MAX);
         uint32_t startTime = pros::millis();
 
+#ifndef BRAIN_SCREEN_GAME_MODE
         Drivetrain::trackPosition();
-        
+#endif
+
         ++frame;
         if (frame >= 50) { // call updateOdomData every 0.5 seconds
             frame = 0;
