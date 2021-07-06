@@ -3,9 +3,7 @@
 
 #include "util/pid_controller.hpp"
 #include "api.h"
-
-// #define USING_IMU
-#define BRAIN_SCREEN_GAME_MODE
+#include "macros.h"
 
 #ifdef BRAIN_SCREEN_GAME_MODE
     extern "C" void opcontrol();

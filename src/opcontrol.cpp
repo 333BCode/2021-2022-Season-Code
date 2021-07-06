@@ -1,6 +1,7 @@
 #include "main.h"
 #include "drivetrain.hpp"
 #include "pros/rtos.h"
+#include "macros.h"
 
 #ifdef BRAIN_SCREEN_GAME_MODE
 #include "util/conversions.hpp"

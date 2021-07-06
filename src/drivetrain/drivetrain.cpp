@@ -1,6 +1,7 @@
 #include "drivetrain.hpp"
 #include "pros/rtos.h"
 #include "util/conversions.hpp"
+#include "macros.h"
 
 namespace drive {
 
