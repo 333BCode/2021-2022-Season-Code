@@ -44,8 +44,15 @@ Drivetrain::XYHPoint Drivetrain::getPosition() {
 }
 
 void Drivetrain::setPosition(long double newX, long double newY, long double newHeading) {
-    xPos = newX; yPos = newY; heading = newHeading;
-    oldTargetX = newX; oldTargetY = newY; targetHeading = newHeading;
+    xPos = newX; yPos = newY;
+    if (newHeading >= 360) {
+        heading = newHeading - 360;
+    } else if (newHeading < 0) {
+        heading = newHeading + 360;
+    } else {
+        heading = newHeading;
+    }
+    oldTargetX = newX; oldTargetY = newY; targetHeading = heading;
 }
 
 void Drivetrain::supply(int linearPow, int rotPow) {

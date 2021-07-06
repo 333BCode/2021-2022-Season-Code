@@ -2,6 +2,9 @@
 #define MACROS_H
 
 // #define USING_IMU
+
 #define BRAIN_SCREEN_GAME_MODE
+
+#define DISPLAY_DEBUG_LEVEL 2
 
 #endif

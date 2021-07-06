@@ -1,13 +1,13 @@
 #include "gui/display.hpp"
+#include "display/lv_core/lv_obj.h"
 #include "gui/button_callbacks.hpp"
 #include "util/conversions.hpp"
 #include "drivetrain.hpp"
+#include "macros.h"
 
 #include <string>
 
 constexpr short defaultScreen = 1;
-
-DisplayControl displayControl {};
 
 static lv_obj_t * newButton(lv_obj_t* parent, lv_coord_t xPos, lv_coord_t yPos, lv_coord_t width, lv_coord_t height,
     uint32_t freeNum, lv_res_t (*action)(lv_obj_t*), bool toggle)
@@ -277,6 +277,19 @@ DisplayControl::DisplayControl()
 DisplayControl::~DisplayControl() {
     lv_obj_clean(lv_scr_act());
 }
+
+#if DISPLAY_DEBUG_LEVEL < 2
+void DisplayControl::cleanScreen() {
+#if DISPLAY_DEBUG_LEVEL == 1
+    changeTab(debugSwitch);
+    lv_obj_clean(tabSwitcher);
+    lv_obj_del(odomTab);
+    lv_obj_del(autonSelectionTab);
+#else
+    lv_obj_clean(lv_scr_act());
+#endif
+}
+#endif
 
 void DisplayControl::updateOdomData(bool updateValues) {
 

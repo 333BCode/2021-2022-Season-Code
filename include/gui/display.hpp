@@ -3,12 +3,17 @@
 
 #include "display/lv_misc/lv_area.h"
 #include "display/lvgl.h"
+#include "macros.h"
 
 class DisplayControl final {
 public:
 
     DisplayControl();
     ~DisplayControl();
+
+#if DISPLAY_DEBUG_LEVEL < 2
+    void cleanScreen();
+#endif
 
     void updateOdomData(bool updateValues);
     friend lv_res_t changeTab(lv_obj_t* tab);
@@ -67,8 +72,10 @@ private:
     lv_style_t autonBtnPr;
     lv_style_t autonBtnRel;
 
-};
+#if DISPLAY_DEBUG_LEVEL < 2
+    bool screenCleaned {false};
+#endif
 
-extern DisplayControl displayControl;
+};
 
 #endif

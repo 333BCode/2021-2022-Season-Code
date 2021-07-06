@@ -12,6 +12,12 @@ pros::Task sideTasks(mainTasks);
 
 void mainTasks(void*) {
 
+    DisplayControl displayControl {};
+
+#if DISPLAY_DEBUG_LEVEL < 2
+    bool displayActive = true;
+#endif
+
     short frame = 0;
 
 #ifdef USING_IMU
@@ -38,13 +44,24 @@ void mainTasks(void*) {
         Drivetrain::trackPosition();
 #endif
 
-        ++frame;
-        if (frame >= 50) { // call updateOdomData every 0.5 seconds
-            frame = 0;
-            displayControl.updateOdomData(true);
-        } else if (frame % 10 == 0) { // call every 0.1 seconds
-            displayControl.updateOdomData(false);
+#if DISPLAY_DEBUG_LEVEL < 2
+        if (displayActive) {
+            if (pros::competition::is_disabled()) {
+#endif
+                ++frame;
+                if (frame >= 50) { // call updateOdomData every 0.5 seconds
+                    frame = 0;
+                    displayControl.updateOdomData(true);
+                } else if (frame % 10 == 0) { // call every 0.1 seconds
+                    displayControl.updateOdomData(false);
+                }
+#if DISPLAY_DEBUG_LEVEL < 2
+            } else {
+                displayActive = false;
+                displayControl.cleanScreen();
+            }
         }
+#endif
 
         Drivetrain::positionDataMutex.give();
         pros::Task::delay_until(&startTime, 10);
