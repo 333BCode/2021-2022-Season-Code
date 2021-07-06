@@ -1,5 +1,7 @@
 #include "autonomous.hpp"
+#include "pros/rtos.h"
 
+pros::Mutex autonSelectionMutex {};
 Auton auton = Auton::skills;
 
 /**
@@ -16,15 +18,29 @@ Auton auton = Auton::skills;
 
 void autonomous() {
 
+    autonSelectionMutex.take(TIMEOUT_MAX);
+    Auton selectedAuton = auton;
+    autonSelectionMutex.give();
+
     while (!Drivetrain::isCalibrated()) {
         pros::delay(10);
     }
 
-    switch (auton) {
+    switch (selectedAuton) {
 
         case Auton::skills:
 
             skills();
+
+            break;
+        case Auton::platformUpSide:
+
+            platformUpSide();
+
+            break;
+        case Auton::platformDownSide:
+
+            platformDownSide();
 
             break;
 

@@ -53,13 +53,11 @@ void opcontrol() {
         }
 
 #ifdef BRAIN_SCREEN_GAME_MODE
-        base.positionDataMutex.take(TIMEOUT_MAX);
         base.setPosition(
             base.xPos + linearPow * cos(conversions::radians(base.heading)) / 317.5,
             base.yPos + linearPow * sin(conversions::radians(base.heading)) / 317.5,
             base.heading - rotPow / 70.55
         );
-        base.positionDataMutex.give();
 #else
         base.supply(linearPow, rotPow);
 #endif

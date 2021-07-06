@@ -1,6 +1,9 @@
 #include "gui/button_callbacks.hpp"
+#include "autonomous.hpp"
+#include "display/lv_core/lv_obj.h"
 #include "gui/display.hpp"
 #include "drivetrain.hpp"
+#include "pros/rtos.h"
 
 lv_res_t setVirtualBotPos(lv_obj_t* tile) {
 
@@ -81,11 +84,44 @@ lv_res_t changeTab(lv_obj_t* tab) {
 lv_res_t setAuton(lv_obj_t* autonSwitch) {
 
     lv_btn_state_t state = lv_btn_get_state(autonSwitch);
+    DisplayControl* displayControl = static_cast<DisplayControl*>(lv_obj_get_free_ptr(autonSwitch));
 
     if(state == LV_BTN_STATE_REL) {
+
         lv_btn_set_state(autonSwitch, LV_BTN_STATE_TGL_PR);
+
+        if (displayControl->upperRedAutonSwitch != autonSwitch) {
+            lv_btn_set_state(displayControl->upperRedAutonSwitch, LV_BTN_STATE_REL);
+        }
+        if (displayControl->lowerRedAutonSwitch != autonSwitch) {
+            lv_btn_set_state(displayControl->lowerRedAutonSwitch, LV_BTN_STATE_REL);
+        }
+        if (displayControl->upperBlueAutonSwitch != autonSwitch) {
+            lv_btn_set_state(displayControl->upperBlueAutonSwitch, LV_BTN_STATE_REL);
+        }
+        if (displayControl->lowerBlueAutonSwitch != autonSwitch) {
+            lv_btn_set_state(displayControl->lowerBlueAutonSwitch, LV_BTN_STATE_REL);
+        }
+
+        autonSelectionMutex.take(TIMEOUT_MAX);
+
+        uint32_t autonNum = lv_obj_get_free_num(autonSwitch);
+        if (autonNum == 0) {
+            auton = Auton::platformUpSide;
+        } else {
+            auton = Auton::platformDownSide;
+        }
+
+        autonSelectionMutex.give();
+
     } else {
+
         lv_btn_set_state(autonSwitch, LV_BTN_STATE_REL);
+
+        autonSelectionMutex.take(TIMEOUT_MAX);
+        auton = Auton::skills;
+        autonSelectionMutex.give();
+
     }
 
     return LV_RES_OK;

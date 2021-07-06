@@ -44,6 +44,7 @@ Drivetrain::XYHPoint Drivetrain::getPosition() {
 }
 
 void Drivetrain::setPosition(long double newX, long double newY, long double newHeading) {
+    positionDataMutex.take(TIMEOUT_MAX);
     xPos = newX; yPos = newY;
     if (newHeading >= 360) {
         heading = newHeading - 360;
@@ -53,6 +54,7 @@ void Drivetrain::setPosition(long double newX, long double newY, long double new
         heading = newHeading;
     }
     oldTargetX = newX; oldTargetY = newY; targetHeading = heading;
+    positionDataMutex.give();
 }
 
 void Drivetrain::supply(int linearPow, int rotPow) {
