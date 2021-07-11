@@ -2,7 +2,7 @@
 #include "pros/rtos.h"
 
 pros::Mutex autonSelectionMutex {};
-Auton auton = Auton::skills;
+auton_t auton = skills;
 
 /**
  * Runs the user autonomous code. This function will be started in its own task
@@ -19,31 +19,13 @@ Auton auton = Auton::skills;
 void autonomous() {
 
     autonSelectionMutex.take(TIMEOUT_MAX);
-    Auton selectedAuton = auton;
+    auton_t selectedAuton = auton;
     autonSelectionMutex.give();
 
     while (!Drivetrain::isCalibrated()) {
         pros::delay(10);
     }
 
-    switch (selectedAuton) {
-
-        case Auton::skills:
-
-            skills();
-
-            break;
-        case Auton::platformUpSide:
-
-            platformUpSide();
-
-            break;
-        case Auton::platformDownSide:
-
-            platformDownSide();
-
-            break;
-
-    }
+    selectedAuton();
 
 }

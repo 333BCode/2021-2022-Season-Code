@@ -8,13 +8,9 @@
 
 extern pros::Mutex autonSelectionMutex;
 
-enum class Auton {
-    skills,
-    platformUpSide,
-    platformDownSide
-};
+using auton_t = void(*)();
 
-extern Auton auton;
+extern auton_t auton;
 
 void skills();
 void platformUpSide();

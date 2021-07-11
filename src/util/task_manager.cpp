@@ -44,7 +44,7 @@ void mainTasks(void*) {
         Drivetrain::trackPosition();
 #endif
 
-#if DISPLAY_DEBUG_LEVEL < 2
+#ifndef DISPLAY_DEBUG
         if (displayActive) {
             if (pros::competition::is_disabled()) {
 #endif
@@ -55,7 +55,7 @@ void mainTasks(void*) {
                 } else if (frame % 10 == 0) { // call every 0.1 seconds
                     displayControl.updateOdomData(false);
                 }
-#if DISPLAY_DEBUG_LEVEL < 2
+#ifndef DISPLAY_DEBUG
             } else {
                 displayActive = false;
                 displayControl.cleanScreen();

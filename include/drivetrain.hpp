@@ -6,7 +6,7 @@
 #include "macros.h"
 
 #ifdef BRAIN_SCREEN_GAME_MODE
-    extern "C" void opcontrol();
+extern "C" void opcontrol();
 #endif
 
 class Drivetrain final {
@@ -15,6 +15,8 @@ public:
     class Point;
     struct XYPoint;
     struct XYHPoint;
+
+    class Path;
 
     enum class State {
         enabled,
@@ -130,6 +132,8 @@ namespace drive {
     using XYPoint   = Drivetrain::XYPoint;
     using XYHPoint  = Drivetrain::XYHPoint;
 
+    using Path = Drivetrain::Path;
+
     using State = Drivetrain::State;
 
     using ExitConditions = Drivetrain::ExitConditions;
@@ -176,6 +180,34 @@ struct Drivetrain::XYHPoint {
     long double x;
     long double y;
     long double heading;
+};
+
+class Drivetrain::Path final {
+public:
+
+    struct Velocities {
+        long double leftVelocity;
+        long double rightVelocity;
+    };
+
+    Path(Velocities* path, size_t length);
+    Path(const Path& path);
+    void operator=(const Path&) = delete;
+
+    static Path generatePathTo(XYHPoint point);
+    static Path generatePathFromOrigin(XYHPoint point);
+
+    Velocities& operator[](size_t index);
+
+    size_t size();
+
+private:
+
+    Velocities* data;
+
+    size_t length;
+    size_t capacity;
+
 };
 
 #endif

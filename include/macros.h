@@ -5,6 +5,6 @@
 
 #define BRAIN_SCREEN_GAME_MODE
 
-#define DISPLAY_DEBUG_LEVEL 2
+#define DISPLAY_DEBUG
 
 #endif

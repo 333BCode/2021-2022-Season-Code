@@ -1,5 +1,4 @@
 #include "gui/display.hpp"
-#include "display/lv_core/lv_obj.h"
 #include "gui/button_callbacks.hpp"
 #include "pros/rtos.h"
 #include "util/conversions.hpp"
@@ -283,24 +282,14 @@ DisplayControl::~DisplayControl() {
     lv_obj_clean(lv_scr_act());
 }
 
-#if DISPLAY_DEBUG_LEVEL < 2
+#ifndef DISPLAY_DEBUG
 void DisplayControl::cleanScreen() {
 
-#if DISPLAY_DEBUG_LEVEL == 1
-    changeTab(debugSwitch);
-    lv_obj_clean(tabSwitcher);
-    lv_obj_del(odomTab);
-    lv_obj_del(autonSelectionTab);
-    lv_obj_del(field);
-#elif DISPLAY_DEBUG_LEVEL == 0
-    lv_obj_clean(lv_scr_act());
-#else
     changeTab(autonSelectionSwitch);
     lv_obj_clean(tabSwitcher);
     lv_obj_del(odomTab);
     lv_obj_del(debugTab);
     lv_obj_del(field);
-#endif
 
 }
 #endif

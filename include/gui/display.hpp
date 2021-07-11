@@ -14,7 +14,7 @@ public:
     ~DisplayControl();
     void operator=(const DisplayControl&) = delete;
 
-#if DISPLAY_DEBUG_LEVEL < 2
+#ifndef DISPLAY_DEBUG
     void cleanScreen();
 #endif
 
