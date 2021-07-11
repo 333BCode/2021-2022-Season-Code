@@ -16,12 +16,7 @@ public:
     struct XYPoint;
     struct XYHPoint;
 
-    class Path;
-
-    enum class State {
-        enabled,
-        enabledStrafing
-    };
+    // class Path;
 
     struct ExitConditions {
 
@@ -37,16 +32,11 @@ public:
 
     static bool isCalibrated();
 
-    void operator()(const State& newState);
-    static State getState();
-
     static XYHPoint getPosition();
     static void setPosition(long double newX, long double newY, long double newHeading);
 
     static void supply(int linearPow, int rotPow);
-    static void supply(int linearPow, int strafePow, int rotPow);
     static void supplyVoltage(int linearPow, int rotPow);
-    static void supplyVoltage(int linearPow, int strafePow, int rotPow);
 
     Drivetrain& operator<<(const Point& p);
     Drivetrain& operator>>(const Point& p);
@@ -78,8 +68,6 @@ private:
     static pros::ADIEncoder leftEncoder;
     static pros::ADIEncoder rightEncoder;
     static pros::ADIEncoder middleEncoder;
-
-    static State state;
 
     static pros::Mutex positionDataMutex;
     static pros::Mutex calibrationMutex;
@@ -132,9 +120,7 @@ namespace drive {
     using XYPoint   = Drivetrain::XYPoint;
     using XYHPoint  = Drivetrain::XYHPoint;
 
-    using Path = Drivetrain::Path;
-
-    using State = Drivetrain::State;
+    // using Path = Drivetrain::Path;
 
     using ExitConditions = Drivetrain::ExitConditions;
 
@@ -182,7 +168,7 @@ struct Drivetrain::XYHPoint {
     long double heading;
 };
 
-class Drivetrain::Path final {
+/*class Drivetrain::Path final {
 public:
 
     struct Velocities {
@@ -208,6 +194,6 @@ private:
     size_t length;
     size_t capacity;
 
-};
+};*/
 
 #endif

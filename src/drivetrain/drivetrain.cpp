@@ -31,14 +31,6 @@ bool Drivetrain::isCalibrated() {
     return isCalibrated;
 }
 
-void Drivetrain::operator()(const State& newState) {
-    state = newState;
-}
-
-Drivetrain::State Drivetrain::getState() {
-    return state;
-}
-
 Drivetrain::XYHPoint Drivetrain::getPosition() {
     return {xPos, yPos, heading};
 }
@@ -64,45 +56,11 @@ void Drivetrain::supply(int linearPow, int rotPow) {
     backRightMotor.move(linearPow - rotPow);
 }
 
-void Drivetrain::supply(int linearPow, int strafePow, int rotPow) {
-
-    if (state == State::enabledStrafing) {
-
-        frontLeftMotor.move(linearPow + strafePow + rotPow);
-        backLeftMotor.move(linearPow - strafePow + rotPow);
-        frontRightMotor.move(linearPow - strafePow - rotPow);
-        backRightMotor.move(linearPow + strafePow - rotPow);
-
-    } else {
-
-        supply(linearPow, rotPow);
-
-    }
-
-}
-
 void Drivetrain::supplyVoltage(int linearPow, int rotPow) {
     frontLeftMotor.move_voltage(linearPow + rotPow);
     backLeftMotor.move_voltage(linearPow + rotPow);
     frontRightMotor.move_voltage(linearPow - rotPow);
     backRightMotor.move_voltage(linearPow - rotPow);
-}
-
-void Drivetrain::supplyVoltage(int linearPow, int strafePow, int rotPow) {
-
-    if (state == State::enabledStrafing) {
-
-        frontLeftMotor.move_voltage(linearPow + strafePow + rotPow);
-        backLeftMotor.move_voltage(linearPow - strafePow + rotPow);
-        frontRightMotor.move_voltage(linearPow - strafePow - rotPow);
-        backRightMotor.move_voltage(linearPow + strafePow - rotPow);
-
-    } else {
-
-        supplyVoltage(linearPow, rotPow);
-
-    }
-
 }
 
 void Drivetrain::stop(const pros::motor_brake_mode_e_t brakeMode) {

@@ -12,10 +12,7 @@ Drivetrain& Drivetrain::operator<<(const Point& p) {
     stopped = false;
 
     linearPID.setNewTarget(0);
-    if (!isnanf(p.heading) && state == State::enabledStrafing) {
-        targetHeading = p.heading;
-    }
-    rotPID.setNewTarget(targetHeading);
+    rotPID.setNewTarget(0);
 
     while (!stopped) {
 
@@ -28,29 +25,12 @@ Drivetrain& Drivetrain::operator<<(const Point& p) {
         int rotOutput;
         long double angleToPoint = atan2(target.y - yPos, target.x - xPos) - radians(heading);
 
-        if (state == State::enabledStrafing) {
+        long double targetAngle = degrees(atan2(target.y - yPos, target.x - xPos));
+        if (targetAngle < 0) {targetAngle += 360;}
+        rotPID.alterTarget(targetAngle);
+        rotOutput = rotPID.calcPower(wrapAngle(targetAngle));
 
-            /*
-             * Holonomic movement control
-             */
-
-            rotOutput = rotPID.calcPower(wrapAngle(targetHeading));
-            supplyVoltage(linearOutput * cos(angleToPoint), -linearOutput * sin(angleToPoint), rotOutput);
-
-        } else {
-
-            /*
-             * Linear movement control
-             */
-
-            long double targetAngle = degrees(atan2(target.y - yPos, target.x - xPos));
-            if (targetAngle < 0) {targetAngle += 360;}
-            rotPID.alterTarget(targetAngle);
-            rotOutput = rotPID.calcPower(wrapAngle(targetAngle));
-
-            supplyVoltage(linearOutput * cos(angleToPoint), rotOutput);
-
-        }
+        supplyVoltage(linearOutput * cos(angleToPoint), rotOutput);
 
         executeActions(p);
 
@@ -74,21 +54,21 @@ Drivetrain& Drivetrain::operator<<(const Point& p) {
 
 Drivetrain& Drivetrain::operator>>(const Point& p) {
 
-    if (oldTargetX == p.x && oldTargetY == p.y) {
+    positionDataMutex.take(TIMEOUT_MAX);
+    if (distance(p.x - xPos, p.y - yPos) <= p.exitConditions.maxLinearError
+    ) {
         if (!isnanf(p.heading)) {
             turnTo(p.heading, p.exitConditions);
         }
         return *this;
     }
+    positionDataMutex.give();
 
     stopped = false;
 
     uint16_t count = 0;
 
     linearPID.setNewTarget(0);
-    if (!isnanf(p.heading) && state == State::enabledStrafing) {
-        targetHeading = p.heading;
-    }
     rotPID.setNewTarget(targetHeading);
 
     bool canTurn = true;
@@ -102,43 +82,26 @@ Drivetrain& Drivetrain::operator>>(const Point& p) {
         int rotOutput;
         long double angleToPoint = atan2(p.y - yPos, p.x - xPos) - radians(heading);
 
-        if (state == State::enabledStrafing) {
+        if (canTurn && distance(p.x - xPos, p.y - yPos) < minDistForTurning) {
+            targetHeading = heading;
+            rotPID.alterTarget(targetHeading);
+            canTurn = false;
+        }
+        
+        if (canTurn) {
 
-            /*
-             * Holonomic movement control
-             */
-
-            rotOutput = rotPID.calcPower(wrapAngle(targetHeading));
-            supplyVoltage(linearOutput * cos(angleToPoint), -linearOutput * sin(angleToPoint), rotOutput);
-
+            long double targetAngle = degrees(atan2(p.y - yPos, p.x - xPos));
+            if (targetAngle < 0) {targetAngle += 360;}
+            rotPID.alterTarget(targetAngle);
+            rotOutput = rotPID.calcPower(wrapAngle(targetAngle));
+        
         } else {
 
-            /*
-             * Linear movement control
-             */
-
-            if (canTurn && distance(p.x - xPos, p.y - yPos) < minDistForTurning) {
-                targetHeading = heading;
-                rotPID.alterTarget(targetHeading);
-                canTurn = false;
-            }
-            
-            if (canTurn) {
-
-                long double targetAngle = degrees(atan2(p.y - yPos, p.x - xPos));
-                if (targetAngle < 0) {targetAngle += 360;}
-                rotPID.alterTarget(targetAngle);
-                rotOutput = rotPID.calcPower(wrapAngle(targetAngle));
-            
-            } else {
-
-                rotOutput = rotPID.calcPower(wrapAngle(targetHeading));
-            
-            }
-
-            supplyVoltage(linearOutput * cos(angleToPoint), rotOutput);
-
+            rotOutput = rotPID.calcPower(wrapAngle(targetHeading));
+        
         }
+
+        supplyVoltage(linearOutput * cos(angleToPoint), rotOutput);
 
         executeActions(p);
 
@@ -161,6 +124,10 @@ Drivetrain& Drivetrain::operator>>(const Point& p) {
 
         pros::Task::delay_until(&startTime, 10);
 
+    }
+
+    if (!isnanf(p.heading)) {
+        turnTo(p.heading, p.exitConditions);
     }
 
     oldTargetX = p.x;

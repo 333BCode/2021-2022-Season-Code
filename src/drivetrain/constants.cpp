@@ -1,7 +1,5 @@
 #include "drivetrain.hpp"
 
-Drivetrain::State Drivetrain::state {Drivetrain::State::enabledStrafing};
-
 motor_control::PIDController Drivetrain::linearPID {
     
     1,  // kP
