@@ -16,7 +16,7 @@ public:
     struct XYPoint;
     struct XYHPoint;
 
-    // class Path;
+    class Path;
 
     struct ExitConditions {
 
@@ -120,7 +120,7 @@ namespace drive {
     using XYPoint   = Drivetrain::XYPoint;
     using XYHPoint  = Drivetrain::XYHPoint;
 
-    // using Path = Drivetrain::Path;
+    using Path = Drivetrain::Path;
 
     using ExitConditions = Drivetrain::ExitConditions;
 
@@ -168,7 +168,7 @@ struct Drivetrain::XYHPoint {
     long double heading;
 };
 
-/*class Drivetrain::Path final {
+class Drivetrain::Path final {
 public:
 
     struct Velocities {
@@ -176,14 +176,21 @@ public:
         long double rightVelocity;
     };
 
-    Path(Velocities* path, size_t length);
+    Path();
     Path(const Path& path);
+    Path(Path&& path);
+    Path(Velocities* path, size_t length);
+    Path(Velocities* path, size_t size, size_t capacity);
+
+    ~Path();
+
     void operator=(const Path&) = delete;
 
     static Path generatePathTo(XYHPoint point);
     static Path generatePathFromOrigin(XYHPoint point);
 
-    Velocities& operator[](size_t index);
+    void add(long double leftVelocity, long double rightVelocity);
+    Velocities operator[](size_t index);
 
     size_t size();
 
@@ -194,6 +201,6 @@ private:
     size_t length;
     size_t capacity;
 
-};*/
+};
 
 #endif
