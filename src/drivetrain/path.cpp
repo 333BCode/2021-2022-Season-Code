@@ -45,14 +45,6 @@ Path::~Path() {
     }
 }
 
-Path Path::generatePathTo(XYHPoint point) {
-    return {};
-}
-
-Path Path::generatePathFromOrigin(XYHPoint point) {
-    return {};
-}
-
 void Path::add(long double leftVelocity, long double rightVelocity) {
 
     if (length == capacity) {
@@ -80,4 +72,16 @@ Path::Velocities Path::operator[](size_t index) {
 
 size_t Path::size() {
     return length;
+}
+
+Path Path::generatePathTo(XYHPoint point) {
+    return generatePath({xPos, yPos, heading}, point);
+}
+
+Path Path::generatePathFromOrigin(long double startingHeading, XYHPoint point) {
+    return generatePath({0, 0, startingHeading}, point);
+}
+
+Path Path::generatePath(XYHPoint start, XYHPoint end) {
+    return {};
 }
