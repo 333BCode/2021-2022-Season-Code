@@ -1,9 +1,11 @@
 #include "drivetrain.hpp"
 #include "util/conversions.hpp"
+#include "util/equations.hpp"
 #include "pros/rtos.h"
 
 using namespace drive;
 using namespace conversions;
+using namespace equations;
 
 bool Drivetrain::stopped = false;
 
@@ -195,10 +197,6 @@ void Drivetrain::executeActions(const Point& p) {
 
     }
 
-}
-
-double Drivetrain::distance(double dx, double dy) {
-    return sqrt(dx * dx + dy * dy);
 }
 
 long double Drivetrain::wrapAngle(long double targetAngle) {

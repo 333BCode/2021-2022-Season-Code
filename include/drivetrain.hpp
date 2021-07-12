@@ -96,7 +96,6 @@ private:
 
     static void executeActions(const Point& p);
 
-    static double distance(double dx, double dy);
     static long double wrapAngle(long double targetAngle);
 
     static int sign(long double num);
@@ -187,9 +186,9 @@ public:
     void operator=(const Path&) = delete;
 
     static Path generatePathTo(XYHPoint point);
-    static Path generatePathFromOrigin(XYHPoint point);
+    static Path generatePathFromOrigin(long double startingHeading, XYHPoint point);
+    static Path generatePath(XYHPoint start, XYHPoint end);
 
-    void add(long double leftVelocity, long double rightVelocity);
     Velocities operator[](size_t index);
 
     size_t size();
@@ -200,6 +199,8 @@ private:
 
     size_t length;
     size_t capacity;
+
+    void add(long double leftVelocity, long double rightVelocity);
 
 };
 
