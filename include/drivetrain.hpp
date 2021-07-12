@@ -92,6 +92,11 @@ private:
     static const long double wheelSpacingPerpendicular;
     static const long double trackingWheelDiameter;
 
+    static long double maxVelocity;
+    static long double maxAcceleration;
+    static long double drivetrainWidth;
+    static long double profileDT;
+
     static long double ticksToInches(int ticks);
 
     static void executeActions(const Point& p);

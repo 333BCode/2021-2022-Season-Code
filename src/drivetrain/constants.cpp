@@ -46,3 +46,8 @@ const long double Drivetrain::minDistForTurning             = 6;
 const long double Drivetrain::wheelSpacingParallel          = 5.55;
 const long double Drivetrain::wheelSpacingPerpendicular     = 4;
 const long double Drivetrain::trackingWheelDiameter         = 2.75;
+
+long double Drivetrain::maxVelocity       = 5;
+long double Drivetrain::maxAcceleration   = 5;
+long double Drivetrain::drivetrainWidth   = 16;
+long double Drivetrain::profileDT         = 0.01;
