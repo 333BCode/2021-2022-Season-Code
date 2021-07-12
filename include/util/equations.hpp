@@ -48,7 +48,7 @@ private:
 
 };
 
-class DistanceToTime {
+class DistanceToTime final {
 public:
 
     DistanceToTime(const PolynomialEquation& xd, const PolynomialEquation& yd, long double step);
