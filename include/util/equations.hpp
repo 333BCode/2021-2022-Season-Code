@@ -42,9 +42,9 @@ public:
 private:
 
     const PolynomialEquation& xd;
-    const PolynomialEquation& xdd;
+    const PolynomialEquation xdd;
     const PolynomialEquation& yd;
-    const PolynomialEquation& ydd;
+    const PolynomialEquation ydd;
 
 };
 

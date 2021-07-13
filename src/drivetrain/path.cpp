@@ -99,11 +99,9 @@ Path Path::generatePath(XYHPoint start, XYHPoint end) {
     long double vy2 = totalDist * sin(radians(end.heading));
 
     PolynomialEquation eqx {PATH_POLYNOMIAL_ARGS(start.x, end.y)};
-
     PolynomialEquation eqxd = eqx.derivative();
 
     PolynomialEquation eqy {PATH_POLYNOMIAL_ARGS(start.y, end.y)};
-
     PolynomialEquation eqyd = eqy.derivative();
 
     CurvatureEquation c = {
