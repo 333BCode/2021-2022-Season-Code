@@ -18,7 +18,6 @@ public:
         float distanceAlongPath;
     };
 
-    Path(float totalDist);
     Path(const Path& path);
     Path(Path&& path);
     Path(Velocities* path, size_t length, float totalDist);
@@ -43,6 +42,8 @@ public:
     friend class Drivetrain;
 
 private:
+
+    Path(float totalDist);
 
     Velocities* data;
 
