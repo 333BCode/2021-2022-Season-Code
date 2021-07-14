@@ -18,17 +18,16 @@ public:
         float distanceAlongPath;
     };
 
-    Path();
+    Path(float totalDist);
     Path(const Path& path);
     Path(Path&& path);
-    Path(Velocities* path, size_t length);
-    Path(Velocities* path, size_t size, size_t capacity);
+    Path(Velocities* path, size_t length, float totalDist);
 
     ~Path();
 
     void operator=(const Path&) = delete;
 
-    Path& withAction(std::function<void()>&& action, double dist, bool duringTurn = false);
+    Path& withAction(std::function<void()>&& action, double dist);
 
     static Path generatePathTo(XYHPoint point);
     static Path generatePathFromOrigin(long double startingHeading, XYHPoint point);
@@ -49,6 +48,8 @@ private:
 
     size_t length;
     size_t capacity;
+
+    const float totalDist;
 
     std::vector<Action> actions;
 

@@ -116,7 +116,7 @@ private:
 
     static long double ticksToInches(int ticks);
 
-    static void executeActions(const std::vector<Action>& actions, bool inTurn = false);
+    static void executeActions(const std::vector<Action>& actions, double currError, bool inTurn = false);
 
     static long double wrapAngle(long double targetAngle);
 

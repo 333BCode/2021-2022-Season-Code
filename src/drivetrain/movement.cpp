@@ -25,7 +25,7 @@ Drivetrain& Drivetrain::operator<<(const Path& path) {
         supplyVoltagePerSide(velocitySet.leftVelocity * kV, velocitySet.rightVelocity * kV);
 
         if (path.actions.size() > 0) {
-            executeActions(path.actions);
+            executeActions(path.actions, path.totalDist - velocitySet.distanceAlongPath);
             if (stopped) {
                 break;
             }
@@ -76,7 +76,7 @@ Drivetrain& Drivetrain::operator<<(const Point& p) {
         supplyVoltage(linearOutput * cos(angleToPoint), rotOutput);
 
         if (p.actions.size() > 0) {
-            executeActions(p.actions);
+            executeActions(p.actions, fabs(linearPID.getError()));
         }
 
         pros::Task::delay_until(&startTime, 10);
@@ -159,7 +159,7 @@ Drivetrain& Drivetrain::operator>>(const Point& p) {
         supplyVoltage(linearOutput * cos(angleToPoint), rotOutput);
 
         if (p.actions.size() > 0) {
-            executeActions(p.actions);
+            executeActions(p.actions, fabs(rotPID.getError()));
         }
 
         pros::Task::delay_until(&startTime, 10);
@@ -223,15 +223,7 @@ Point Drivetrain::forward(long double dist) {
     return {dist * cos(heading), dist * sin(heading)};
 }
 
-void Drivetrain::executeActions(const std::vector<Action>& actions, bool inTurn) {
-
-    double error;
-    if (inTurn) {
-        error = rotPID.getError();
-    } else {
-        error = linearPID.getError();
-    }
-    error = fabs(error);
+void Drivetrain::executeActions(const std::vector<Action>& actions, double currError, bool inTurn) {
 
     for (const Action& action : actions) {
 
@@ -239,7 +231,7 @@ void Drivetrain::executeActions(const std::vector<Action>& actions, bool inTurn)
 
             double& errorToExecute = const_cast<double&>(action.error);
 
-            if (errorToExecute != 0 && errorToExecute >= error) {
+            if (errorToExecute != 0 && errorToExecute >= currError) {
                 action.action();
                 errorToExecute = 0;
             }

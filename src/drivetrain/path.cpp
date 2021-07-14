@@ -9,14 +9,14 @@ using namespace equations;
 constexpr size_t defaultAllocCapacity   = 500;
 constexpr size_t reallocAddition        = 100;
 
-Path::Path()
-    : data {new Velocities[defaultAllocCapacity]}, length {0}, capacity {defaultAllocCapacity}, actions {}
+Path::Path(float totalDist)
+    : data {new Velocities[defaultAllocCapacity]}, length {0}, capacity {defaultAllocCapacity}, totalDist {totalDist}, actions {}
 {
     actions.reserve(5);
 }
 
 Path::Path(const Path& path)
-    : length {path.length}, capacity {path.length}, actions {}
+    : length {path.length}, capacity {path.length}, totalDist {path.totalDist}, actions {}
 {
     if (capacity) {
 
@@ -32,7 +32,7 @@ Path::Path(const Path& path)
 }
 
 Path::Path(Path&& path)
-    : data {path.data}, length {path.length}, capacity {path.capacity}, actions {}
+    : data {path.data}, length {path.length}, capacity {path.capacity}, totalDist {path.totalDist}, actions {}
 {
     if (capacity) {
         path.data = nullptr;
@@ -42,14 +42,8 @@ Path::Path(Path&& path)
     actions.reserve(5);
 }
 
-Path::Path(Velocities* path, size_t length)
-    : data {path}, length {length}, capacity {length}, actions {}
-{
-    actions.reserve(5);
-}
-
-Path::Path(Velocities* path, size_t size, size_t capacity)
-    : data {path}, length {size}, capacity {capacity}, actions {}
+Path::Path(Velocities* path, size_t length, float totalDist)
+    : data {path}, length {length}, capacity {length}, totalDist {totalDist}, actions {}
 {
     actions.reserve(5);
 }
@@ -60,8 +54,8 @@ Path::~Path() {
     }
 }
 
-Path& Path::withAction(std::function<void()>&& action, double dist, bool duringTurn) {
-    actions.emplace_back(std::move(action), dist, duringTurn);
+Path& Path::withAction(std::function<void()>&& action, double dist) {
+    actions.emplace_back(std::move(action), dist, false);
     return *this;
 }
 
@@ -112,8 +106,6 @@ Path Path::generatePathFromOrigin(long double startingHeading, XYHPoint point) {
 
 Path Path::generatePath(XYHPoint start, XYHPoint end) {
 
-    Path profile {};
-
     long double totalDist = distance(start.x - end.x, start.y - end.y);
 
     long double vx1 = totalDist * cos(radians(start.heading));
@@ -140,6 +132,8 @@ Path Path::generatePath(XYHPoint start, XYHPoint end) {
         length += distance(eqxd.at(t), eqyd.at(t));
     }
     length *= profileDT;
+
+    Path profile {static_cast<float>(length)};
 
     long double distToAccel = maxVelocity * maxVelocity / (2 * maxAcceleration);
     if (distToAccel > length / 2) {
