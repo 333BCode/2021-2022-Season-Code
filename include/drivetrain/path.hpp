@@ -15,6 +15,7 @@ public:
     struct Velocities {
         long double leftVelocity;
         long double rightVelocity;
+        float distanceAlongPath;
     };
 
     Path();
@@ -27,13 +28,20 @@ public:
 
     void operator=(const Path&) = delete;
 
+    Path& withAction(std::function<void()>&& action, double dist, bool duringTurn = false);
+
     static Path generatePathTo(XYHPoint point);
     static Path generatePathFromOrigin(long double startingHeading, XYHPoint point);
     static Path generatePath(XYHPoint start, XYHPoint end);
 
-    Velocities operator[](size_t index);
+    Velocities operator[](size_t index) const;
 
-    size_t size();
+    const Velocities* begin() const;
+    const Velocities* end() const;
+
+    size_t size() const;
+
+    friend class Drivetrain;
 
 private:
 
@@ -42,7 +50,9 @@ private:
     size_t length;
     size_t capacity;
 
-    void add(long double leftVelocity, long double rightVelocity);
+    std::vector<Action> actions;
+
+    void add(long double leftVelocity, long double rightVelocity, float distanceAlongPath);
 
 };
 

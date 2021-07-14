@@ -21,8 +21,8 @@ Point::Point(long double x, long double y, long double heading)
 
 }
 
-Point& Point::withAction(std::function<void()>&& action, double dist) {
-    actions.emplace_back(std::move(action), dist);
+Point& Point::withAction(std::function<void()>&& action, double dist, bool duringTurn) {
+    actions.emplace_back(std::move(action), dist, duringTurn);
     return *this;
 }
 
@@ -35,6 +35,3 @@ Point& Point::withExitConditions(const ExitConditions& conditions) {
     exitConditions = conditions;
     return *this;
 }
-
-Point::Action::Action(std::function<void()>&& newAction, double dist)
-    : action {std::move(newAction)}, distance {dist} {}

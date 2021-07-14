@@ -18,6 +18,16 @@ public:
 
     class Path;
 
+    struct Action final {
+
+        Action(std::function<void()>&& newAction, double atError, bool duringTurn = false);
+
+        std::function<void()> action;
+        double error;
+        bool duringTurn;
+
+    };
+
     struct ExitConditions {
 
         long double maxLinearError;
@@ -37,14 +47,21 @@ public:
 
     static void supply(int linearPow, int rotPow);
     static void supplyVoltage(int linearPow, int rotPow);
+    static void supplyVoltagePerSide(int leftVoltage, int rightVoltage);
 
+    static const ExitConditions defaultExitConditions;
+    static const std::vector<Action> noActions;
+
+    Drivetrain& operator<<(const Path& path);
     Drivetrain& operator<<(const Point& p);
     Drivetrain& operator>>(const Point& p);
 
-    static void turnTo(long double heading, const ExitConditions& exitConditions);
+    static void turnTo(
+        long double heading, const ExitConditions& exitConditions = defaultExitConditions,
+        const std::vector<Action>& actions = noActions
+    );
     static Point forward(long double dist);
-
-    static const ExitConditions defaultExitConditions;   
+  
     static void stop(const pros::motor_brake_mode_e_t brakeMode = pros::E_MOTOR_BRAKE_COAST);
 
     friend void mainTasks(void*);
@@ -94,12 +111,12 @@ private:
 
     static long double maxVelocity;
     static long double maxAcceleration;
-    static long double drivetrainWidth;
+    static const long double drivetrainWidth;
     static long double profileDT;
 
     static long double ticksToInches(int ticks);
 
-    static void executeActions(const Point& p);
+    static void executeActions(const std::vector<Action>& actions, bool inTurn = false);
 
     static long double wrapAngle(long double targetAngle);
 
@@ -125,6 +142,8 @@ namespace drive {
     using XYHPoint  = Drivetrain::XYHPoint;
 
     using Path = Drivetrain::Path;
+
+    using Action = Drivetrain::Action;
 
     using ExitConditions = Drivetrain::ExitConditions;
 

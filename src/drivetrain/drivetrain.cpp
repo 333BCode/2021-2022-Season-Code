@@ -26,7 +26,7 @@ long double Drivetrain::targetHeading   = 90;
 
 bool Drivetrain::isCalibrated() {
     calibrationMutex.take(TIMEOUT_MAX);
-    bool isCalibrated = calibrated;
+        bool isCalibrated = calibrated;
     calibrationMutex.give();
     return isCalibrated;
 }
@@ -61,6 +61,13 @@ void Drivetrain::supplyVoltage(int linearPow, int rotPow) {
     backLeftMotor.move_voltage(linearPow + rotPow);
     frontRightMotor.move_voltage(linearPow - rotPow);
     backRightMotor.move_voltage(linearPow - rotPow);
+}
+
+void Drivetrain::supplyVoltagePerSide(int leftVoltage, int rightVoltage) {
+    frontLeftMotor.move_voltage(leftVoltage);
+    backLeftMotor.move_voltage(leftVoltage);
+    frontRightMotor.move_voltage(rightVoltage);
+    backRightMotor.move_voltage(rightVoltage);
 }
 
 void Drivetrain::stop(const pros::motor_brake_mode_e_t brakeMode) {

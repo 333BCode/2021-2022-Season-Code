@@ -10,10 +10,13 @@ constexpr size_t defaultAllocCapacity   = 500;
 constexpr size_t reallocAddition        = 100;
 
 Path::Path()
-    : data {new Velocities[defaultAllocCapacity]}, length {0}, capacity {defaultAllocCapacity} {}
+    : data {new Velocities[defaultAllocCapacity]}, length {0}, capacity {defaultAllocCapacity}, actions {}
+{
+    actions.reserve(5);
+}
 
 Path::Path(const Path& path)
-    : length {path.length}, capacity {path.length}
+    : length {path.length}, capacity {path.length}, actions {}
 {
     if (capacity) {
 
@@ -25,31 +28,44 @@ Path::Path(const Path& path)
     } else {
         data = nullptr;
     }
+    actions.reserve(5);
 }
 
 Path::Path(Path&& path)
-    : data {path.data}, length {path.length}, capacity {path.capacity}
+    : data {path.data}, length {path.length}, capacity {path.capacity}, actions {}
 {
     if (capacity) {
         path.data = nullptr;
         path.length = 0;
         path.capacity = 0;
     }
+    actions.reserve(5);
 }
 
 Path::Path(Velocities* path, size_t length)
-    : data {path}, length {length}, capacity {length} {}
+    : data {path}, length {length}, capacity {length}, actions {}
+{
+    actions.reserve(5);
+}
 
 Path::Path(Velocities* path, size_t size, size_t capacity)
-    : data {path}, length {size}, capacity {capacity} {}
+    : data {path}, length {size}, capacity {capacity}, actions {}
+{
+    actions.reserve(5);
+}
 
 Path::~Path() {
-    if (data) {
+    if (capacity) {
         delete[] data;
     }
 }
 
-void Path::add(long double leftVelocity, long double rightVelocity) {
+Path& Path::withAction(std::function<void()>&& action, double dist, bool duringTurn) {
+    actions.emplace_back(std::move(action), dist, duringTurn);
+    return *this;
+}
+
+void Path::add(long double leftVelocity, long double rightVelocity, float distanceAlongPath) {
 
     if (length == capacity) {
 
@@ -65,16 +81,24 @@ void Path::add(long double leftVelocity, long double rightVelocity) {
 
     }
 
-    data[length] = {leftVelocity, rightVelocity};
+    data[length] = {leftVelocity, rightVelocity, distanceAlongPath};
     ++length;
 
 }
 
-Path::Velocities Path::operator[](size_t index) {
+Path::Velocities Path::operator[](size_t index) const {
     return data[index];
 }
 
-size_t Path::size() {
+const Path::Velocities* Path::begin() const {
+    return data;
+}
+
+const Path::Velocities* Path::end() const {
+    return data + length;
+}
+
+size_t Path::size() const {
     return length;
 }
 
@@ -176,7 +200,7 @@ Path Path::generatePath(XYHPoint start, XYHPoint end) {
         }
 
         // add the left and right side velocities to the profile
-        profile.add(lVelocity, rVelocity);
+        profile.add(lVelocity, rVelocity, distTraveled);
 
         // update the distance traveled
         distTraveled += velocity * profileDT;

@@ -32,35 +32,36 @@ void mainTasks(void*) {
     Drivetrain::middleEncoder.reset();
 
     Drivetrain::calibrationMutex.take(TIMEOUT_MAX);
-    Drivetrain::calibrated = true;
+        Drivetrain::calibrated = true;
     Drivetrain::calibrationMutex.give();
 
     while (true) {
 
         Drivetrain::positionDataMutex.take(TIMEOUT_MAX);
-        uint32_t startTime = pros::millis();
+
+            uint32_t startTime = pros::millis();
 
 #ifndef BRAIN_SCREEN_GAME_MODE
-        Drivetrain::trackPosition();
+            Drivetrain::trackPosition();
 #endif
 
 #ifndef DISPLAY_DEBUG
-        if (displayActive) {
-            if (pros::competition::is_disabled()) {
+            if (displayActive) {
+                if (pros::competition::is_disabled()) {
 #endif
-                ++frame;
-                if (frame >= 50) { // call updateOdomData every 0.5 seconds
-                    frame = 0;
-                    displayControl.updateOdomData(true);
-                } else if (frame % 10 == 0) { // call every 0.1 seconds
-                    displayControl.updateOdomData(false);
-                }
+                    ++frame;
+                    if (frame >= 50) { // call updateOdomData every 0.5 seconds
+                        frame = 0;
+                        displayControl.updateOdomData(true);
+                    } else if (frame % 10 == 0) { // call every 0.1 seconds
+                        displayControl.updateOdomData(false);
+                    }
 #ifndef DISPLAY_DEBUG
-            } else {
-                displayActive = false;
-                displayControl.cleanScreen();
+                } else {
+                    displayActive = false;
+                    displayControl.cleanScreen();
+                }
             }
-        }
 #endif
 
         Drivetrain::positionDataMutex.give();
