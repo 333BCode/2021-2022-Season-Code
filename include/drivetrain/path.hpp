@@ -20,7 +20,7 @@ public:
 
     Path(const Path& path);
     Path(Path&& path);
-    Path(Velocities* path, size_t length, float totalDist);
+    Path(Velocities* path, size_t length, long double targetX, long double targetY, float totalDist);
 
     ~Path();
 
@@ -28,9 +28,8 @@ public:
 
     Path& withAction(std::function<void()>&& action, double dist);
 
-    static Path generatePathTo(XYHPoint point);
-    static Path generatePathFromOrigin(long double startingHeading, XYHPoint point);
-    static Path generatePath(XYHPoint start, XYHPoint end);
+    static Path generatePathTo(Point point);
+    static Path generatePath(Point start, Point end);
 
     Velocities operator[](size_t index) const;
 
@@ -43,7 +42,10 @@ public:
 
 private:
 
-    Path(float totalDist);
+    Path(long double targetX, long double targetY, float totalDist);
+
+    long double targetX;
+    long double targetY;
 
     Velocities* data;
 
@@ -51,8 +53,6 @@ private:
     size_t capacity;
 
     const float totalDist;
-
-    std::vector<Action> actions;
 
     void add(long double leftVelocity, long double rightVelocity, float distanceAlongPath);
 

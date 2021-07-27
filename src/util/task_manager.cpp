@@ -45,26 +45,27 @@ void mainTasks(void*) {
             Drivetrain::trackPosition();
 #endif
 
+        Drivetrain::positionDataMutex.give();
+
 #ifndef DISPLAY_DEBUG
-            if (displayActive) {
-                if (pros::competition::is_disabled()) {
+        if (displayActive) {
+            if (pros::competition::is_disabled()) {
 #endif
-                    ++frame;
-                    if (frame >= 50) { // call updateOdomData every 0.5 seconds
-                        frame = 0;
-                        displayControl.updateOdomData(true);
-                    } else if (frame % 10 == 0) { // call every 0.1 seconds
-                        displayControl.updateOdomData(false);
-                    }
-#ifndef DISPLAY_DEBUG
-                } else {
-                    displayActive = false;
-                    displayControl.cleanScreen();
+                ++frame;
+                if (frame >= 50) { // call updateOdomData every 0.5 seconds
+                    frame = 0;
+                    displayControl.updateOdomData(true);
+                } else if (frame % 10 == 0) { // call every 0.1 seconds
+                    displayControl.updateOdomData(false);
                 }
+#ifndef DISPLAY_DEBUG
+            } else {
+                displayActive = false;
+                displayControl.cleanScreen();
             }
+        }
 #endif
 
-        Drivetrain::positionDataMutex.give();
         pros::Task::delay_until(&startTime, 10);
 
     }

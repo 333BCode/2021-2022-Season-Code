@@ -7,8 +7,6 @@ namespace drive {
 
     Drivetrain base;
 
-    Drivetrain::Point (*const forward)(long double) = Drivetrain::forward;
-
 } // namespace drive
 
 bool Drivetrain::calibrated = false;
@@ -24,6 +22,8 @@ long double Drivetrain::oldTargetX      = 72;
 long double Drivetrain::oldTargetY      = 72;
 long double Drivetrain::targetHeading   = 90;
 
+std::vector<Drivetrain::Action> Drivetrain::actionList {};
+
 bool Drivetrain::isCalibrated() {
     calibrationMutex.take(TIMEOUT_MAX);
         bool isCalibrated = calibrated;
@@ -31,21 +31,24 @@ bool Drivetrain::isCalibrated() {
     return isCalibrated;
 }
 
-Drivetrain::XYHPoint Drivetrain::getPosition() {
-    return {xPos, yPos, heading};
+Drivetrain::Point Drivetrain::getPosition() {
+    positionDataMutex.take(TIMEOUT_MAX);
+        Point position = {yPos, yPos, heading};
+    positionDataMutex.give();
+    return position;
 }
 
 void Drivetrain::setPosition(long double newX, long double newY, long double newHeading) {
     positionDataMutex.take(TIMEOUT_MAX);
-    xPos = newX; yPos = newY;
-    if (newHeading >= 360) {
-        heading = newHeading - 360;
-    } else if (newHeading < 0) {
-        heading = newHeading + 360;
-    } else {
-        heading = newHeading;
-    }
-    oldTargetX = newX; oldTargetY = newY; targetHeading = heading;
+        xPos = newX; yPos = newY;
+        if (newHeading >= 360) {
+            heading = newHeading - 360;
+        } else if (newHeading < 0) {
+            heading = newHeading + 360;
+        } else {
+            heading = newHeading;
+        }
+        oldTargetX = newX; oldTargetY = newY; targetHeading = heading;
     positionDataMutex.give();
 }
 
@@ -70,12 +73,19 @@ void Drivetrain::supplyVoltagePerSide(int leftVoltage, int rightVoltage) {
     backRightMotor.move_voltage(rightVoltage);
 }
 
-void Drivetrain::stop(const pros::motor_brake_mode_e_t brakeMode) {
-    frontLeftMotor.move(0); frontLeftMotor.set_brake_mode(brakeMode);
-    backLeftMotor.move(0); backLeftMotor.set_brake_mode(brakeMode);
-    frontRightMotor.move(0); frontRightMotor.set_brake_mode(brakeMode);
-    backRightMotor.move(0); backRightMotor.set_brake_mode(brakeMode);
+void Drivetrain::stopMotion() {
     stopped = true;
+}
+
+void Drivetrain::setBrakeMode(const pros::motor_brake_mode_e_t brakeMode) {
+    frontLeftMotor.set_brake_mode(brakeMode);
+    backLeftMotor.set_brake_mode(brakeMode);
+    frontRightMotor.set_brake_mode(brakeMode);
+    backRightMotor.set_brake_mode(brakeMode);
+}
+
+void Drivetrain::addAction(std::function<void()>&& action, double dist, bool duringTurn) {
+    actionList.emplace_back(std::move(action), dist, duringTurn);
 }
 
 long double Drivetrain::ticksToInches(int ticks) {

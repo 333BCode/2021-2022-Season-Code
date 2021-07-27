@@ -6,6 +6,9 @@
 #include "util/conversions.hpp"
 #include "main.h"
 
+using namespace drive;
+using namespace conversions;
+
 extern pros::Mutex autonSelectionMutex;
 
 using auton_t = void(*)();

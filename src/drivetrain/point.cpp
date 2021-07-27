@@ -3,7 +3,10 @@
 using namespace drive;
 
 Point::Point(long double x, long double y, long double heading)
-    : x {x}, y {y}, heading{heading}, actions {}
+    : x {x}, y {y}, heading {heading} {}
+
+Waypoint::Waypoint(long double x, long double y, long double heading)
+    : x {x}, y {y}, heading{heading}
 {
     
     if (!isnanf(heading)) {
@@ -17,21 +20,19 @@ Point::Point(long double x, long double y, long double heading)
 
     }
 
-    actions.reserve(5);
-
 }
 
-Point& Point::withAction(std::function<void()>&& action, double dist, bool duringTurn) {
-    actions.emplace_back(std::move(action), dist, duringTurn);
+Waypoint& Waypoint::withAction(std::function<void()>&& action, double dist, bool duringTurn) {
+    actionList.emplace_back(std::move(action), dist, duringTurn);
     return *this;
 }
 
-Point& Point::withLookAhead(long double newLookAhead) {
+Waypoint& Waypoint::withLookAhead(long double newLookAhead) {
     lookAheadDistance = newLookAhead;
     return *this;
 }
 
-Point& Point::withExitConditions(const ExitConditions& conditions) {
+Waypoint& Waypoint::withExitConditions(const ExitConditions& conditions) {
     exitConditions = conditions;
     return *this;
 }

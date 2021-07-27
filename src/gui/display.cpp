@@ -296,7 +296,7 @@ void DisplayControl::cleanScreen() {
 
 void DisplayControl::updateOdomData(bool updateValues) {
 
-    Drivetrain::XYHPoint odomData = Drivetrain::getPosition();
+    Drivetrain::Point odomData = Drivetrain::getPosition();
 
     if (updateValues) {
         

@@ -2,37 +2,35 @@
 #ifndef POINT_HPP
 #define POINT_HPP
 
-class Drivetrain::Point final {
-public:
+struct Drivetrain::XYPoint {
+    long double x;
+    long double y;
+};
 
-    Point(long double x, long double y, long double heading = NAN);
+struct Drivetrain::Point {
 
-    Point& withAction(std::function<void()>&& action, double dist, bool duringTurn = false);
-    Point& withLookAhead(long double newLookAhead);
-    Point& withExitConditions(const ExitConditions& conditions);
+    Point(long double x, long double y, long double heading);
 
-    friend class Drivetrain;
+    long double x;
+    long double y;
+    long double heading;
 
-private:
+};
+
+struct Drivetrain::Waypoint {
+
+    Waypoint(long double x, long double y, long double heading = NAN);
+
+    Waypoint& withAction(std::function<void()>&& action, double dist, bool duringTurn = false);
+    Waypoint& withLookAhead(long double newLookAhead);
+    Waypoint& withExitConditions(const ExitConditions& conditions);
 
     long double x;
     long double y;
     long double heading;
     long double lookAheadDistance {defaultLookAheadDistance};
     ExitConditions exitConditions {defaultExitConditions};
-    std::vector<Action> actions;
 
-};
-
-struct Drivetrain::XYPoint {
-    long double x;
-    long double y;
-};
-
-struct Drivetrain::XYHPoint {
-    long double x;
-    long double y;
-    long double heading;
 };
 
 #endif

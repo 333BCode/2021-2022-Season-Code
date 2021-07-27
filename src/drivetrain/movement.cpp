@@ -7,7 +7,6 @@ using namespace drive;
 using namespace conversions;
 using namespace equations;
 
-const std::vector<Action> Drivetrain::noActions {};
 bool Drivetrain::stopped = false;
 
 Drivetrain::Action::Action(std::function<void()>&& newAction, double atError, bool duringTurn)
@@ -24,24 +23,22 @@ Drivetrain& Drivetrain::operator<<(const Path& path) {
     for (const Path::Velocities& velocitySet : path) {
         supplyVoltagePerSide(velocitySet.leftVelocity * kV, velocitySet.rightVelocity * kV);
 
-        if (path.actions.size() > 0) {
-            executeActions(path.actions, path.totalDist - velocitySet.distanceAlongPath);
-            if (stopped) {
-                break;
-            }
+        executeActions(path.totalDist - velocitySet.distanceAlongPath);
+        if (stopped) {
+            break;
         }
 
         pros::Task::delay_until(&startTime, 10);
         startTime += 10;
     }
 
-    stop();
+    endMotion(path.targetX, path.targetY);
 
     return *this;
 
 }
 
-Drivetrain& Drivetrain::operator<<(const Point& p) {
+Drivetrain& Drivetrain::operator<<(const Waypoint& p) {
 
     stopped = false;
 
@@ -53,12 +50,6 @@ Drivetrain& Drivetrain::operator<<(const Point& p) {
         positionDataMutex.take(TIMEOUT_MAX);
 
             uint32_t startTime = pros::millis();
-
-            if (distance(p.x - xPos, p.y - yPos) < p.lookAheadDistance) {
-                positionDataMutex.give();
-                stop();
-                break;
-            }
 
             XYPoint target = purePursuitLookAhead(p.lookAheadDistance, {p.x, p.y});
 
@@ -75,29 +66,37 @@ Drivetrain& Drivetrain::operator<<(const Point& p) {
 
         supplyVoltage(linearOutput * cos(angleToPoint), rotOutput);
 
-        if (p.actions.size() > 0) {
-            executeActions(p.actions, fabs(linearPID.getError()));
+        executeActions(fabs(linearPID.getError()));
+
+        Point position = getPosition();
+        if (distance(p.x - position.x, p.y - position.y) < p.lookAheadDistance) {
+            break;
         }
 
         pros::Task::delay_until(&startTime, 10);
 
     }
 
-    oldTargetX = p.x;
-    oldTargetY = p.y;
+    endMotion(p.x, p.y);
 
     return *this;
 
 }
 
-Drivetrain& Drivetrain::operator>>(const Point& p) {
+Drivetrain& Drivetrain::operator>>(Point p) {
+    moveTo(p.x, p.y, p.heading);
+    return *this;
+}
+
+void Drivetrain::moveTo(
+    long double x, long double y, long double heading, const ExitConditions& exitConditions
+) {
 
     positionDataMutex.take(TIMEOUT_MAX);
-        if (distance(p.x - xPos, p.y - yPos) <= p.exitConditions.maxLinearError) {
-            if (!isnanf(p.heading)) {
-                turnTo(p.heading, p.exitConditions);
+        if (distance(x - xPos, y - yPos) <= exitConditions.maxLinearError) {
+            if (!isnanf(heading)) {
+                turnTo(heading, exitConditions);
             }
-            return *this;
         }
     positionDataMutex.give();
 
@@ -116,11 +115,11 @@ Drivetrain& Drivetrain::operator>>(const Point& p) {
 
             uint32_t startTime = pros::millis();
 
-            int linearOutput = linearPID.calcPower(distance(p.x - xPos, p.y - yPos));
+            int linearOutput = linearPID.calcPower(distance(x - xPos, y - yPos));
             int rotOutput;
-            long double angleToPoint = atan2(p.y - yPos, p.x - xPos) - radians(heading);
+            long double angleToPoint = atan2(y - yPos, x - xPos) - radians(heading);
 
-            if (canTurn && distance(p.x - xPos, p.y - yPos) < minDistForTurning) {
+            if (canTurn && distance(x - xPos, y - yPos) < minDistForTurning) {
                 targetHeading = heading;
                 rotPID.alterTarget(targetHeading);
                 canTurn = false;
@@ -128,7 +127,7 @@ Drivetrain& Drivetrain::operator>>(const Point& p) {
             
             if (canTurn) {
 
-                long double targetAngle = degrees(atan2(p.y - yPos, p.x - xPos));
+                long double targetAngle = degrees(atan2(y - yPos, x - xPos));
                 if (targetAngle < 0) {targetAngle += 360;}
                 rotPID.alterTarget(targetAngle);
                 rotOutput = rotPID.calcPower(wrapAngle(targetAngle));
@@ -142,14 +141,13 @@ Drivetrain& Drivetrain::operator>>(const Point& p) {
         positionDataMutex.give();
 
         if (
-            fabs(linearPID.getError()) <= p.exitConditions.maxLinearError
-            && fabs(linearPID.getDerivative()) <= p.exitConditions.maxLinearDerivative
-            && fabs(rotPID.getError()) <= p.exitConditions.maxRotError
-            && fabs(rotPID.getDerivative()) <= p.exitConditions.maxRotDerivative
+            fabs(linearPID.getError()) <= exitConditions.maxLinearError
+            && fabs(linearPID.getDerivative()) <= exitConditions.maxLinearDerivative
+            && fabs(rotPID.getError()) <= exitConditions.maxRotError
+            && fabs(rotPID.getDerivative()) <= exitConditions.maxRotDerivative
         ) {
             ++count;
-            if (count >= p.exitConditions.minTime * 100) {
-                stop();
+            if (count >= exitConditions.minTime * 100) {
                 break;
             }
         } else {
@@ -158,26 +156,23 @@ Drivetrain& Drivetrain::operator>>(const Point& p) {
 
         supplyVoltage(linearOutput * cos(angleToPoint), rotOutput);
 
-        if (p.actions.size() > 0) {
-            executeActions(p.actions, fabs(rotPID.getError()));
-        }
+        executeActions(fabs(linearPID.getError()));
 
         pros::Task::delay_until(&startTime, 10);
 
     }
 
-    if (!isnanf(p.heading)) {
-        turnTo(p.heading, p.exitConditions, p.actions);
+    if (!isnanf(heading)) {
+        turnTo(heading, exitConditions);
     }
 
-    oldTargetX = p.x;
-    oldTargetY = p.y;
-
-    return *this;
+    endMotion(x, y);
 
 }
 
-void Drivetrain::turnTo(long double heading, const ExitConditions& exitConditions, const std::vector<Action>& actions) {
+void Drivetrain::turnTo(long double heading, const ExitConditions& exitConditions) {
+
+    stopped = false;
 
     targetHeading = heading;
 
@@ -185,7 +180,7 @@ void Drivetrain::turnTo(long double heading, const ExitConditions& exitCondition
 
     rotPID.setNewTarget(targetHeading);
 
-    while (true) {
+    while (!stopped) {
 
         positionDataMutex.take(TIMEOUT_MAX);
             uint32_t startTime = pros::millis();
@@ -207,29 +202,28 @@ void Drivetrain::turnTo(long double heading, const ExitConditions& exitCondition
 
         supplyVoltage(0, rotOutput);
 
-        if (actions.size() > 0) {
-            executeActions(actions, true);
-        }
+        executeActions(fabs(rotPID.getError()), true);
 
         pros::Task::delay_until(&startTime, 10);
 
     }
 
-    stop();
+    endMotion();
 
 }
 
-Point Drivetrain::forward(long double dist) {
-    return {dist * cos(heading), dist * sin(heading)};
+void Drivetrain::moveForward(long double dist) {
+    long double currHeading = getPosition().heading;
+    moveTo(dist * cos(currHeading), dist * sin(currHeading), currHeading);
 }
 
-void Drivetrain::executeActions(const std::vector<Action>& actions, double currError, bool inTurn) {
+void Drivetrain::executeActions(double currError, bool inTurn) {
 
-    for (const Action& action : actions) {
+    for (Action& action : actionList) {
 
         if (action.duringTurn == inTurn) {
 
-            double& errorToExecute = const_cast<double&>(action.error);
+            double& errorToExecute = action.error;
 
             if (errorToExecute != 0 && errorToExecute >= currError) {
                 action.action();
@@ -240,6 +234,17 @@ void Drivetrain::executeActions(const std::vector<Action>& actions, double currE
 
     }
 
+}
+
+void Drivetrain::endMotion() {
+    base.supply(0, 0);
+    actionList.clear();
+}
+
+void Drivetrain::endMotion(long double targetX, long double targetY) {
+    oldTargetX = targetX; oldTargetY = targetY;
+    base.supply(0, 0);
+    actionList.clear();
 }
 
 long double Drivetrain::wrapAngle(long double targetAngle) {

@@ -9,16 +9,23 @@ using namespace equations;
 constexpr size_t defaultAllocCapacity   = 500;
 constexpr size_t reallocAddition        = 100;
 
-Path::Path(float totalDist)
-    : data {new Velocities[defaultAllocCapacity]}, length {0}, capacity {defaultAllocCapacity}, totalDist {totalDist}, actions {}
-{
-    actions.reserve(5);
-}
+namespace drive {
+
+    Path (*const generatePathTo)(Point)         = Path::generatePathTo;
+    Path (*const generatePath)(Point, Point)    = Path::generatePath;
+
+} // namespace drive
+
+Path::Path(long double targetX, long double targetY, float totalDist)
+    : targetX {targetX}, targetY {targetY},
+    data {new Velocities[defaultAllocCapacity]}, length {0}, capacity {defaultAllocCapacity},
+    totalDist {totalDist} {}
 
 Path::Path(const Path& path)
-    : length {path.length}, capacity {path.length}, totalDist {path.totalDist}, actions {}
+    : targetX {path.targetX}, targetY {path.targetY},
+    length {path.length}, capacity {path.length}, totalDist {path.totalDist}
 {
-    if (capacity) {
+    if (capacity > 0) {
 
         data = new Velocities[capacity];
         for (size_t i = 0; i < length; ++i) {
@@ -28,34 +35,31 @@ Path::Path(const Path& path)
     } else {
         data = nullptr;
     }
-    actions.reserve(5);
 }
 
 Path::Path(Path&& path)
-    : data {path.data}, length {path.length}, capacity {path.capacity}, totalDist {path.totalDist}, actions {}
+    : targetX {path.targetX}, targetY {path.targetY},
+    data {path.data}, length {path.length}, capacity {path.capacity}, totalDist {path.totalDist}
 {
-    if (capacity) {
+    if (capacity > 0) {
         path.data = nullptr;
         path.length = 0;
         path.capacity = 0;
     }
-    actions.reserve(5);
 }
 
-Path::Path(Velocities* path, size_t length, float totalDist)
-    : data {path}, length {length}, capacity {length}, totalDist {totalDist}, actions {}
-{
-    actions.reserve(5);
-}
+Path::Path(Velocities* path, size_t length, long double targetX, long double targetY, float totalDist)
+    : targetX {targetX}, targetY {targetY},
+    data {path}, length {length}, capacity {length}, totalDist {totalDist} {}
 
 Path::~Path() {
-    if (capacity) {
+    if (capacity > 0) {
         delete[] data;
     }
 }
 
 Path& Path::withAction(std::function<void()>&& action, double dist) {
-    actions.emplace_back(std::move(action), dist, false);
+    actionList.emplace_back(std::move(action), dist, false);
     return *this;
 }
 
@@ -96,15 +100,11 @@ size_t Path::size() const {
     return length;
 }
 
-Path Path::generatePathTo(XYHPoint point) {
+Path Path::generatePathTo(Point point) {
     return generatePath({xPos, yPos, heading}, point);
 }
 
-Path Path::generatePathFromOrigin(long double startingHeading, XYHPoint point) {
-    return generatePath({0, 0, startingHeading}, point);
-}
-
-Path Path::generatePath(XYHPoint start, XYHPoint end) {
+Path Path::generatePath(Point start, Point end) {
 
     long double totalDist = distance(start.x - end.x, start.y - end.y);
 
@@ -133,7 +133,7 @@ Path Path::generatePath(XYHPoint start, XYHPoint end) {
     }
     length *= profileDT;
 
-    Path profile {static_cast<float>(length)};
+    Path profile {end.x, end.y, static_cast<float>(length)};
 
     long double distToAccel = maxVelocity * maxVelocity / (2 * maxAcceleration);
     if (distToAccel > length / 2) {
@@ -200,6 +200,8 @@ Path Path::generatePath(XYHPoint start, XYHPoint end) {
         distTraveled += velocity * profileDT;
 
     }
+
+    
 
     return profile;
 

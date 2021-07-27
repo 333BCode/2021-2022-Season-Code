@@ -1,5 +1,6 @@
 #include "main.h"
 #include "drivetrain.hpp"
+#include "pros/motors.h"
 #include "pros/rtos.h"
 #include "macros.h"
 
@@ -31,7 +32,7 @@ void opcontrol() {
     bool usingExponential = false;
 
     // sets break modes to coast
-    base.stop();
+    base.setBrakeMode(pros::E_MOTOR_BRAKE_COAST);
 
     while (true) {
 
@@ -53,13 +54,12 @@ void opcontrol() {
         }
 
 #ifdef BRAIN_SCREEN_GAME_MODE
-        base.positionDataMutex.take(TIMEOUT_MAX);
-            base.setPosition(
-                base.xPos + linearPow * cos(conversions::radians(base.heading)) / 317.5,
-                base.yPos + linearPow * sin(conversions::radians(base.heading)) / 317.5,
-                base.heading - rotPow / 70.55
-            );
-        base.positionDataMutex.give();
+        Point position = base.getPosition();
+        base.setPosition(
+            position.x + linearPow * cos(conversions::radians(position.heading)) / 317.5,
+            position.y + linearPow * sin(conversions::radians(position.heading)) / 317.5,
+            position.heading - rotPow / 70.55
+        );
 #else
         base.supply(linearPow, rotPow);
 #endif

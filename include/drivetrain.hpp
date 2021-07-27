@@ -5,16 +5,12 @@
 #include "api.h"
 #include "macros.h"
 
-#ifdef BRAIN_SCREEN_GAME_MODE
-extern "C" void opcontrol();
-#endif
-
 class Drivetrain final {
 public:
 
-    class Point;
     struct XYPoint;
-    struct XYHPoint;
+    struct Point;
+    struct Waypoint;
 
     class Path;
 
@@ -42,7 +38,7 @@ public:
 
     static bool isCalibrated();
 
-    static XYHPoint getPosition();
+    static Point getPosition();
     static void setPosition(long double newX, long double newY, long double newHeading);
 
     static void supply(int linearPow, int rotPow);
@@ -50,24 +46,23 @@ public:
     static void supplyVoltagePerSide(int leftVoltage, int rightVoltage);
 
     static const ExitConditions defaultExitConditions;
-    static const std::vector<Action> noActions;
 
     Drivetrain& operator<<(const Path& path);
-    Drivetrain& operator<<(const Point& p);
-    Drivetrain& operator>>(const Point& p);
-
-    static void turnTo(
-        long double heading, const ExitConditions& exitConditions = defaultExitConditions,
-        const std::vector<Action>& actions = noActions
+    Drivetrain& operator<<(const Waypoint& p);
+    Drivetrain& operator>>(Point p);
+    static void moveTo(
+        long double x, long double y,
+        long double heading = NAN, const ExitConditions& exitConditions = defaultExitConditions
     );
-    static Point forward(long double dist);
+    static void turnTo(long double heading, const ExitConditions& exitConditions = defaultExitConditions);
+    static void moveForward(long double dist);
+
+    static void addAction(std::function<void()>&& action, double dist, bool duringTurn = false);
   
-    static void stop(const pros::motor_brake_mode_e_t brakeMode = pros::E_MOTOR_BRAKE_COAST);
+    static void stopMotion();
+    static void setBrakeMode(const pros::motor_brake_mode_e_t brakeMode);
 
     friend void mainTasks(void*);
-#ifdef BRAIN_SCREEN_GAME_MODE
-    friend void opcontrol();
-#endif
 
 private:
 
@@ -114,9 +109,14 @@ private:
     static const long double drivetrainWidth;
     static long double profileDT;
 
+    static std::vector<Action> actionList;
+
     static long double ticksToInches(int ticks);
 
-    static void executeActions(const std::vector<Action>& actions, double currError, bool inTurn = false);
+    static void executeActions(double currError, bool inTurn = false);
+
+    static void endMotion();
+    static void endMotion(long double targetX, long double targetY);
 
     static long double wrapAngle(long double targetAngle);
 
@@ -131,15 +131,19 @@ private:
 
 };
 
+#include "drivetrain/point.hpp"
+#include "drivetrain/path.hpp"
+
 namespace drive {
 
     extern Drivetrain base;
 
-    extern Drivetrain::Point (*const forward)(long double);
+    extern Drivetrain::Path (*const generatePathTo)(Drivetrain::Point);
+    extern Drivetrain::Path (*const generatePath)(Drivetrain::Point, Drivetrain::Point);
     
-    using Point     = Drivetrain::Point;
     using XYPoint   = Drivetrain::XYPoint;
-    using XYHPoint  = Drivetrain::XYHPoint;
+    using Point     = Drivetrain::Point;
+    using Waypoint  = Drivetrain::Waypoint;
 
     using Path = Drivetrain::Path;
 
@@ -147,9 +151,6 @@ namespace drive {
 
     using ExitConditions = Drivetrain::ExitConditions;
 
-}
-
-#include "drivetrain/point.hpp"
-#include "drivetrain/path.hpp"
+} // namespace drive
 
 #endif
