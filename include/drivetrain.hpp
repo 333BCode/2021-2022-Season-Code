@@ -54,6 +54,7 @@ public:
         long double x, long double y,
         long double heading = NAN, const ExitConditions& exitConditions = defaultExitConditions
     );
+    static void moveTo(long double x, long double y, const ExitConditions& exitConditions);
     static void turnTo(long double heading, const ExitConditions& exitConditions = defaultExitConditions);
     static void moveForward(long double dist);
 

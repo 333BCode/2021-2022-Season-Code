@@ -170,6 +170,10 @@ void Drivetrain::moveTo(
 
 }
 
+void Drivetrain::moveTo(long double x, long double y, const ExitConditions& exitConditions) {
+    moveTo(x, y, NAN, exitConditions);
+}
+
 void Drivetrain::turnTo(long double heading, const ExitConditions& exitConditions) {
 
     stopped = false;
