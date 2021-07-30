@@ -2,6 +2,13 @@
 #include "util/conversions.hpp"
 #include "util/equations.hpp"
 
+#define PATH_POLYNOMIAL_ARGS(start, end, v1, v2)        \
+    start * -6 + v1 * -3 + end * 6 + v2 * -3, 5,        \
+    start * 15 + v1 * 8 + end * -15 + v2 * 7, 4,        \
+    start * -10 + v1 * -6 + end * 10 + v2 * -4, 3,      \
+    v1, 1,                                              \
+    start, 0
+
 using namespace drive;
 using namespace conversions;
 using namespace equations;
@@ -68,14 +75,14 @@ void Path::add(long double leftVelocity, long double rightVelocity, float distan
     if (length == capacity) {
 
         capacity += reallocAddition;
-        Velocities* newData = new Velocities[capacity];
+        Velocities* oldData = data;
+        Velocities* data = new Velocities[capacity];
 
         for (size_t i = 0; i < length; ++i) {
-            newData[i] = data[i];
+            data[i] = oldData[i];
         }
 
-        delete[] data;
-        data = newData;
+        delete[] oldData;
 
     }
 
@@ -200,8 +207,6 @@ Path Path::generatePath(Point start, Point end) {
         distTraveled += velocity * profileDT;
 
     }
-
-    
 
     return profile;
 

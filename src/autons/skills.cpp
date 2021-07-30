@@ -2,6 +2,6 @@
 
 void skills() {
 
-   std::cout << "In the skills auton.\n"; 
+   std::cout << "In the skills auton.\n";
 
 }

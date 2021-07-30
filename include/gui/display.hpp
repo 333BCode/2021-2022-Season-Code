@@ -1,5 +1,5 @@
-#ifndef DISPLAY_H
-#define DISPLAY_H
+#ifndef DISPLAY_HPP
+#define DISPLAY_HPP
 
 #include "display/lv_misc/lv_area.h"
 #include "display/lvgl.h"
@@ -26,7 +26,7 @@ private:
 
     lv_obj_t* tabSpace;
     lv_obj_t* tabSwitcher;
-    int       tabBarHeight {40};
+    int       tabBarHeight;
 
     lv_obj_t* odomSwitch;
     lv_obj_t* odomSwitchText;

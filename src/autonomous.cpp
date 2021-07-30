@@ -18,9 +18,9 @@ auton_t auton = skills;
 
 void autonomous() {
 
-    autonSelectionMutex.take(TIMEOUT_MAX);
+autonSelectionMutex.take(TIMEOUT_MAX);
     auton_t selectedAuton = auton;
-    autonSelectionMutex.give();
+autonSelectionMutex.give();
 
     while (!Drivetrain::isCalibrated()) {
         pros::delay(10);

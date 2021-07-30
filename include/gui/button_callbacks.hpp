@@ -1,5 +1,5 @@
-#ifndef BUTTON_CALLBACKS_H
-#define BUTTON_CALLBACKS_H
+#ifndef BUTTON_CALLBACKS_HPP
+#define BUTTON_CALLBACKS_HPP
 
 #include "display/lvgl.h"
 

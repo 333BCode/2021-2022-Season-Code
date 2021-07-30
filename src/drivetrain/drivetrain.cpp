@@ -25,31 +25,31 @@ long double Drivetrain::targetHeading   = 90;
 std::vector<Drivetrain::Action> Drivetrain::actionList {};
 
 bool Drivetrain::isCalibrated() {
-    calibrationMutex.take(TIMEOUT_MAX);
-        bool isCalibrated = calibrated;
-    calibrationMutex.give();
+calibrationMutex.take(TIMEOUT_MAX);
+    bool isCalibrated = calibrated;
+calibrationMutex.give();
     return isCalibrated;
 }
 
 Drivetrain::Point Drivetrain::getPosition() {
-    positionDataMutex.take(TIMEOUT_MAX);
-        Point position = {yPos, yPos, heading};
-    positionDataMutex.give();
+positionDataMutex.take(TIMEOUT_MAX);
+    Point position = {yPos, yPos, heading};
+positionDataMutex.give();
     return position;
 }
 
 void Drivetrain::setPosition(long double newX, long double newY, long double newHeading) {
-    positionDataMutex.take(TIMEOUT_MAX);
-        xPos = newX; yPos = newY;
-        if (newHeading >= 360) {
-            heading = newHeading - 360;
-        } else if (newHeading < 0) {
-            heading = newHeading + 360;
-        } else {
-            heading = newHeading;
-        }
-        oldTargetX = newX; oldTargetY = newY; targetHeading = heading;
-    positionDataMutex.give();
+positionDataMutex.take(TIMEOUT_MAX);
+    xPos = newX; yPos = newY;
+    if (newHeading >= 360) {
+        heading = newHeading - 360;
+    } else if (newHeading < 0) {
+        heading = newHeading + 360;
+    } else {
+        heading = newHeading;
+    }
+    oldTargetX = newX; oldTargetY = newY; targetHeading = heading;
+positionDataMutex.give();
 }
 
 void Drivetrain::supply(int linearPow, int rotPow) {

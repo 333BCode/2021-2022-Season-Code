@@ -2,13 +2,6 @@
 #ifndef PATH_HPP
 #define PATH_HPP
 
-#define PATH_POLYNOMIAL_ARGS(start, end, v1, v2)        \
-    start * -6 + v1 * -3 + end * 6 + v2 * -3, 5,        \
-    start * 15 + v1 * 8 + end * -15 + v2 * 7, 4,        \
-    start * -10 + v1 * -6 + end * 10 + v2 * -4, 3,      \
-    v1, 1,                                              \
-    start, 0
-
 class Drivetrain::Path final {
 public:
 

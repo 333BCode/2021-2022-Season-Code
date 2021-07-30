@@ -9,7 +9,7 @@
 
 constexpr short defaultScreen = 1;
 
-static lv_obj_t * newButton(lv_obj_t* parent, lv_coord_t xPos, lv_coord_t yPos, lv_coord_t width, lv_coord_t height,
+static lv_obj_t* newButton(lv_obj_t* parent, lv_coord_t xPos, lv_coord_t yPos, lv_coord_t width, lv_coord_t height,
     uint32_t freeNum, lv_res_t (*action)(lv_obj_t*), bool toggle)
 {
     
@@ -68,6 +68,8 @@ lv_res_t doNothing(lv_obj_t*) {
 DisplayControl::DisplayControl()
 
     : tabSpace {lv_obj_create(lv_scr_act(), NULL)}, tabSwitcher {lv_obj_create(lv_scr_act(), NULL)},
+
+    tabBarHeight {40},
 
     odomTab {lv_obj_create(tabSpace, NULL)},
     positionData {lv_label_create(odomTab, NULL)},

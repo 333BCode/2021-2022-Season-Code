@@ -31,21 +31,21 @@ void mainTasks(void*) {
     Drivetrain::rightEncoder.reset();
     Drivetrain::middleEncoder.reset();
 
-    Drivetrain::calibrationMutex.take(TIMEOUT_MAX);
-        Drivetrain::calibrated = true;
-    Drivetrain::calibrationMutex.give();
+Drivetrain::calibrationMutex.take(TIMEOUT_MAX);
+    Drivetrain::calibrated = true;
+Drivetrain::calibrationMutex.give();
 
     while (true) {
 
-        Drivetrain::positionDataMutex.take(TIMEOUT_MAX);
+    Drivetrain::positionDataMutex.take(TIMEOUT_MAX);
 
-            uint32_t startTime = pros::millis();
+        uint32_t startTime = pros::millis();
 
 #ifndef BRAIN_SCREEN_GAME_MODE
-            Drivetrain::trackPosition();
+        Drivetrain::trackPosition();
 #endif
 
-        Drivetrain::positionDataMutex.give();
+    Drivetrain::positionDataMutex.give();
 
 #ifndef DISPLAY_DEBUG
         if (displayActive) {

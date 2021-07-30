@@ -21,6 +21,7 @@ Drivetrain& Drivetrain::operator<<(const Path& path) {
     uint32_t startTime = pros::millis();
 
     for (const Path::Velocities& velocitySet : path) {
+
         supplyVoltagePerSide(velocitySet.leftVelocity * kV, velocitySet.rightVelocity * kV);
 
         executeActions(path.totalDist - velocitySet.distanceAlongPath);
@@ -30,6 +31,7 @@ Drivetrain& Drivetrain::operator<<(const Path& path) {
 
         pros::Task::delay_until(&startTime, 10);
         startTime += 10;
+
     }
 
     endMotion(path.targetX, path.targetY);
@@ -47,22 +49,22 @@ Drivetrain& Drivetrain::operator<<(const Waypoint& p) {
 
     while (!stopped) {
 
-        positionDataMutex.take(TIMEOUT_MAX);
+    positionDataMutex.take(TIMEOUT_MAX);
 
-            uint32_t startTime = pros::millis();
+        uint32_t startTime = pros::millis();
 
-            XYPoint target = purePursuitLookAhead(p.lookAheadDistance, {p.x, p.y});
+        XYPoint target = purePursuitLookAhead(p.lookAheadDistance, {p.x, p.y});
 
-            int linearOutput = linearPID.calcPower(distance(p.x - xPos, p.y - yPos));
-            int rotOutput;
-            long double angleToPoint = atan2(target.y - yPos, target.x - xPos) - radians(heading);
+        int linearOutput = linearPID.calcPower(distance(p.x - xPos, p.y - yPos));
+        int rotOutput;
+        long double angleToPoint = atan2(target.y - yPos, target.x - xPos) - radians(heading);
 
-            long double targetAngle = degrees(atan2(target.y - yPos, target.x - xPos));
-            if (targetAngle < 0) {targetAngle += 360;}
-            rotPID.alterTarget(targetAngle);
-            rotOutput = rotPID.calcPower(wrapAngle(targetAngle));
+        long double targetAngle = degrees(atan2(target.y - yPos, target.x - xPos));
+        if (targetAngle < 0) {targetAngle += 360;}
+        rotPID.alterTarget(targetAngle);
+        rotOutput = rotPID.calcPower(wrapAngle(targetAngle));
 
-        positionDataMutex.give();
+    positionDataMutex.give();
 
         supplyVoltage(linearOutput * cos(angleToPoint), rotOutput);
 
@@ -92,13 +94,13 @@ void Drivetrain::moveTo(
     long double x, long double y, long double heading, const ExitConditions& exitConditions
 ) {
 
-    positionDataMutex.take(TIMEOUT_MAX);
-        if (distance(x - xPos, y - yPos) <= exitConditions.maxLinearError) {
-            if (!isnanf(heading)) {
-                turnTo(heading, exitConditions);
-            }
+positionDataMutex.take(TIMEOUT_MAX);
+    if (distance(x - xPos, y - yPos) <= exitConditions.maxLinearError) {
+        if (!isnanf(heading)) {
+            turnTo(heading, exitConditions);
         }
-    positionDataMutex.give();
+    }
+positionDataMutex.give();
 
     stopped = false;
 
@@ -111,34 +113,34 @@ void Drivetrain::moveTo(
 
     while (!stopped) {
 
-        positionDataMutex.take(TIMEOUT_MAX);
+    positionDataMutex.take(TIMEOUT_MAX);
 
-            uint32_t startTime = pros::millis();
+        uint32_t startTime = pros::millis();
 
-            int linearOutput = linearPID.calcPower(distance(x - xPos, y - yPos));
-            int rotOutput;
-            long double angleToPoint = atan2(y - yPos, x - xPos) - radians(heading);
+        int linearOutput = linearPID.calcPower(distance(x - xPos, y - yPos));
+        int rotOutput;
+        long double angleToPoint = atan2(y - yPos, x - xPos) - radians(heading);
 
-            if (canTurn && distance(x - xPos, y - yPos) < minDistForTurning) {
-                targetHeading = heading;
-                rotPID.alterTarget(targetHeading);
-                canTurn = false;
-            }
-            
-            if (canTurn) {
+        if (canTurn && distance(x - xPos, y - yPos) < minDistForTurning) {
+            targetHeading = heading;
+            rotPID.alterTarget(targetHeading);
+            canTurn = false;
+        }
+        
+        if (canTurn) {
 
-                long double targetAngle = degrees(atan2(y - yPos, x - xPos));
-                if (targetAngle < 0) {targetAngle += 360;}
-                rotPID.alterTarget(targetAngle);
-                rotOutput = rotPID.calcPower(wrapAngle(targetAngle));
-            
-            } else {
+            long double targetAngle = degrees(atan2(y - yPos, x - xPos));
+            if (targetAngle < 0) {targetAngle += 360;}
+            rotPID.alterTarget(targetAngle);
+            rotOutput = rotPID.calcPower(wrapAngle(targetAngle));
+        
+        } else {
 
-                rotOutput = rotPID.calcPower(wrapAngle(targetHeading));
-            
-            }
+            rotOutput = rotPID.calcPower(wrapAngle(targetHeading));
+        
+        }
 
-        positionDataMutex.give();
+    positionDataMutex.give();
 
         if (
             fabs(linearPID.getError()) <= exitConditions.maxLinearError
@@ -186,11 +188,11 @@ void Drivetrain::turnTo(long double heading, const ExitConditions& exitCondition
 
     while (!stopped) {
 
-        positionDataMutex.take(TIMEOUT_MAX);
-            uint32_t startTime = pros::millis();
+    positionDataMutex.take(TIMEOUT_MAX);
+        uint32_t startTime = pros::millis();
 
-            int rotOutput = rotPID.calcPower(wrapAngle(targetHeading));
-        positionDataMutex.give();
+        int rotOutput = rotPID.calcPower(wrapAngle(targetHeading));
+    positionDataMutex.give();
 
         if (
             fabs(rotPID.getError()) <= exitConditions.maxRotError
@@ -241,13 +243,13 @@ void Drivetrain::executeActions(double currError, bool inTurn) {
 }
 
 void Drivetrain::endMotion() {
-    base.supply(0, 0);
+    supply(0, 0);
     actionList.clear();
 }
 
 void Drivetrain::endMotion(long double targetX, long double targetY) {
     oldTargetX = targetX; oldTargetY = targetY;
-    base.supply(0, 0);
+    supply(0, 0);
     actionList.clear();
 }
 
