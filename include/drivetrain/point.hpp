@@ -21,14 +21,13 @@ struct Drivetrain::Point {
 
 struct Drivetrain::Waypoint {
 
-    Waypoint(long double x, long double y, long double heading = NAN);
+    Waypoint(long double x, long double y);
 
     Waypoint& withAction(std::function<void()>&& action, double dist, bool duringTurn = false);
     Waypoint& withLookAhead(long double newLookAhead);
 
     long double x;
     long double y;
-    long double heading;
     long double lookAheadDistance {defaultLookAheadDistance};
 
 };
