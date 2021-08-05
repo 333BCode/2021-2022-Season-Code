@@ -13,7 +13,7 @@ public:
 
     Path(const Path& path);
     Path(Path&& path);
-    Path(Velocities* path, size_t length, long double targetX, long double targetY, float totalDist);
+    Path(Velocities* path, size_t length, Point target, float totalDist);
 
     ~Path();
 
@@ -35,10 +35,9 @@ public:
 
 private:
 
-    Path(long double targetX, long double targetY, float totalDist);
+    Path(Point target, float totalDist);
 
-    long double targetX;
-    long double targetY;
+    Point target;
 
     Velocities* data;
 

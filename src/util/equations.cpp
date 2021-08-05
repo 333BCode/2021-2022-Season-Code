@@ -38,7 +38,7 @@ long double CurvatureEquation::at(long double value) const {
 }
 
 DistanceToTime::DistanceToTime(const PolynomialEquation& xd, const PolynomialEquation& yd, long double step)
-    : xd {xd}, yd {yd}, step {step}, time {0} {}
+    : xd {xd}, yd {yd}, step {step}, time {0}, accumulatedDistance {0} {}
 
 long double DistanceToTime::atDistance(long double dist) {
 

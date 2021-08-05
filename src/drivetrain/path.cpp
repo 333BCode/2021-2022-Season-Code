@@ -13,9 +13,6 @@ using namespace drive;
 using namespace conversions;
 using namespace equations;
 
-constexpr size_t defaultAllocCapacity   = 500;
-constexpr size_t reallocAddition        = 100;
-
 namespace drive {
 
     Path (*const generatePathTo)(Point)         = Path::generatePathTo;
@@ -23,13 +20,16 @@ namespace drive {
 
 } // namespace drive
 
-Path::Path(long double targetX, long double targetY, float totalDist)
-    : targetX {targetX}, targetY {targetY},
+constexpr size_t defaultAllocCapacity   = 500;
+constexpr size_t reallocAddition        = 100;
+
+Path::Path(Point target, float totalDist)
+    : target {target},
     data {new Velocities[defaultAllocCapacity]}, length {0}, capacity {defaultAllocCapacity},
     totalDist {totalDist} {}
 
 Path::Path(const Path& path)
-    : targetX {path.targetX}, targetY {path.targetY},
+    : target {path.target},
     length {path.length}, capacity {path.length}, totalDist {path.totalDist}
 {
     if (capacity > 0) {
@@ -45,7 +45,7 @@ Path::Path(const Path& path)
 }
 
 Path::Path(Path&& path)
-    : targetX {path.targetX}, targetY {path.targetY},
+    : target {path.target},
     data {path.data}, length {path.length}, capacity {path.capacity}, totalDist {path.totalDist}
 {
     if (capacity > 0) {
@@ -55,8 +55,8 @@ Path::Path(Path&& path)
     }
 }
 
-Path::Path(Velocities* path, size_t length, long double targetX, long double targetY, float totalDist)
-    : targetX {targetX}, targetY {targetY},
+Path::Path(Velocities* path, size_t length, Point target, float totalDist)
+    : target {target},
     data {path}, length {length}, capacity {length}, totalDist {totalDist} {}
 
 Path::~Path() {
@@ -108,7 +108,7 @@ size_t Path::size() const {
 }
 
 Path Path::generatePathTo(Point point) {
-    return generatePath({xPos, yPos, heading}, point);
+    return generatePath(getPosition(), point);
 }
 
 Path Path::generatePath(Point start, Point end) {
@@ -140,7 +140,7 @@ Path Path::generatePath(Point start, Point end) {
     }
     length *= profileDT;
 
-    Path profile {end.x, end.y, static_cast<float>(length)};
+    Path profile {end, static_cast<float>(length)};
 
     long double distToAccel = maxVelocity * maxVelocity / (2 * maxAcceleration);
     if (distToAccel > length / 2) {
@@ -152,10 +152,8 @@ Path Path::generatePath(Point start, Point end) {
     long double distTraveled = 0;
     while (distTraveled < length) {
 
-        // get the current t for the parametric given the distance traveled
-        long double currTime = toTime.atDistance(distTraveled);
         // get the curvature and radius if it exists
-        long double curvature = c.at(currTime);
+        long double curvature = c.at(toTime.atDistance(distTraveled));
         long double r = (curvature != 0 ? fabs(1 / curvature) : 0);
         // get the maximum forward velocity allowed by the curvature of the path
         long double velocityByCurvature = (curvature == 0 ? maxVelocity : (r * maxVelocity) / (r + drivetrainWidth));
@@ -167,7 +165,7 @@ Path Path::generatePath(Point start, Point end) {
             // and V = V_0 + a*t (to prevent 0 velocity forever at start
             // of path when distance = 0, *0.5 to get average between endpoints of block of time)
             // this part could use some work
-            velocityByDistance = sqrt(2 * maxAcceleration * distTraveled) + 0.5 * maxAcceleration * profileDT;
+            velocityByDistance = sqrt(2 * maxAcceleration * distTraveled);
 
         } else if (distTraveled > length - distToAccel) { // if deccelerating
 
@@ -205,6 +203,9 @@ Path Path::generatePath(Point start, Point end) {
 
         // update the distance traveled
         distTraveled += velocity * profileDT;
+        if (distTraveled < distToAccel) {
+            distTraveled += 0.5 * maxAcceleration * profileDT * profileDT;
+        }
 
     }
 

@@ -14,16 +14,6 @@ public:
 
     class Path;
 
-    struct Action final {
-
-        Action(std::function<void()>&& newAction, double atError, bool duringTurn = false);
-
-        std::function<void()> action;
-        double error;
-        bool duringTurn;
-
-    };
-
     struct ExitConditions {
 
         long double maxLinearError;
@@ -66,6 +56,16 @@ public:
     friend void mainTasks(void*);
 
 private:
+
+    struct Action final {
+
+        Action(std::function<void()>&& newAction, double atError, bool duringTurn = false);
+
+        std::function<void()> action;
+        double error;
+        bool duringTurn;
+
+    };
 
     static pros::Motor frontLeftMotor;
     static pros::Motor backLeftMotor;
@@ -147,8 +147,6 @@ namespace drive {
     using Waypoint  = Drivetrain::Waypoint;
 
     using Path = Drivetrain::Path;
-
-    using Action = Drivetrain::Action;
 
     using ExitConditions = Drivetrain::ExitConditions;
 

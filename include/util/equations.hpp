@@ -62,7 +62,7 @@ private:
     const long double step;
 
     long double time;
-    long double accumulatedDistance {0};
+    long double accumulatedDistance;
 
 };
 

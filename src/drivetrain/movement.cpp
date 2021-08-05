@@ -34,7 +34,7 @@ Drivetrain& Drivetrain::operator<<(const Path& path) {
 
     }
 
-    endMotion(path.targetX, path.targetY);
+    endMotion(path.target.x, path.target.y);
 
     return *this;
 
