@@ -5,7 +5,7 @@
 
 namespace drive {
 
-    Drivetrain base;
+    Drivetrain base {};
 
 } // namespace drive
 
@@ -33,7 +33,7 @@ calibrationMutex.give();
 
 Drivetrain::Point Drivetrain::getPosition() {
 positionDataMutex.take(TIMEOUT_MAX);
-    Point position = {yPos, yPos, heading};
+    Point position = {xPos, yPos, heading};
 positionDataMutex.give();
     return position;
 }

@@ -55,14 +55,19 @@ Drivetrain& Drivetrain::operator<<(const Waypoint& p) {
 
         XYPoint target = purePursuitLookAhead(p.lookAheadDistance, {p.x, p.y});
 
-        int linearOutput = linearPID.calcPower(distance(p.x - xPos, p.y - yPos));
-        int rotOutput;
-        long double angleToPoint = atan2(target.y - yPos, target.x - xPos) - radians(heading);
+        double curDist = distance(p.x - xPos, p.y - yPos);
 
-        long double targetAngle = degrees(atan2(target.y - yPos, target.x - xPos));
+        int linearOutput = linearPID.calcPower(curDist);
+
+        double rawAngle = atan2(target.y - yPos, target.x - xPos);
+
+        long double angleToPoint = rawAngle - radians(heading);
+
+        long double targetAngle = degrees(rawAngle);
         if (targetAngle < 0) {targetAngle += 360;}
         rotPID.alterTarget(targetAngle);
-        rotOutput = rotPID.calcPower(wrapAngle(targetAngle));
+        int rotOutput = rotPID.calcPower(wrapAngle(targetAngle));
+
 
     positionDataMutex.give();
 
@@ -70,8 +75,7 @@ Drivetrain& Drivetrain::operator<<(const Waypoint& p) {
 
         executeActions(fabs(linearPID.getError()));
 
-        Point position = getPosition();
-        if (distance(p.x - position.x, p.y - position.y) < p.lookAheadDistance) {
+        if (curDist < p.lookAheadDistance) {
             break;
         }
 
@@ -94,15 +98,9 @@ void Drivetrain::moveTo(
     long double x, long double y, long double heading, const ExitConditions& exitConditions
 ) {
 
-positionDataMutex.take(TIMEOUT_MAX);
-    if (distance(x - xPos, y - yPos) <= exitConditions.maxLinearError) {
-        if (!isnanf(heading)) {
-            turnTo(heading, exitConditions);
-        }
-    }
-positionDataMutex.give();
-
     stopped = false;
+
+    bool firstLoop = true;
 
     uint16_t count = 0;
 
@@ -117,19 +115,26 @@ positionDataMutex.give();
 
         uint32_t startTime = pros::millis();
 
-        int linearOutput = linearPID.calcPower(distance(x - xPos, y - yPos));
-        int rotOutput;
-        long double angleToPoint = atan2(y - yPos, x - xPos) - radians(heading);
+        double curDist = distance(x - xPos, y - yPos);
 
-        if (canTurn && distance(x - xPos, y - yPos) < minDistForTurning) {
-            targetHeading = heading;
-            rotPID.alterTarget(targetHeading);
-            canTurn = false;
+        int linearOutput = linearPID.calcPower(curDist);
+        int rotOutput;
+        double rawAngle = atan2(y - yPos, x - xPos);
+        long double angleToPoint = rawAngle - radians(heading);
+
+        if (canTurn == curDist < minDistForTurning) {
+            if (canTurn) {
+                targetHeading = heading;
+                rotPID.alterTarget(targetHeading);
+                canTurn = false;
+            } else {
+                canTurn = true;
+            }
         }
         
         if (canTurn) {
 
-            long double targetAngle = degrees(atan2(y - yPos, x - xPos));
+            long double targetAngle = degrees(rawAngle);
             if (targetAngle < 0) {targetAngle += 360;}
             rotPID.alterTarget(targetAngle);
             rotOutput = rotPID.calcPower(wrapAngle(targetAngle));
@@ -142,8 +147,18 @@ positionDataMutex.give();
 
     positionDataMutex.give();
 
-        if (
-            fabs(linearPID.getError()) <= exitConditions.maxLinearError
+        supplyVoltage(linearOutput * cos(angleToPoint), rotOutput);
+
+        executeActions(fabs(linearPID.getError()));
+
+        if (firstLoop) {
+            if (curDist <= exitConditions.maxLinearError) {
+                break;
+            } else {
+                firstLoop = false;
+            }
+        } else if (
+            curDist * cos(angleToPoint) <= exitConditions.maxLinearError
             && fabs(linearPID.getDerivative()) <= exitConditions.maxLinearDerivative
             && fabs(rotPID.getError()) <= exitConditions.maxRotError
             && fabs(rotPID.getDerivative()) <= exitConditions.maxRotDerivative
@@ -156,19 +171,17 @@ positionDataMutex.give();
             count = 0;
         }
 
-        supplyVoltage(linearOutput * cos(angleToPoint), rotOutput);
-
-        executeActions(fabs(linearPID.getError()));
-
         pros::Task::delay_until(&startTime, 10);
 
     }
 
     if (!isnanf(heading)) {
         turnTo(heading, exitConditions);
+        oldTargetX = x;
+        oldTargetY = y;
+    } else {
+        endMotion(x, y);
     }
-
-    endMotion(x, y);
 
 }
 
@@ -178,7 +191,16 @@ void Drivetrain::moveTo(long double x, long double y, const ExitConditions& exit
 
 void Drivetrain::turnTo(long double heading, const ExitConditions& exitConditions) {
 
+    while (heading >= 360) {
+        heading -= 360;
+    }
+    while (heading < 0) {
+        heading += 360;
+    }
+
     stopped = false;
+
+    bool firstLoop = true;
 
     targetHeading = heading;
 
@@ -194,7 +216,17 @@ void Drivetrain::turnTo(long double heading, const ExitConditions& exitCondition
         int rotOutput = rotPID.calcPower(wrapAngle(targetHeading));
     positionDataMutex.give();
 
-        if (
+        supplyVoltage(0, rotOutput);
+
+        executeActions(fabs(rotPID.getError()), true);
+
+        if (firstLoop) {
+            if (fabs(rotPID.getError()) <= exitConditions.maxRotError) {
+                break;
+            } else {
+                firstLoop = false;
+            }
+        } else if (
             fabs(rotPID.getError()) <= exitConditions.maxRotError
             && fabs(rotPID.getDerivative()) <= exitConditions.maxRotDerivative
         ) {
@@ -205,10 +237,6 @@ void Drivetrain::turnTo(long double heading, const ExitConditions& exitCondition
         } else {
             count = 0;
         }
-
-        supplyVoltage(0, rotOutput);
-
-        executeActions(fabs(rotPID.getError()), true);
 
         pros::Task::delay_until(&startTime, 10);
 

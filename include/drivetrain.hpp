@@ -138,9 +138,6 @@ private:
 namespace drive {
 
     extern Drivetrain base;
-
-    extern Drivetrain::Path (*const generatePathTo)(Drivetrain::Point);
-    extern Drivetrain::Path (*const generatePath)(Drivetrain::Point, Drivetrain::Point);
     
     using XYPoint   = Drivetrain::XYPoint;
     using Point     = Drivetrain::Point;
@@ -149,6 +146,9 @@ namespace drive {
     using Path = Drivetrain::Path;
 
     using ExitConditions = Drivetrain::ExitConditions;
+
+    extern Drivetrain::Path (*const generatePathTo)(Drivetrain::Point);
+    extern Drivetrain::Path (*const generatePath)(Drivetrain::Point, Drivetrain::Point);
 
 } // namespace drive
 
