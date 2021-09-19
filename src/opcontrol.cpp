@@ -1,8 +1,11 @@
 #include "main.h"
 #include "drivetrain.hpp"
-#include "pros/motors.h"
+#include "pros/misc.h"
+#include "systems.hpp"
 #include "pros/rtos.h"
 #include "macros.h"
+#include "systems/intake.hpp"
+#include "systems/lift.hpp"
 
 #ifdef BRAIN_SCREEN_GAME_MODE
 #include "util/conversions.hpp"
@@ -25,21 +28,26 @@
 void opcontrol() {
 
     using namespace drive;
+    using namespace motor_control;
 	
-    pros::Controller control(pros::E_CONTROLLER_MASTER);
+    pros::Controller controller(pros::E_CONTROLLER_MASTER);
 
     constexpr double power = 2;
     bool usingExponential = false;
 
+    bool intakeCommanded = false;
+
     // sets break modes to coast
     base.setBrakeMode(pros::E_MOTOR_BRAKE_COAST);
+
+    wings::raise();
 
     while (true) {
 
         uint32_t startTime = pros::millis();
 
-        int linearPow   = control.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y);
-        int rotPow      = control.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X);
+        int linearPow   = controller.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y);
+        int rotPow      = controller.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X);
 
         if (abs(linearPow) < 10) {
             linearPow = 0;
@@ -64,9 +72,44 @@ void opcontrol() {
         base.supply(linearPow, rotPow);
 #endif
 
-        if (control.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_Y)) {
+        if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_Y)) {
             usingExponential = !usingExponential;
         }
+
+        // shift key
+        if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_L2)) {
+        
+            if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R1)) {
+                lift::toggleLift();
+            }
+
+            if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R2)) {
+                lift::toggleClamp();
+            }
+
+            if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_L1)) {
+                intake::intake();
+                intakeCommanded = true;
+            }
+
+        } else {
+
+            if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R1)) {
+                holder::toggleHolder();
+            }
+
+            if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R2)) {
+                stick::toggleStick();
+            }
+
+        }
+
+        if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_B)) {
+            intake::reverse();
+        } else if (!intakeCommanded) {
+            intake::stop();
+        }
+        intakeCommanded = false;
 
         pros::Task::delay_until(&startTime, 10);
 

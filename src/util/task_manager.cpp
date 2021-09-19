@@ -1,7 +1,10 @@
 #include "drivetrain.hpp"
+#include "systems.hpp"
 #include "gui/display.hpp"
-#include "pros/rtos.h"
 #include "macros.h"
+#include "pros/rtos.h"
+#include "systems/holder_stick.hpp"
+#include "systems/lift.hpp"
 
 /**
  * Tasks
@@ -28,7 +31,7 @@ void mainTasks(void*) {
 #endif
 
     Drivetrain::leftEncoder.reset();
-    Drivetrain::rightEncoder.reset();
+    // Drivetrain::rightEncoder.reset();
     Drivetrain::middleEncoder.reset();
 
 Drivetrain::calibrationMutex.take(TIMEOUT_MAX);
@@ -46,6 +49,9 @@ Drivetrain::calibrationMutex.give();
 #endif
 
     Drivetrain::positionDataMutex.give();
+
+    motor_control::powerLift();
+    motor_control::powerHolderAndStick();
 
 #ifndef DISPLAY_DEBUG
         if (displayActive) {

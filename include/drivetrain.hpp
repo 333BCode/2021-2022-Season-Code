@@ -74,12 +74,10 @@ private:
 
     static bool calibrated;
 
-#ifdef USING_IMU
     static pros::Imu inertial;
-#endif
 
     static pros::ADIEncoder leftEncoder;
-    static pros::ADIEncoder rightEncoder;
+    // static pros::ADIEncoder rightEncoder;
     static pros::ADIEncoder middleEncoder;
 
     static pros::Mutex positionDataMutex;
