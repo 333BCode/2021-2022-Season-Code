@@ -2,14 +2,14 @@
 
 namespace motor_control::wings {
 
-void lower(side::side wing) {
+void lower(Side wing) {
     
-    if (wing == side::BOTH) {
+    if (wing == Side::both) {
 
         leftWing.set_value(true);
         rightWing.set_value(true);
 
-    } else if (wing == side::LEFT) {
+    } else if (wing == Side::left) {
 
         leftWing.set_value(true);
 

@@ -5,15 +5,13 @@
 
 namespace motor_control::wings {
 
-    namespace side {
-        enum side {
-            LEFT,
-            RIGHT,
-            BOTH
-        };
-    }
+    enum class Side {
+        left,
+        right,
+        both
+    };
 
-    void lower(side::side wing = side::BOTH);
+    void lower(Side wing = Side::both);
     void raise();
 
     extern pros::ADIDigitalOut leftWing;
