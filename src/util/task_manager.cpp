@@ -25,9 +25,16 @@ void mainTasks(void*) {
 
 #ifdef USING_IMU
     Drivetrain::inertial.reset();
-    do {
-        pros::delay(10);
-    } while (Drivetrain::inertial.is_calibrating());
+    {
+        int count = 1; // in block so count gets removed
+        while (Drivetrain::inertial.is_calibrating()) {
+            pros::delay(10);
+            if (count == 1) {
+                ++count;
+                std::cout << "IMU Reset not blocking.\n";
+            }
+        }
+    }
 #endif
 
     Drivetrain::leftEncoder.reset();
