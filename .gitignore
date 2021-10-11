@@ -7,7 +7,7 @@
 *.elf
 
 # PROS
-*.cache
+.cache/
 bin/
 .vscode/
 compile_commands.json
