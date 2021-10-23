@@ -23,14 +23,14 @@ namespace drive {
 constexpr size_t defaultAllocCapacity   = 500;
 constexpr size_t reallocAddition        = 100;
 
-Path::Path(Point target, float totalDist)
+Path::Path(Point target, long double lookAheadDist)
     : target {target},
     data {new Velocities[defaultAllocCapacity]}, length {0}, capacity {defaultAllocCapacity},
-    totalDist {totalDist} {}
+    lookAheadDistance {lookAheadDist} {}
 
 Path::Path(const Path& path)
     : target {path.target},
-    length {path.length}, capacity {path.length}, totalDist {path.totalDist}
+    length {path.length}, capacity {path.length}, lookAheadDistance {path.lookAheadDistance}
 {
     if (capacity > 0) {
 
@@ -46,7 +46,7 @@ Path::Path(const Path& path)
 
 Path::Path(Path&& path)
     : target {path.target},
-    data {path.data}, length {path.length}, capacity {path.capacity}, totalDist {path.totalDist}
+    data {path.data}, length {path.length}, capacity {path.capacity}, lookAheadDistance {path.lookAheadDistance}
 {
     if (capacity > 0) {
         path.data = nullptr;
@@ -55,9 +55,9 @@ Path::Path(Path&& path)
     }
 }
 
-Path::Path(Velocities* path, size_t length, Point target, float totalDist)
+Path::Path(Velocities* path, size_t length, Point target, long double lookAheadDist)
     : target {target},
-    data {path}, length {length}, capacity {length}, totalDist {totalDist} {}
+    data {path}, length {length}, capacity {length}, lookAheadDistance {lookAheadDist} {}
 
 Path::~Path() {
     if (capacity > 0) {
@@ -70,7 +70,7 @@ Path& Path::withAction(std::function<void()>&& action, double dist) {
     return *this;
 }
 
-void Path::add(long double leftVelocity, long double rightVelocity, float distanceAlongPath) {
+void Path::add(long double linearVoltage, long double rotVoltage, long double xExtension, long double yExtension) {
 
     if (length == capacity) {
 
@@ -86,7 +86,7 @@ void Path::add(long double leftVelocity, long double rightVelocity, float distan
 
     }
 
-    data[length] = {leftVelocity, rightVelocity, distanceAlongPath};
+    data[length] = {linearVoltage, rotVoltage, xExtension, yExtension};
     ++length;
 
 }
@@ -108,10 +108,18 @@ size_t Path::size() const {
 }
 
 Path Path::generatePathTo(Point point) {
-    return generatePath(getPosition(), point);
+    return generatePath(getPosition(), point, defaultLookAheadDistance);
 }
 
 Path Path::generatePath(Point start, Point end) {
+    return generatePath(start, end, defaultLookAheadDistance);
+}
+
+Path Path::generatePathTo(Point point, long double lookAheadDist) {
+    return generatePath(getPosition(), point, lookAheadDist);
+}
+
+Path Path::generatePath(Point start, Point end, long double lookAheadDist) {
 
     long double totalDist = distance(start.x - end.x, start.y - end.y);
 
@@ -140,7 +148,7 @@ Path Path::generatePath(Point start, Point end) {
     }
     length *= profileDT;
 
-    Path profile {end, static_cast<float>(length)};
+    Path profile {end, length};
 
     long double distToAccel = maxVelocity * maxVelocity / (2 * maxAcceleration);
     if (distToAccel > length / 2) {
@@ -149,11 +157,14 @@ Path Path::generatePath(Point start, Point end) {
 
     DistanceToTime toTime {eqxd, eqyd, profileDT};
 
+    long double kv = 12000 / maxVelocity;
+
     long double distTraveled = 0;
     while (distTraveled < length) {
 
+        long double t = toTime.atDistance(distTraveled);
         // get the curvature and radius if it exists
-        long double curvature = c.at(toTime.atDistance(distTraveled));
+        long double curvature = c.at(t);
         long double r = (curvature != 0 ? fabs(1 / curvature) : 0);
         // get the maximum forward velocity allowed by the curvature of the path
         long double velocityByCurvature = (curvature == 0 ? maxVelocity : (r * maxVelocity) / (r + drivetrainWidth));
@@ -198,8 +209,12 @@ Path Path::generatePath(Point start, Point end) {
             lVelocity = ((r + drivetrainWidth) / r) * velocity;
         }
 
+        long double theta = atan2(eqyd.at(t), eqxd.at(t));
         // add the left and right side velocities to the profile
-        profile.add(lVelocity, rVelocity, distTraveled);
+        profile.add(
+            velocity * kv, (lVelocity - rVelocity) * kv,
+            lookAheadDist * cos(theta), lookAheadDist * sin(theta)
+        );
 
         // update the distance traveled
         distTraveled += velocity * profileDT;

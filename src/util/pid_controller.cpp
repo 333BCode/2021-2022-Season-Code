@@ -20,7 +20,7 @@ long double PIDController::getDerivative() {
     return derivative;
 }
 
-void PIDController::setNewTarget(long double newTarget) {
+void PIDController::setNewTarget(long double newTarget, bool ignoreProfile) {
     
     target      = newTarget;
     error       = 0;
@@ -28,7 +28,7 @@ void PIDController::setNewTarget(long double newTarget) {
     derivative  = 0;
     totalError  = 0;
 
-    if (timeToMaxVoltage > 0) {
+    if (!ignoreProfile && timeToMaxVoltage > 0) {
 
         if (previousOutput > startingVoltage) {
 

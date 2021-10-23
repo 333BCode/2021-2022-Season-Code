@@ -6,14 +6,18 @@ class Drivetrain::Path final {
 public:
 
     struct Velocities {
-        long double leftVelocity;
-        long double rightVelocity;
-        float distanceAlongPath;
+
+        long double linearVoltage;
+        long double rotVoltage;
+        
+        long double xExtension;
+        long double yExtension;
+    
     };
 
     Path(const Path& path);
     Path(Path&& path);
-    Path(Velocities* path, size_t length, Point target, float totalDist);
+    Path(Velocities* path, size_t length, Point target, long double lookAheadDist);
 
     ~Path();
 
@@ -23,6 +27,8 @@ public:
 
     static Path generatePathTo(Point point);
     static Path generatePath(Point start, Point end);
+    static Path generatePathTo(Point point, long double lookAheadDist = defaultLookAheadDistance);
+    static Path generatePath(Point start, Point end, long double lookAheadDist = defaultLookAheadDistance);
 
     Velocities operator[](size_t index) const;
 
@@ -35,7 +41,7 @@ public:
 
 private:
 
-    Path(Point target, float totalDist);
+    Path(Point target, long double lookAheadDist);
 
     Point target;
 
@@ -44,9 +50,9 @@ private:
     size_t length;
     size_t capacity;
 
-    const float totalDist;
+    const long double lookAheadDistance;
 
-    void add(long double leftVelocity, long double rightVelocity, float distanceAlongPath);
+    void add(long double linearVoltage, long double rotVoltage, long double xExtension, long double yExtension);
 
 };
 

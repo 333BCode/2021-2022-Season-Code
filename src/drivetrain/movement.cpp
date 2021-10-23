@@ -16,15 +16,41 @@ Drivetrain& Drivetrain::operator<<(const Path& path) {
 
     stopped = false;
 
-    const long double kV = 12000 / maxVelocity;
+    linearPID.setNewTarget(path.lookAheadDistance, true);
+    rotPID.setNewTarget(0, true);
 
     uint32_t startTime = pros::millis();
 
     for (const Path::Velocities& velocitySet : path) {
 
-        supplyVoltagePerSide(velocitySet.leftVelocity * kV, velocitySet.rightVelocity * kV);
+    positionDataMutex.take(TIMEOUT_MAX);
 
-        executeActions(path.totalDist - velocitySet.distanceAlongPath);
+        long double curDist = distance(velocitySet.xExtension - xPos, velocitySet.yExtension - yPos);
+        long double overallDist = distance(path.target.x - xPos, path.target.y - yPos);
+
+        int linearOutput = linearPID.calcPower(curDist);
+
+        double rawAngle = atan2(velocitySet.yExtension - yPos, velocitySet.xExtension - xPos);
+
+        long double angleToPoint = rawAngle - radians(heading);
+
+        long double targetAngle = degrees(rawAngle);
+        if (driveReversed) {
+            targetAngle += 180;
+        } else if (targetAngle < 0) {
+            targetAngle += 360;
+        }
+        rotPID.alterTarget(targetAngle);
+        int rotOutput = rotPID.calcPower(wrapAngle(targetAngle));
+        
+    positionDataMutex.give();
+
+        supplyVoltage(
+            velocitySet.linearVoltage * (driveReversed ? -1 : 1) + linearOutput * cos(angleToPoint),
+            velocitySet.rotVoltage + rotOutput
+        );
+
+        executeActions(overallDist);
         if (stopped) {
             break;
         }
@@ -64,7 +90,11 @@ Drivetrain& Drivetrain::operator<<(const Waypoint& p) {
         long double angleToPoint = rawAngle - radians(heading);
 
         long double targetAngle = degrees(rawAngle);
-        if (targetAngle < 0) {targetAngle += 360;}
+        if (driveReversed) {
+            targetAngle += 180;
+        } else if (targetAngle < 0) {
+            targetAngle += 360;
+        }
         rotPID.alterTarget(targetAngle);
         int rotOutput = rotPID.calcPower(wrapAngle(targetAngle));
 
@@ -73,7 +103,7 @@ Drivetrain& Drivetrain::operator<<(const Waypoint& p) {
 
         supplyVoltage(linearOutput * cos(angleToPoint), rotOutput);
 
-        executeActions(fabs(linearPID.getError()));
+        executeActions(curDist);
 
         if (curDist < p.lookAheadDistance) {
             break;
@@ -135,7 +165,11 @@ void Drivetrain::moveTo(
         if (canTurn) {
 
             long double targetAngle = degrees(rawAngle);
-            if (targetAngle < 0) {targetAngle += 360;}
+            if (driveReversed) {
+                targetAngle += 180;
+            } else if (targetAngle < 0) {
+                targetAngle += 360;
+            }
             rotPID.alterTarget(targetAngle);
             rotOutput = rotPID.calcPower(wrapAngle(targetAngle));
         
@@ -149,7 +183,7 @@ void Drivetrain::moveTo(
 
         supplyVoltage(linearOutput * cos(angleToPoint), rotOutput);
 
-        executeActions(fabs(linearPID.getError()));
+        executeActions(curDist);
 
         if (firstLoop) {
             if (curDist <= exitConditions.maxLinearError) {
@@ -176,7 +210,10 @@ void Drivetrain::moveTo(
     }
 
     if (!isnanf(heading)) {
-        turnTo(heading, exitConditions);
+        turnTo(
+            driveReversed ? heading + (heading < 180 ? 180 : -180) : heading,
+            exitConditions
+        );
         oldTargetX = x;
         oldTargetY = y;
     } else {

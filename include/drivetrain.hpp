@@ -26,7 +26,7 @@ public:
     
     };
 
-    static bool isCalibrated();
+    static void setReversed(bool reversed);
 
     static Point getPosition();
     static void setPosition(long double newX, long double newY, long double newHeading);
@@ -73,6 +73,7 @@ private:
     static pros::Motor backRightMotor;
 
     static bool calibrated;
+    static bool driveReversed;
 
     static pros::Imu inertial;
 
@@ -81,7 +82,6 @@ private:
     static pros::ADIEncoder middleEncoder;
 
     static pros::Mutex positionDataMutex;
-    static pros::Mutex calibrationMutex;
 
     static long double xPos;
     static long double yPos;

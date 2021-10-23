@@ -22,9 +22,7 @@ autonSelectionMutex.take(TIMEOUT_MAX);
     auton_t selectedAuton = auton;
 autonSelectionMutex.give();
 
-    while (!Drivetrain::isCalibrated()) {
-        pros::delay(10);
-    }
+    Drivetrain::setReversed(false);
 
     selectedAuton();
 

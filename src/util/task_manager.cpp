@@ -41,9 +41,9 @@ void mainTasks(void*) {
     // Drivetrain::rightEncoder.reset();
     Drivetrain::middleEncoder.reset();
 
-Drivetrain::calibrationMutex.take(TIMEOUT_MAX);
+Drivetrain::positionDataMutex.take(TIMEOUT_MAX);
     Drivetrain::calibrated = true;
-Drivetrain::calibrationMutex.give();
+Drivetrain::positionDataMutex.give();
 
     while (true) {
 

@@ -9,10 +9,10 @@ namespace drive {
 
 } // namespace drive
 
-bool Drivetrain::calibrated = false;
+bool Drivetrain::calibrated     = false;
+bool Drivetrain::driveReversed  = false;
 
 pros::Mutex Drivetrain::positionDataMutex {};
-pros::Mutex Drivetrain::calibrationMutex {};
 
 long double Drivetrain::xPos    = 72;
 long double Drivetrain::yPos    = 72;
@@ -24,11 +24,19 @@ long double Drivetrain::targetHeading   = 90;
 
 std::vector<Drivetrain::Action> Drivetrain::actionList {};
 
-bool Drivetrain::isCalibrated() {
-calibrationMutex.take(TIMEOUT_MAX);
-    bool isCalibrated = calibrated;
-calibrationMutex.give();
-    return isCalibrated;
+void Drivetrain::setReversed(bool reversed) {
+
+    while (true) {
+    positionDataMutex.take(TIMEOUT_MAX);
+        if (calibrated) {
+            break;
+        }
+    positionDataMutex.give();
+        pros::delay(10);
+    }
+
+    driveReversed = reversed;
+
 }
 
 Drivetrain::Point Drivetrain::getPosition() {

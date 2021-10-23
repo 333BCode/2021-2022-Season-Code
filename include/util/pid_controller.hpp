@@ -28,7 +28,7 @@ public:
     long double getError();
     long double getDerivative();
 
-    void setNewTarget(long double newTarget);
+    void setNewTarget(long double newTarget, bool ignoreProfile = false);
     void alterTarget(long double newTarget);
 
     int calcPower(long double currPos);
