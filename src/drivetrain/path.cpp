@@ -76,7 +76,7 @@ void Path::add(long double linearVoltage, long double rotVoltage, long double xE
 
         capacity += reallocAddition;
         Velocities* oldData = data;
-        Velocities* data = new Velocities[capacity];
+        data = new Velocities[capacity];
 
         for (size_t i = 0; i < length; ++i) {
             data[i] = oldData[i];
