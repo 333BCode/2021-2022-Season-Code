@@ -26,6 +26,7 @@ public:
     
     };
 
+    static void waitUntilCalibrated();
     static void setReversed(bool reversed);
 
     static Point getPosition();

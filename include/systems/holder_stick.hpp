@@ -13,6 +13,8 @@ namespace motor_control {
 
         void setManualControl(bool manualControl);
 
+        void reset();
+
         extern pros::Motor motor;
 
     } // namespace holder

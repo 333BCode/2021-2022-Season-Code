@@ -3,8 +3,6 @@
 #include "gui/display.hpp"
 #include "macros.h"
 #include "pros/rtos.h"
-#include "systems/holder_stick.hpp"
-#include "systems/lift.hpp"
 
 /**
  * Tasks

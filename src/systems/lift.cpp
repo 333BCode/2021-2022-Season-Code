@@ -4,58 +4,40 @@
 
 namespace motor_control {
 
-static PIDController liftPID {
-    
-    1,  // kP
-    0,  // kD
-    0,  // kI
-    4,  // integralCap      (volts)
-    
-    0.5,  // timeToMaxVoltage (seconds)
-    12, // maxVoltage       (volts)
-    1,  // profilePower
-    0   // startingVoltage  (volts)
-
-};
-
-constexpr long double highAngle = 35;
-constexpr long double lowAngle = -35;
+constexpr long double highAngle = 700;
 
 static bool liftIsUp            = false;
 static bool usingManualControl  = false;
 
 static bool clamping            = true;
 
-static pros::Mutex liftMutex {};
+static pros::Mutex mutex {};
 
 namespace lift {
 
 void raise() {
-liftMutex.take(TIMEOUT_MAX);
-    liftPID.setNewTarget(highAngle);
-liftMutex.give();
+mutex.take(TIMEOUT_MAX);
     liftIsUp = true;
+mutex.give();
 }
 
 void lower() {
-liftMutex.take(TIMEOUT_MAX);
-    liftPID.setNewTarget(lowAngle);
-liftMutex.give();
+mutex.take(TIMEOUT_MAX);
     liftIsUp = false;
+mutex.give();
 }
 
 void toggleLift() {
-liftMutex.take(TIMEOUT_MAX);
-    liftPID.setNewTarget(liftIsUp ? lowAngle : highAngle);
-liftMutex.give();
+mutex.take(TIMEOUT_MAX);
     liftIsUp = !liftIsUp;
+mutex.give();
 }
 
 void setManualControl(bool manualControl) {
-liftMutex.take(TIMEOUT_MAX);
+mutex.take(TIMEOUT_MAX);
     usingManualControl = manualControl;
-    motor.move(0);
-liftMutex.give();
+    liftIsUp = false;
+mutex.give();
 }
 
 void clamp() {
@@ -73,14 +55,20 @@ void toggleClamp() {
     clamping = !clamping;
 }
 
+void reset() {
+mutex.take(TIMEOUT_MAX);
+    motor.tare_position();
+mutex.give();
+}
+
 } // namespace lift
 
 void powerLift() {
-liftMutex.take(TIMEOUT_MAX);
-    if (!usingManualControl) {
-        lift::motor.move_voltage(liftPID.calcPower(lift::motor.get_position()));
+mutex.take(TIMEOUT_MAX);
+    if (usingManualControl) {
+        lift::motor.move_absolute(liftIsUp ? highAngle : 0, 100);
     }
-liftMutex.give();
+mutex.give();
 }
 
 } // namespace motor_control

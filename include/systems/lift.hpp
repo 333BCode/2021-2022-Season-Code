@@ -5,24 +5,26 @@
 
 namespace motor_control {
 
-    namespace lift {
-            
-        void raise();
-        void lower();
-        void toggleLift();
+namespace lift {
 
-        void setManualControl(bool manualControl);
+void raise();
+void lower();
+void toggleLift();
 
-        void clamp();
-        void release();
-        void toggleClamp();
+void setManualControl(bool manualControl);
 
-        extern pros::Motor motor;
-        extern pros::ADIDigitalOut claw;
+void clamp();
+void release();
+void toggleClamp();
 
-    } // namespace lift
+void reset();
 
-    void powerLift();
+extern pros::Motor motor;
+extern pros::ADIDigitalOut claw;
+
+} // namespace lift
+
+void powerLift();
 
 } // namespace motor_control
 

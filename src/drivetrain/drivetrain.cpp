@@ -24,19 +24,20 @@ long double Drivetrain::targetHeading   = 90;
 
 std::vector<Drivetrain::Action> Drivetrain::actionList {};
 
-void Drivetrain::setReversed(bool reversed) {
-
+void Drivetrain::waitUntilCalibrated() {
     while (true) {
     positionDataMutex.take(TIMEOUT_MAX);
-        if (calibrated) {
+        bool isCalibrated = calibrated;
+    positionDataMutex.give();
+        if (isCalibrated) {
             break;
         }
-    positionDataMutex.give();
         pros::delay(10);
     }
+}
 
+void Drivetrain::setReversed(bool reversed) {
     driveReversed = reversed;
-
 }
 
 Drivetrain::Point Drivetrain::getPosition() {
