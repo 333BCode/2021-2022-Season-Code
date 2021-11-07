@@ -6,12 +6,12 @@
 /*
  * Drivetrain Devices
  */
-pros::Motor Drivetrain::frontLeftMotor  {12, pros::E_MOTOR_GEARSET_06, false};
-pros::Motor Drivetrain::backLeftMotor   {18, pros::E_MOTOR_GEARSET_06, false};
-pros::Motor Drivetrain::frontRightMotor {13, pros::E_MOTOR_GEARSET_06, true};
-pros::Motor Drivetrain::backRightMotor  {2, pros::E_MOTOR_GEARSET_06, true};
+pros::Motor Drivetrain::frontLeftMotor  {1, pros::E_MOTOR_GEARSET_06, false};
+pros::Motor Drivetrain::backLeftMotor   {19, pros::E_MOTOR_GEARSET_06, false};
+pros::Motor Drivetrain::frontRightMotor {12, pros::E_MOTOR_GEARSET_06, true};
+pros::Motor Drivetrain::backRightMotor  {8, pros::E_MOTOR_GEARSET_06, true};
 
-pros::Imu Drivetrain::inertial {17};
+pros::Imu Drivetrain::inertial {15};
 
 pros::ADIEncoder Drivetrain::leftEncoder    {'A', 'B', true};
 // pros::ADIEncoder Drivetrain::rightEncoder   {'E', 'F', false};
