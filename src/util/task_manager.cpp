@@ -21,7 +21,6 @@ void mainTasks(void*) {
 
     short frame = 0;
 
-#ifdef USING_IMU
     Drivetrain::inertial.reset();
     {
         int count = 1; // in block so count gets removed
@@ -33,7 +32,6 @@ void mainTasks(void*) {
             }
         }
     }
-#endif
 
     Drivetrain::leftEncoder.reset();
     // Drivetrain::rightEncoder.reset();
