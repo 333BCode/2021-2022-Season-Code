@@ -26,8 +26,6 @@ namespace motor_control {
         void toggleStick();
         void setNeutral();
 
-        void setManualControl(bool manualControl);
-
         extern pros::Motor motor;
 
     } // namespace stick

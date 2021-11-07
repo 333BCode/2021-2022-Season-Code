@@ -4,8 +4,6 @@
 #include "systems.hpp"
 #include "pros/rtos.h"
 #include "macros.h"
-#include "systems/intake.hpp"
-#include "systems/lift.hpp"
 
 #ifdef BRAIN_SCREEN_GAME_MODE
 #include "util/conversions.hpp"
@@ -36,6 +34,10 @@ void opcontrol() {
     bool usingExponential = false;
 
     bool intakeCommanded = false;
+
+    bool usingManualControl = false;
+
+    int count = 0;
 
     // sets break modes to coast
     base.setBrakeMode(pros::E_MOTOR_BRAKE_COAST);
@@ -74,40 +76,88 @@ void opcontrol() {
             usingExponential = !usingExponential;
         }
 
-        // shift key
-        if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_L2)) {
-        
-            if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R1)) {
-                lift::toggleLift();
+        if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A)) {
+            
+            usingManualControl = !usingManualControl;
+            lift::setManualControl(usingManualControl);
+            holder::setManualControl(usingManualControl);
+            
+            if (!usingManualControl) {
+                lift::reset();
+                holder::reset();
             }
 
-            if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R2)) {
-                lift::toggleClamp();
-            }
+        }
 
-            if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_L1)) {
-                intake::intake();
-                intakeCommanded = true;
+        if (usingManualControl) {
+
+            if (count % 50 == 0) {
+                controller.rumble(". . .");
+                count = 0;
+            }
+            ++count;
+
+            // shift key
+            if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_L2)) {
+
+                if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) {
+                    holder::motor.move(50);
+                } else if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R2)) {
+                    holder::motor.move(-50);
+                } else {
+                    holder::motor.move(0);
+                }
+
+            } else {
+
+                if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) {
+                    lift::motor.move(50);
+                } else if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R2)) {
+                    lift::motor.move(-50);
+                } else {
+                    lift::motor.move(0);
+                }
+
             }
 
         } else {
 
-            if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R1)) {
-                holder::toggleHolder();
-            }
+            // shift key
+            if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_L2)) {
+            
+                if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R1)) {
+                    holder::toggleHolder();
+                }
 
-            if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R2)) {
-                stick::toggleStick();
+                if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R2)) {
+                    stick::toggleStick();
+                }
+
+            } else {
+
+                if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R1)) {
+                    lift::toggleLift();
+                }
+
+                if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R2)) {
+                    lift::toggleClamp();
+                }
+
             }
 
         }
 
         if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_B)) {
             intake::reverse();
+            intakeCommanded = false;
+        } else if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L1)) {
+            intakeCommanded = !intakeCommanded;
+            if (intakeCommanded) {
+                intake::intake();
+            }
         } else if (!intakeCommanded) {
             intake::stop();
         }
-        intakeCommanded = false;
 
         pros::Task::delay_until(&startTime, 10);
 
