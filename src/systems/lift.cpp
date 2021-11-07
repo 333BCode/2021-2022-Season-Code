@@ -4,7 +4,7 @@
 
 namespace motor_control {
 
-    constexpr long double highAngle = 700;
+    constexpr long double highAngle = 2750;
 
     static bool liftIsUp            = false;
     static bool usingManualControl  = false;
@@ -65,7 +65,7 @@ namespace motor_control {
 
     void powerLift() {
     mutex.take(TIMEOUT_MAX);
-        if (usingManualControl) {
+        if (!usingManualControl) {
             lift::motor.move_absolute(liftIsUp ? highAngle : 0, 100);
         }
     mutex.give();

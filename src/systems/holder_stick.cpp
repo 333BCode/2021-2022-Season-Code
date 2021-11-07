@@ -4,9 +4,9 @@ namespace motor_control {
 
     namespace holder {
 
-        constexpr long double highAngle = 250;
+        constexpr long double highAngle = 1250;
 
-        static long double offset = -450;
+        static long double offset = -2450;
 
         bool usingManualControl = false;
 
@@ -115,7 +115,7 @@ namespace motor_control {
     holder::mutex.take(TIMEOUT_MAX);
     stick::mutex.take(TIMEOUT_MAX);
 
-        if (holder::usingManualControl) {
+        if (!holder::usingManualControl) {
 
             if (holder::stateUpdated) {
                 if (stick::state == stick::State::down) {

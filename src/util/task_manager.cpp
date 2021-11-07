@@ -21,7 +21,7 @@ void mainTasks(void*) {
 
     short frame = 0;
 
-    Drivetrain::inertial.reset();
+    /*Drivetrain::inertial.reset();
     {
         int count = 1; // in block so count gets removed
         while (Drivetrain::inertial.is_calibrating()) {
@@ -31,7 +31,7 @@ void mainTasks(void*) {
                 std::cout << "IMU Reset not blocking.\n";
             }
         }
-    }
+    }*/
 
     Drivetrain::leftEncoder.reset();
     // Drivetrain::rightEncoder.reset();
@@ -48,7 +48,7 @@ Drivetrain::positionDataMutex.give();
         uint32_t startTime = pros::millis();
 
 #ifndef BRAIN_SCREEN_GAME_MODE
-        Drivetrain::trackPosition();
+        // Drivetrain::trackPosition();
 #endif
 
     Drivetrain::positionDataMutex.give();

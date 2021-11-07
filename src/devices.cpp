@@ -6,10 +6,10 @@
 /*
  * Drivetrain Devices
  */
-pros::Motor Drivetrain::frontLeftMotor  {1, pros::E_MOTOR_GEARSET_06, false};
-pros::Motor Drivetrain::backLeftMotor   {19, pros::E_MOTOR_GEARSET_06, false};
-pros::Motor Drivetrain::frontRightMotor {12, pros::E_MOTOR_GEARSET_06, true};
-pros::Motor Drivetrain::backRightMotor  {8, pros::E_MOTOR_GEARSET_06, true};
+pros::Motor Drivetrain::frontLeftMotor  {1, pros::E_MOTOR_GEARSET_06, true};
+pros::Motor Drivetrain::backLeftMotor   {19, pros::E_MOTOR_GEARSET_06, true};
+pros::Motor Drivetrain::frontRightMotor {12, pros::E_MOTOR_GEARSET_06, false};
+pros::Motor Drivetrain::backRightMotor  {8, pros::E_MOTOR_GEARSET_06, false};
 
 pros::Imu Drivetrain::inertial {15};
 
@@ -23,19 +23,19 @@ pros::ADIEncoder Drivetrain::middleEncoder  {'G', 'H', false};
 namespace motor_control {
 
     namespace holder {
-        pros::Motor motor {3, pros::E_MOTOR_GEARSET_36, false};
+        pros::Motor motor {9, pros::E_MOTOR_GEARSET_36, false};
     } // namespace holder
 
     namespace stick {
-        pros::Motor motor {4, pros::E_MOTOR_GEARSET_36, false};
+        pros::Motor motor {15, pros::E_MOTOR_GEARSET_36, false};
     } // namespace stick
 
     namespace intake {
-        pros::Motor motor {2, pros::E_MOTOR_GEARSET_18, false};
+        pros::Motor motor {14, pros::E_MOTOR_GEARSET_18, true};
     } // namespace intake
 
     namespace lift {
-        pros::Motor motor           {1, pros::E_MOTOR_GEARSET_36, false};
+        pros::Motor motor           {11, pros::E_MOTOR_GEARSET_36, true};
         pros::ADIDigitalOut claw    {'E'};
     } // namespace lift
 

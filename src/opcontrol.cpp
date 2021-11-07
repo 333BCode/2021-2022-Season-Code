@@ -92,7 +92,7 @@ void opcontrol() {
         if (usingManualControl) {
 
             if (count % 50 == 0) {
-                controller.rumble(". . .");
+                controller.rumble(".");
                 count = 0;
             }
             ++count;
