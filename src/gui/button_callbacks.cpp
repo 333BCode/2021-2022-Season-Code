@@ -6,7 +6,7 @@
 
 lv_res_t setVirtualBotPos(lv_obj_t* tile) {
 
-    if (pros::competition::is_autonomous()) {
+    if (!pros::competition::is_autonomous()) {
         uint32_t tileID = lv_obj_get_free_num(tile);
         Drivetrain::setPosition(tileID % 10 * 24.0 + 12.0, (tileID / 10) * 24.0 + 12.0, 90);
     }

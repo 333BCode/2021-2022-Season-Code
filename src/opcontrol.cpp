@@ -97,6 +97,7 @@ void opcontrol() {
             }
             ++count;
 
+            /*
             // shift key
             if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_L2)) {
 
@@ -119,9 +120,26 @@ void opcontrol() {
                 }
 
             }
+            */
+
+            if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_L1)) {
+                holder::motor.move(50);
+            } else if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_L2)) {
+                holder::motor.move(-50);
+            } else {
+                holder::motor.move(0);
+            }
+
+            if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) {
+                lift::motor.move(50);
+            } else if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R2)) {
+                lift::motor.move(-50);
+            } else {
+                lift::motor.move(0);
+            }
 
         } else {
-
+            /*
             // shift key
             if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_L2)) {
             
@@ -143,6 +161,22 @@ void opcontrol() {
                     lift::toggleClamp();
                 }
 
+            }*/
+
+            if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L2)) {
+                holder::toggleHolder();
+            }
+
+            if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_X)) {
+                stick::toggleStick();
+            }
+
+            if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R1)) {
+                lift::toggleLift();
+            }
+
+            if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R2)) {
+                lift::toggleClamp();
             }
 
         }

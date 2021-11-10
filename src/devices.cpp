@@ -27,7 +27,7 @@ namespace motor_control {
     } // namespace holder
 
     namespace stick {
-        pros::Motor motor {15, pros::E_MOTOR_GEARSET_36, false};
+        pros::Motor motor {13, pros::E_MOTOR_GEARSET_36, false};
     } // namespace stick
 
     namespace intake {

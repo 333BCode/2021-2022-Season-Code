@@ -4,7 +4,7 @@ namespace motor_control {
 
     namespace holder {
 
-        constexpr long double highAngle = 1250;
+        constexpr long double highAngle = 1650;
 
         static long double offset = -2450;
 
@@ -71,8 +71,8 @@ namespace motor_control {
 
     namespace stick {
 
-        constexpr long double highAngle = 100;
-        constexpr long double neutralAngle = 45;
+        constexpr long double highAngle = 675;
+        constexpr long double neutralAngle = 500;
 
         enum class State {
             down,
@@ -138,21 +138,17 @@ namespace motor_control {
 
                 case stick::State::down:
                 
-                    if (stick::motor.get_position() > 5) {
-                        stick::motor.move(-127);
-                    }
+                    stick::motor.move(stick::motor.get_position() > 100 ? -50 : 0);
                 
                 break;
                 case stick::State::neutral:
                 
-                    stick::motor.move_absolute(stick::neutralAngle, 100);
+                    stick::motor.move_absolute(stick::neutralAngle, 50);
                 
                 break;
                 case stick::State::up:
                 
-                    if (stick::motor.get_position() < stick::highAngle - 5) {
-                        stick::motor.move(127);
-                    }
+                    stick::motor.move_absolute(stick::highAngle, 50);
                 
                 break;
 
@@ -160,7 +156,7 @@ namespace motor_control {
 
         } else {
 
-            stick::motor.move_absolute(stick::neutralAngle, 100);
+            stick::motor.move_absolute(stick::neutralAngle, 50);
 
         }
 

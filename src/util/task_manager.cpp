@@ -1,4 +1,6 @@
 #include "drivetrain.hpp"
+#include "pros/misc.h"
+#include "pros/misc.hpp"
 #include "systems.hpp"
 #include "gui/display.hpp"
 #include "macros.h"
@@ -9,7 +11,9 @@
  */
 
 void mainTasks(void*);
-pros::Task sideTasks(mainTasks);
+void systemsTasks(void*);
+pros::Task mainTask(mainTasks);
+pros::Task systemsTask(systemsTasks);
 
 void mainTasks(void*) {
 
@@ -21,17 +25,10 @@ void mainTasks(void*) {
 
     short frame = 0;
 
-    /*Drivetrain::inertial.reset();
-    {
-        int count = 1; // in block so count gets removed
-        while (Drivetrain::inertial.is_calibrating()) {
-            pros::delay(10);
-            if (count == 1) {
-                ++count;
-                std::cout << "IMU Reset not blocking.\n";
-            }
-        }
-    }*/
+    Drivetrain::inertial.reset();
+    while (Drivetrain::inertial.is_calibrating()) {
+        pros::delay(10);
+    }
 
     Drivetrain::leftEncoder.reset();
     // Drivetrain::rightEncoder.reset();
@@ -52,9 +49,6 @@ Drivetrain::positionDataMutex.give();
 #endif
 
     Drivetrain::positionDataMutex.give();
-
-    motor_control::powerLift();
-    motor_control::powerHolderAndStick();
 
 #ifndef DISPLAY_DEBUG
         if (displayActive) {
@@ -79,4 +73,13 @@ Drivetrain::positionDataMutex.give();
 
     }
 
+}
+
+void systemsTasks(void*) {
+    while (true) {
+        uint32_t startTime = pros::millis();
+        motor_control::powerLift();
+        motor_control::powerHolderAndStick();
+        pros::Task::delay_until(&startTime, 10);
+    }
 }
