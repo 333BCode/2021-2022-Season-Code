@@ -30,9 +30,9 @@ void mainTasks(void*) {
         pros::delay(10);
     }
 
-    Drivetrain::leftEncoder.reset();
+    // Drivetrain::leftEncoder.reset();
     // Drivetrain::rightEncoder.reset();
-    Drivetrain::middleEncoder.reset();
+    // Drivetrain::middleEncoder.reset();
 
 Drivetrain::positionDataMutex.take(TIMEOUT_MAX);
     Drivetrain::calibrated = true;

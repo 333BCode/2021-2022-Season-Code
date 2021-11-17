@@ -36,7 +36,7 @@ namespace motor_control {
 
     namespace lift {
         pros::Motor motor           {11, pros::E_MOTOR_GEARSET_36, true};
-        pros::ADIDigitalOut claw    {'E'};
+        pros::ADIDigitalOut claw    {'B'};
     } // namespace lift
 
 } // namespace motor_control

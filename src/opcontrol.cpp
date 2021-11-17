@@ -96,8 +96,7 @@ void opcontrol() {
                 count = 0;
             }
             ++count;
-
-            /*
+/*
             // shift key
             if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_L2)) {
 
@@ -120,8 +119,7 @@ void opcontrol() {
                 }
 
             }
-            */
-
+*/
             if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_L1)) {
                 holder::motor.move(50);
             } else if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_L2)) {
@@ -161,8 +159,8 @@ void opcontrol() {
                     lift::toggleClamp();
                 }
 
-            }*/
-
+            }
+*/
             if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L2)) {
                 holder::toggleHolder();
             }
