@@ -2,6 +2,8 @@
 
 namespace motor_control {
 
+    static pros::Mutex mutex = {};
+
     namespace holder {
 
         constexpr long double highAngle = 1650;
@@ -19,8 +21,6 @@ namespace motor_control {
         static State state = State::notDeployed;
 
         static bool stateUpdated = false;
-
-        static pros::Mutex mutex {};
 
         void raise() {
         mutex.take(TIMEOUT_MAX);
@@ -53,8 +53,8 @@ namespace motor_control {
         }
 
         void setManualControl(bool manualControl) {
-        mutex.take(TIMEOUT_MAX);
             stick::setNeutral();
+        mutex.take(TIMEOUT_MAX);
             usingManualControl = manualControl;
             state = State::down;
         mutex.give();
@@ -81,8 +81,6 @@ namespace motor_control {
         };
 
         static State state = State::down;
-
-        static pros::Mutex mutex {};
 
         void recieve() {
         mutex.take(TIMEOUT_MAX);
@@ -111,9 +109,7 @@ namespace motor_control {
     } // namespace stick
 
     void powerHolderAndStick() {
-
-    holder::mutex.take(TIMEOUT_MAX);
-    stick::mutex.take(TIMEOUT_MAX);
+    mutex.take(TIMEOUT_MAX);
 
         if (!holder::usingManualControl) {
 
@@ -160,8 +156,7 @@ namespace motor_control {
 
         }
 
-    stick::mutex.give();
-    holder::mutex.give();
+    mutex.give();
 
     }
 

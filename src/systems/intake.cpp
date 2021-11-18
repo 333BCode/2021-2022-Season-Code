@@ -2,7 +2,7 @@
 
 namespace motor_control::intake {
 
-    constexpr int intakeSpeed = 75;
+    constexpr int intakeSpeed = 77;
 
     void intake() {
         motor.move(intakeSpeed);

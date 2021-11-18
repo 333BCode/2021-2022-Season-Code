@@ -17,6 +17,9 @@ namespace lift {
     void release();
     void toggleClamp();
 
+    void setAutoClamp(bool autoClampEnabled);
+    bool isClamping();
+
     void reset();
 
     extern pros::Motor motor;
