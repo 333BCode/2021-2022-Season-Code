@@ -171,8 +171,6 @@ void Drivetrain::moveTo(
                 targetAngle += 360;
             }
             rotPID.alterTarget(targetAngle);
-            if (firstLoop) {
-        }
             rotOutput = rotPID.calcPower(wrapAngle(targetAngle));
         
         } else {
