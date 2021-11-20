@@ -1,7 +1,10 @@
 #include "autonomous.hpp"
+#include "drivetrain.hpp"
 
 void skills() {
 
-   std::cout << "In the skills auton.\n";
+   base.moveForward(24_in);
+
+   stick::setNeutral();
 
 }

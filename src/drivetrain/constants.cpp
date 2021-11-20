@@ -2,28 +2,28 @@
 
 motor_control::PIDController Drivetrain::linearPID {
     
-    1,  // kP
+    4,  // kP
     0,  // kD
     0,  // kI
     4,  // integralCap      (volts)
     
-    2,  // timeToMaxVoltage (seconds)
+    0,  // timeToMaxVoltage (seconds)
     12, // maxVoltage       (volts)
-    3,  // profilePower
+    1,  // profilePower
     0   // startingVoltage  (volts)
 
 };
 
 motor_control::PIDController Drivetrain::rotPID {
     
-    1,  // kP
-    0,  // kD
+    1.1,  // kP
+    0.05,  // kD
     0,  // kI
     4,  // integralCap      (volts)
     
-    2,  // timeToMaxVoltage (seconds)
+    0.5,  // timeToMaxVoltage (seconds)
     12, // maxVoltage       (volts)
-    3,  // profilePower
+    1,  // profilePower
     0   // startingVoltage  (volts)
 
 };
@@ -36,16 +36,16 @@ const Drivetrain::ExitConditions Drivetrain::defaultExitConditions {
     10, // degrees
     5,  // degrees per second
 
-    0.5 // seconds
+    100 // seconds
 
 };
 
 const long double Drivetrain::defaultLookAheadDistance      = 5;
-const long double Drivetrain::minDistForTurning             = 6;
+const long double Drivetrain::minDistForTurning             = 20;
 
-const long double Drivetrain::wheelSpacingParallel          = 5.55;
-const long double Drivetrain::wheelSpacingPerpendicular     = 4;
-const long double Drivetrain::trackingWheelDiameter         = 2.75;
+const long double Drivetrain::wheelSpacingParallel          = 4.5;
+const long double Drivetrain::wheelSpacingPerpendicular     = 0.2;
+const long double Drivetrain::trackingWheelDiameter         = 2.81;
 
 long double Drivetrain::maxVelocity             = 5;
 long double Drivetrain::maxAcceleration         = 5;

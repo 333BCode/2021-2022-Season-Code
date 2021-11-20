@@ -1,4 +1,5 @@
 #include "drivetrain.hpp"
+#include "pros/misc.h"
 #include "pros/rtos.h"
 #include "util/conversions.hpp"
 #include "macros.h"
@@ -106,30 +107,28 @@ void Drivetrain::trackPosition() {
     using conversions::radians;
     using conversions::degrees;
 
-    static int32_t lastLeftValue        = 0;
-    // static int32_t lastRightValue       = 0;
+    static int32_t lastRightValue       = 0;
     static int32_t lastMiddleValue      = 0;
     static double lastInertialAngle     = 0;
+    static int count = 0;
 
     /**
      * Main Calculations
      */
 
-    int32_t leftEncoderValue    = leftEncoder.get_value();
-    // int32_t rightEncoderValue   = rightEncoder.get_value();
+    int32_t rightEncoderValue   = rightEncoder.get_value();
     int32_t middleEncoderValue  = middleEncoder.get_value();
 
     double inertialAngle        = -inertial.get_rotation();
 
-    long double leftDist    = ticksToInches(leftEncoderValue - lastLeftValue);
-    // long double rightDist   = ticksToInches(rightEncoderValue - lastRightValue);
+    long double rightDist   = ticksToInches(rightEncoderValue - lastRightValue);
     long double middleDist  = ticksToInches(middleEncoderValue - lastMiddleValue);
 
-    lastLeftValue   = leftEncoderValue;
-    // lastRightValue  = rightEncoderValue;
+    lastRightValue  = rightEncoderValue;
     lastMiddleValue = middleEncoderValue;
 
     long double angle = radians(inertialAngle - lastInertialAngle);
+    lastInertialAngle = inertialAngle;
 /*
     long double angle = (rightDist - leftDist) / (2 * wheelSpacingParallel);
 
@@ -138,7 +137,7 @@ void Drivetrain::trackPosition() {
         lastInertialAngle = inertialAngle;
     }
 */
-    long double distMain    = angle == 0 ? leftDist : 2 * (leftDist / angle + wheelSpacingParallel) * sin(angle / 2);
+    long double distMain    = angle == 0 ? rightDist : 2 * (rightDist / angle + wheelSpacingParallel) * sin(angle / 2);
     long double distSlide   = angle == 0 ? middleDist : 2 * (middleDist / angle + wheelSpacingPerpendicular) * sin(angle / 2);
 
     long double theta = radians(heading) + angle / 2;

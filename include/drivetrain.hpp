@@ -78,8 +78,7 @@ private:
 
     static pros::Imu inertial;
 
-    static pros::ADIEncoder leftEncoder;
-    // static pros::ADIEncoder rightEncoder;
+    static pros::ADIEncoder rightEncoder;
     static pros::ADIEncoder middleEncoder;
 
     static pros::Mutex positionDataMutex;

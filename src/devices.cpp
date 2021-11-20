@@ -13,9 +13,8 @@ pros::Motor Drivetrain::backRightMotor  {8, pros::E_MOTOR_GEARSET_06, false};
 
 pros::Imu Drivetrain::inertial {15};
 
-pros::ADIEncoder Drivetrain::leftEncoder    {'A', 'B', true};
-// pros::ADIEncoder Drivetrain::rightEncoder   {'E', 'F', false};
-pros::ADIEncoder Drivetrain::middleEncoder  {'G', 'H', false};
+pros::ADIEncoder Drivetrain::rightEncoder   {'E', 'F', true};
+pros::ADIEncoder Drivetrain::middleEncoder  {'C', 'D', true};
 
 /*
  * Non Drivetrain Devices

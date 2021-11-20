@@ -30,9 +30,8 @@ void mainTasks(void*) {
         pros::delay(10);
     }
 
-    // Drivetrain::leftEncoder.reset();
-    // Drivetrain::rightEncoder.reset();
-    // Drivetrain::middleEncoder.reset();
+    Drivetrain::rightEncoder.reset();
+    Drivetrain::middleEncoder.reset();
 
 Drivetrain::positionDataMutex.take(TIMEOUT_MAX);
     Drivetrain::calibrated = true;
@@ -45,7 +44,7 @@ Drivetrain::positionDataMutex.give();
         uint32_t startTime = pros::millis();
 
 #ifndef BRAIN_SCREEN_GAME_MODE
-        // Drivetrain::trackPosition();
+        Drivetrain::trackPosition();
 #endif
 
     Drivetrain::positionDataMutex.give();

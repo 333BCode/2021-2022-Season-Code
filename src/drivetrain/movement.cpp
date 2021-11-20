@@ -28,7 +28,7 @@ Drivetrain& Drivetrain::operator<<(const Path& path) {
         long double curDist = distance(velocitySet.xExtension - xPos, velocitySet.yExtension - yPos);
         long double overallDist = distance(path.target.x - xPos, path.target.y - yPos);
 
-        int linearOutput = linearPID.calcPower(curDist);
+        int linearOutput = abs(linearPID.calcPower(curDist));
 
         double rawAngle = atan2(velocitySet.yExtension - yPos, velocitySet.xExtension - xPos);
 
@@ -47,7 +47,7 @@ Drivetrain& Drivetrain::operator<<(const Path& path) {
 
         supplyVoltage(
             velocitySet.linearVoltage * (driveReversed ? -1 : 1) + linearOutput * cos(angleToPoint),
-            velocitySet.rotVoltage + rotOutput
+            velocitySet.rotVoltage - rotOutput
         );
 
         executeActions(overallDist);
@@ -83,7 +83,7 @@ Drivetrain& Drivetrain::operator<<(const Waypoint& p) {
 
         double curDist = distance(p.x - xPos, p.y - yPos);
 
-        int linearOutput = linearPID.calcPower(curDist);
+        int linearOutput = abs(linearPID.calcPower(curDist));
 
         double rawAngle = atan2(target.y - yPos, target.x - xPos);
 
@@ -101,7 +101,7 @@ Drivetrain& Drivetrain::operator<<(const Waypoint& p) {
 
     positionDataMutex.give();
 
-        supplyVoltage(linearOutput * cos(angleToPoint), rotOutput);
+        supplyVoltage(linearOutput * cos(angleToPoint), -rotOutput);
 
         executeActions(curDist);
 
@@ -147,14 +147,14 @@ void Drivetrain::moveTo(
 
         double curDist = distance(x - xPos, y - yPos);
 
-        int linearOutput = linearPID.calcPower(curDist);
+        int linearOutput = abs(linearPID.calcPower(curDist));
         int rotOutput;
         double rawAngle = atan2(y - yPos, x - xPos);
-        long double angleToPoint = rawAngle - radians(heading);
+        long double angleToPoint = rawAngle - radians(Drivetrain::heading);
 
         if (canTurn == curDist < minDistForTurning) {
             if (canTurn) {
-                targetHeading = heading;
+                targetHeading = Drivetrain::heading;
                 rotPID.alterTarget(targetHeading);
                 canTurn = false;
             } else {
@@ -171,6 +171,8 @@ void Drivetrain::moveTo(
                 targetAngle += 360;
             }
             rotPID.alterTarget(targetAngle);
+            if (firstLoop) {
+        }
             rotOutput = rotPID.calcPower(wrapAngle(targetAngle));
         
         } else {
@@ -181,7 +183,7 @@ void Drivetrain::moveTo(
 
     positionDataMutex.give();
 
-        supplyVoltage(linearOutput * cos(angleToPoint), rotOutput);
+        supplyVoltage(linearOutput * cos(angleToPoint), -rotOutput);
 
         executeActions(curDist);
 
@@ -253,7 +255,7 @@ void Drivetrain::turnTo(long double heading, const ExitConditions& exitCondition
         int rotOutput = rotPID.calcPower(wrapAngle(targetHeading));
     positionDataMutex.give();
 
-        supplyVoltage(0, rotOutput);
+        supplyVoltage(0, -rotOutput);
 
         executeActions(fabs(rotPID.getError()), true);
 
@@ -284,7 +286,7 @@ void Drivetrain::turnTo(long double heading, const ExitConditions& exitCondition
 }
 
 void Drivetrain::moveForward(long double dist) {
-    long double currHeading = getPosition().heading;
+    long double currHeading = radians(getPosition().heading);
     moveTo(dist * cos(currHeading), dist * sin(currHeading), currHeading);
 }
 

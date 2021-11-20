@@ -1,8 +1,48 @@
 #include "systems/holder_stick.hpp"
+#include "pros/motors.h"
 
 namespace motor_control {
 
     static pros::Mutex mutex = {};
+
+    namespace stick {
+
+        constexpr long double highAngle = 675;
+        constexpr long double neutralAngle = 500;
+
+        enum class State {
+            down,
+            neutral,
+            up
+        };
+
+        static State state = State::down;
+
+        void recieve() {
+        mutex.take(TIMEOUT_MAX);
+            state = State::down;
+        mutex.give();
+        }
+
+        void deposit() {
+        mutex.take(TIMEOUT_MAX);
+            state = State::up;
+        mutex.give();
+        }
+
+        void toggleStick() {
+        mutex.take(TIMEOUT_MAX);
+            state = (state == State::down ? State::up : State::down);
+        mutex.give();
+        }
+
+        void setNeutral() {
+        mutex.take(TIMEOUT_MAX);
+            state = State::neutral;
+        mutex.give();
+        }
+
+    } // namespace stick
 
     namespace holder {
 
@@ -53,10 +93,11 @@ namespace motor_control {
         }
 
         void setManualControl(bool manualControl) {
-            stick::setNeutral();
         mutex.take(TIMEOUT_MAX);
             usingManualControl = manualControl;
             state = State::down;
+            stick::state = stick::State::neutral;
+            motor.set_brake_mode(manualControl ? pros::E_MOTOR_BRAKE_HOLD : pros::E_MOTOR_BRAKE_COAST);
         mutex.give();
         }
 
@@ -68,45 +109,6 @@ namespace motor_control {
         }
 
     } // namespace holder
-
-    namespace stick {
-
-        constexpr long double highAngle = 675;
-        constexpr long double neutralAngle = 500;
-
-        enum class State {
-            down,
-            neutral,
-            up
-        };
-
-        static State state = State::down;
-
-        void recieve() {
-        mutex.take(TIMEOUT_MAX);
-            state = State::down;
-        mutex.give();
-        }
-
-        void deposit() {
-        mutex.take(TIMEOUT_MAX);
-            state = State::up;
-        mutex.give();
-        }
-
-        void toggleStick() {
-        mutex.take(TIMEOUT_MAX);
-            state = (state == State::down ? State::up : State::down);
-        mutex.give();
-        }
-
-        void setNeutral() {
-        mutex.take(TIMEOUT_MAX);
-            state = State::neutral;
-        mutex.give();
-        }
-
-    } // namespace stick
 
     void powerHolderAndStick() {
     mutex.take(TIMEOUT_MAX);
