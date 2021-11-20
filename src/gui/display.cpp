@@ -61,10 +61,6 @@ static void setupStyle(lv_style_t* style, lv_style_t* copy, lv_color_t bodyColor
 
 }
 
-lv_res_t doNothing(lv_obj_t*) {
-    return LV_RES_INV;
-}
-
 DisplayControl::DisplayControl()
 
     : tabSpace {lv_obj_create(lv_scr_act(), NULL)}, tabSwitcher {lv_obj_create(lv_scr_act(), NULL)},
