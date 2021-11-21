@@ -11,6 +11,9 @@ using namespace drive;
 using namespace motor_control;
 using namespace conversions;
 
+#define bundle(funcs) []{funcs;}
+#define endAt(x, y) Waypoint {x, y}; Drivetrain::moveTo(x, y)
+
 extern pros::Mutex autonSelectionMutex;
 
 using auton_t = void(*)();

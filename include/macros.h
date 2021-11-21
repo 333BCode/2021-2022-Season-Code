@@ -3,6 +3,6 @@
 
 // #define BRAIN_SCREEN_GAME_MODE
 
-#define DISPLAY_DEBUG
+// #define DISPLAY_DEBUG
 
 #endif

@@ -28,6 +28,8 @@ namespace motor_control {
         derivative  = 0;
         totalError  = 0;
 
+        firstRun = true;
+
         if (!ignoreProfile && timeToMaxVoltage > 0) {
 
             if (previousOutput > startingVoltage) {
@@ -60,7 +62,10 @@ namespace motor_control {
 
         uint32_t currTime = pros::millis();
         long double dt = (currTime - startTime) / 1000.0L;
-        if (dt == 0) {
+        if (firstRun) {
+            dt = 0.01;
+            firstRun = false;
+        } else if (dt == 0) {
             return previousOutput;
         }
         startTime = currTime;

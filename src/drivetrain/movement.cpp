@@ -35,9 +35,7 @@ Drivetrain& Drivetrain::operator<<(const Path& path) {
         long double angleToPoint = rawAngle - radians(heading);
 
         long double targetAngle = degrees(rawAngle);
-        if (driveReversed) {
-            targetAngle += 180;
-        } else if (targetAngle < 0) {
+        if (targetAngle < 0) {
             targetAngle += 360;
         }
         rotPID.alterTarget(targetAngle);
@@ -89,10 +87,8 @@ Drivetrain& Drivetrain::operator<<(const Waypoint& p) {
 
         long double angleToPoint = rawAngle - radians(heading);
 
-        long double targetAngle = degrees(rawAngle);
-        if (driveReversed) {
-            targetAngle += 180;
-        } else if (targetAngle < 0) {
+        long double targetAngle = degrees(rawAngle) - (driveReversed ? 180 : 0);
+        if (targetAngle < 0) {
             targetAngle += 360;
         }
         rotPID.alterTarget(targetAngle);
@@ -155,6 +151,7 @@ void Drivetrain::moveTo(
         if (canTurn == curDist < minDistForTurning) {
             if (canTurn) {
                 targetHeading = Drivetrain::heading;
+                if (targetHeading >= 360) {targetHeading -= 360;}
                 rotPID.alterTarget(targetHeading);
                 canTurn = false;
             } else {
@@ -164,10 +161,8 @@ void Drivetrain::moveTo(
         
         if (canTurn) {
 
-            long double targetAngle = degrees(rawAngle);
-            if (driveReversed) {
-                targetAngle += 180;
-            } else if (targetAngle < 0) {
+            long double targetAngle = degrees(rawAngle) - (driveReversed ? 180 : 0);
+            while (targetAngle < 0) {
                 targetAngle += 360;
             }
             rotPID.alterTarget(targetAngle);
@@ -211,7 +206,7 @@ void Drivetrain::moveTo(
 
     if (!isnanf(heading)) {
         turnTo(
-            driveReversed ? heading + (heading < 180 ? 180 : -180) : heading,
+            heading,
             exitConditions
         );
         oldTargetX = x;
@@ -284,8 +279,9 @@ void Drivetrain::turnTo(long double heading, const ExitConditions& exitCondition
 }
 
 void Drivetrain::moveForward(long double dist) {
-    long double currHeading = radians(getPosition().heading);
-    moveTo(dist * cos(currHeading), dist * sin(currHeading), currHeading);
+    Point pos = getPosition();
+    long double currHeading = radians(pos.heading);
+    moveTo(pos.x + dist * cos(currHeading), pos.y + dist * sin(currHeading), pos.heading);
 }
 
 void Drivetrain::executeActions(double currError, bool inTurn) {
@@ -332,7 +328,7 @@ long double Drivetrain::wrapAngle(long double targetAngle) {
 
 }
 
-int sign(long double num) {
+int Drivetrain::sign(long double num) {
     return (num >= 0 ? 1 : -1);
 }
 

@@ -59,6 +59,7 @@ namespace motor_control {
         long double elapsedTime {0};
 
         bool usingProfile {false};
+        bool firstRun     {true};
 
         long double previousOutput {0};
 
