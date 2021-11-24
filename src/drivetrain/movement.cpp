@@ -278,10 +278,10 @@ void Drivetrain::turnTo(long double heading, const ExitConditions& exitCondition
 
 }
 
-void Drivetrain::moveForward(long double dist) {
+void Drivetrain::moveForward(long double dist, const ExitConditions& exitConditions) {
     Point pos = getPosition();
     long double currHeading = radians(pos.heading);
-    moveTo(pos.x + dist * cos(currHeading), pos.y + dist * sin(currHeading), pos.heading);
+    moveTo(pos.x + dist * cos(currHeading), pos.y + dist * sin(currHeading), pos.heading, exitConditions);
 }
 
 void Drivetrain::executeActions(double currError, bool inTurn) {

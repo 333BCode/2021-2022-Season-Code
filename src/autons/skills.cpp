@@ -2,35 +2,54 @@
 
 void skills() {
 
+   lift::release();
+
    ExitConditions specialExitConditions {
 
-      1.5,  // inches
-      0.5,  // inches / second
+      0.75,  // inches
+      0.05,  // inches / second
 
       10, // degrees
       2,  // degrees per second
 
-      0 // seconds
+      0.15 // seconds
 
    };
 
-   base.setPosition(108, 12, 90);
+    base.setPosition(108, 12, 90);
 
-   // init
-   holder::toggleHolder();
-   lift::release();
+    // init
+    holder::toggleHolder();
 
-   // goal rush
-   base.moveTo(108_in, 5.0_ft, specialExitConditions);
-   lift::clamp();
+    // goal rush
+    base.moveTo(108_in, 4.73_ft, specialExitConditions);
+    // base.supply(30, 0);
+    // pros::delay(500);
+    lift::clamp();
+   pros::delay(200);
 
    base.setReversed(true);
-   base.moveForward(-2.5_ft);
+   base.moveForward(-2.7_ft);
+   base.turnTo(-45);
    lift::release();
 
-   base.moveTo(108, 20, 215_deg);
-   base.moveForward(-1.8_ft);
+   specialExitConditions = ExitConditions {
+
+      1,  // inches
+      0.05,  // inches / second
+
+      10, // degrees
+      2,  // degrees per second
+
+      0.05 // seconds
+
+   };
+   // base.moveTo(58, 60);
+   base.moveTo(58.5, 59.5);
+   stick::deposit();
    holder::raise();
-   intake::motor.move(85);
+   pros::delay(250);
+   base.setReversed(false);
+   base.moveForward(4.5_ft);
 
 }
