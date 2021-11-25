@@ -28,7 +28,7 @@ motor_control::PIDController Drivetrain::rotPID {
 
 };
 
-const Drivetrain::ExitConditions Drivetrain::defaultExitConditions {
+/* const Drivetrain::ExitConditions Drivetrain::defaultExitConditions {
 
     1,  // inches
     0.5,  // inches / second
@@ -38,7 +38,7 @@ const Drivetrain::ExitConditions Drivetrain::defaultExitConditions {
 
     0.15 // seconds
 
-};
+}; */
 
 const long double Drivetrain::defaultLookAheadDistance      = 30;
 const long double Drivetrain::minDistForTurning             = 5;

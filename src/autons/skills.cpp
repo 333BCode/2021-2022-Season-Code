@@ -2,19 +2,19 @@
 
 void skills() {
 
-   lift::release();
+    lift::release();
 
-   ExitConditions specialExitConditions {
+    LinearExitConditions specialExitConditions = Drivetrain::defaultLinearExit<
+        
+        750,
+        50,
 
-      0.75,  // inches
-      0.05,  // inches / second
+        10000,
+        200,
 
-      10, // degrees
-      2,  // degrees per second
+        150
 
-      0.15 // seconds
-
-   };
+    >;
 
     base.setPosition(108, 12, 90);
 
@@ -26,30 +26,31 @@ void skills() {
     // base.supply(30, 0);
     // pros::delay(500);
     lift::clamp();
-   pros::delay(200);
+    pros::delay(200);
 
-   base.setReversed(true);
-   base.moveForward(-2.7_ft);
-   base.turnTo(-45);
-   lift::release();
+    base.setReversed(true);
+    base.moveForward(-2.7_ft, false);
+    base.turnTo(-45);
+    lift::release();
 
-   specialExitConditions = ExitConditions {
+    specialExitConditions = Drivetrain::defaultLinearExit<
+        
+        1000,
+        50,
 
-      1,  // inches
-      0.05,  // inches / second
+        10000,
+        2000,
 
-      10, // degrees
-      2,  // degrees per second
-
-      0.05 // seconds
-
-   };
-   // base.moveTo(58, 60);
-   base.moveTo(58.5, 59.5);
-   stick::deposit();
-   holder::raise();
-   pros::delay(250);
-   base.setReversed(false);
-   base.moveForward(4.5_ft);
+        50
+    
+    >;
+    
+    // base.moveTo(58, 60);
+    base.moveTo(58.5, 59.5);
+    stick::deposit();
+    holder::raise();
+    pros::delay(250);
+    base.setReversed(false);
+    base.moveForward(4.5_ft, false);
 
 }

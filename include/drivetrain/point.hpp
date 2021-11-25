@@ -25,10 +25,12 @@ struct Drivetrain::Waypoint {
 
     Waypoint& withAction(std::function<void()>&& action, double dist, bool duringTurn = false);
     Waypoint& withLookAhead(long double newLookAhead);
+    Waypoint& withExitCondition(PurePursuitExitConditions newExitConditions);
 
     long double x;
     long double y;
     long double lookAheadDistance {defaultLookAheadDistance};
+    PurePursuitExitConditions exitConditions {defaultPurePursuitExit};
 
 };
 

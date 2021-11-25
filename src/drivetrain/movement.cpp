@@ -66,6 +66,8 @@ Drivetrain& Drivetrain::operator<<(const Path& path) {
 
 Drivetrain& Drivetrain::operator<<(const Waypoint& p) {
 
+    p.exitConditions(0, false);
+
     stopped = false;
 
     linearPID.setNewTarget(0);
@@ -101,7 +103,7 @@ Drivetrain& Drivetrain::operator<<(const Waypoint& p) {
 
         executeActions(curDist);
 
-        if (curDist < p.lookAheadDistance) {
+        if (p.exitConditions(curDist, false)) {
             break;
         }
 
@@ -121,8 +123,11 @@ Drivetrain& Drivetrain::operator>>(Point p) {
 }
 
 void Drivetrain::moveTo(
-    long double x, long double y, long double heading, const ExitConditions& exitConditions
+    long double x, long double y, long double heading,
+    LinearExitConditions linearExitConditions, TurnExitConditions turnExitConditions
 ) {
+
+    linearExitConditions(0, true, true);
 
     stopped = false;
 
@@ -180,25 +185,10 @@ void Drivetrain::moveTo(
 
         executeActions(curDist);
 
-        if (firstLoop) {
-            if (curDist <= exitConditions.maxLinearError) {
-                break;
-            } else {
-                firstLoop = false;
-            }
-        } else if (
-            curDist * cos(angleToPoint) <= exitConditions.maxLinearError
-            && fabs(linearPID.getDerivative()) <= exitConditions.maxLinearDerivative
-            && fabs(rotPID.getError()) <= exitConditions.maxRotError
-            && fabs(rotPID.getDerivative()) <= exitConditions.maxRotDerivative
-        ) {
-            ++count;
-            if (count >= exitConditions.minTime * 100) {
-                break;
-            }
-        } else {
-            count = 0;
+        if (linearExitConditions(curDist, firstLoop, false)) {
+            break;
         }
+        firstLoop = false;
 
         pros::Task::delay_until(&startTime, 10);
 
@@ -207,7 +197,7 @@ void Drivetrain::moveTo(
     if (!isnanf(heading)) {
         turnTo(
             heading,
-            exitConditions
+            turnExitConditions
         );
         oldTargetX = x;
         oldTargetY = y;
@@ -217,11 +207,18 @@ void Drivetrain::moveTo(
 
 }
 
-void Drivetrain::moveTo(long double x, long double y, const ExitConditions& exitConditions) {
-    moveTo(x, y, NAN, exitConditions);
+void Drivetrain::moveTo(
+    long double x, long double y, XYPoint targetForHeading,
+    LinearExitConditions linearExitConditions, TurnExitConditions turnExitConditions
+) {
+    moveTo(x, y, degrees(atan2(targetForHeading.y - y, targetForHeading.x - x)), linearExitConditions, turnExitConditions);
 }
 
-void Drivetrain::turnTo(long double heading, const ExitConditions& exitConditions) {
+void Drivetrain::moveTo(long double x, long double y, LinearExitConditions linearExitConditions) {
+    moveTo(x, y, NAN, linearExitConditions);
+}
+
+void Drivetrain::turnTo(long double heading, TurnExitConditions exitConditions) {
 
     while (heading >= 360) {
         heading -= 360;
@@ -229,6 +226,8 @@ void Drivetrain::turnTo(long double heading, const ExitConditions& exitCondition
     while (heading < 0) {
         heading += 360;
     }
+
+    exitConditions(true, true);
 
     stopped = false;
 
@@ -252,23 +251,10 @@ void Drivetrain::turnTo(long double heading, const ExitConditions& exitCondition
 
         executeActions(fabs(rotPID.getError()), true);
 
-        if (firstLoop) {
-            if (fabs(rotPID.getError()) <= exitConditions.maxRotError) {
-                break;
-            } else {
-                firstLoop = false;
-            }
-        } else if (
-            fabs(rotPID.getError()) <= exitConditions.maxRotError
-            && fabs(rotPID.getDerivative()) <= exitConditions.maxRotDerivative
-        ) {
-            ++count;
-            if (count >= exitConditions.minTime * 100) {
-                break;
-            }
-        } else {
-            count = 0;
+        if (exitConditions(firstLoop, false)) {
+            break;
         }
+        firstLoop = false;
 
         pros::Task::delay_until(&startTime, 10);
 
@@ -278,10 +264,23 @@ void Drivetrain::turnTo(long double heading, const ExitConditions& exitCondition
 
 }
 
-void Drivetrain::moveForward(long double dist, const ExitConditions& exitConditions) {
-    Point pos = getPosition();
-    long double currHeading = radians(pos.heading);
-    moveTo(pos.x + dist * cos(currHeading), pos.y + dist * sin(currHeading), pos.heading, exitConditions);
+void Drivetrain::turnTo(XYPoint target, bool absolute, TurnExitConditions exitConditions) {
+    if (absolute) {
+        turnTo(degrees(atan2(target.y - oldTargetY, target.x - oldTargetX)), exitConditions);
+    } else {
+        Point pos = getPosition();
+        turnTo(degrees(atan2(target.y - pos.y, target.x - pos.x)), exitConditions);
+    }
+}
+
+void Drivetrain::moveForward(long double dist, bool absolute, LinearExitConditions exitConditions) {
+    if (absolute) {
+        moveTo(oldTargetX + dist * cos(targetHeading), oldTargetY + dist * sin(targetHeading), exitConditions);
+    } else {
+        Point pos = getPosition();
+        long double currHeading = radians(pos.heading);
+        moveTo(pos.x + dist * cos(currHeading), pos.y + dist * sin(currHeading), exitConditions);
+    }
 }
 
 void Drivetrain::executeActions(double currError, bool inTurn) {

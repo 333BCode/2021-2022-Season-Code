@@ -4,17 +4,17 @@ void platformUpSide() {
 
     lift::release();
 
-    ExitConditions specialExitConditions {
+    LinearExitConditions specialExitConditions = Drivetrain::defaultLinearExit<
+        
+        750,
+        50,
 
-      0.75,  // inches
-      0.05,  // inches / second
+        10000,
+        200,
 
-      10, // degrees
-      2,  // degrees per second
+        150
 
-      0.15 // seconds
-
-    };
+    >;
 
     base.setPosition(108, 12, 90);
 
@@ -28,18 +28,18 @@ void platformUpSide() {
     lift::clamp();
     pros::delay(200);
     base.setReversed(true);
-    base.moveForward(-2.75_ft);
+    base.moveForward(-2.75_ft, false);
     lift::release();
 
     base.moveTo(108, 19, 215_deg);
-    base.moveForward(-1.8_ft);
+    base.moveForward(-1.8_ft, false);
     holder::raise();
     pros::delay(800);
     intake::motor.move(85);
 
     pros::delay(3000);
     base.setReversed(false);
-    base.moveForward(18_in);
+    base.moveForward(18_in, false);
     intake::stop();
 
 }

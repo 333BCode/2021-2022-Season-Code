@@ -22,3 +22,8 @@ Waypoint& Waypoint::withLookAhead(long double newLookAhead) {
     lookAheadDistance = newLookAhead;
     return *this;
 }
+
+Waypoint& Waypoint::withExitCondition(PurePursuitExitConditions newExitConditions) {
+    exitConditions = newExitConditions;
+    return *this;
+}

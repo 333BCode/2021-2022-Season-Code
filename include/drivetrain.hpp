@@ -14,7 +14,13 @@ public:
 
     class Path;
 
-    struct ExitConditions {
+    typedef bool (*PurePursuitExitConditions)(long double, bool);
+    typedef bool (*LinearExitConditions)(long double, bool, bool);
+    typedef bool (*TurnExitConditions)(bool, bool);
+
+#include "drivetrain/exit_conditions.hpp"
+
+    /* struct ExitConditions {
 
         long double maxLinearError;
         long double maxLinearDerivative;
@@ -24,7 +30,7 @@ public:
 
         long double minTime;
     
-    };
+    }; */
 
     static void waitUntilCalibrated();
     static void setReversed(bool reversed);
@@ -36,18 +42,21 @@ public:
     static void supplyVoltage(int linearPow, int rotPow);
     static void supplyVoltagePerSide(int leftVoltage, int rightVoltage);
 
-    static const ExitConditions defaultExitConditions;
-
     Drivetrain& operator<<(const Path& path);
     Drivetrain& operator<<(const Waypoint& p);
     Drivetrain& operator>>(Point p);
     static void moveTo(
-        long double x, long double y,
-        long double heading = NAN, const ExitConditions& exitConditions = defaultExitConditions
+        long double x, long double y, long double heading = NAN,
+        LinearExitConditions linearExitConditions = defaultLinearExit, TurnExitConditions turnExitConditions = defaultTurnExit
     );
-    static void moveTo(long double x, long double y, const ExitConditions& exitConditions);
-    static void turnTo(long double heading, const ExitConditions& exitConditions = defaultExitConditions);
-    static void moveForward(long double dist, const ExitConditions& exitConditions = defaultExitConditions);
+    static void moveTo(
+        long double x, long double y, XYPoint targetForHeading,
+        LinearExitConditions linearExitConditions = defaultLinearExit, TurnExitConditions turnExitConditions = defaultTurnExit
+    );
+    static void moveTo(long double x, long double y, LinearExitConditions linearExitConditions);
+    static void turnTo(long double heading, TurnExitConditions exitConditions = defaultTurnExit);
+    static void turnTo(XYPoint target, bool absolute = true, TurnExitConditions exitConditions = defaultTurnExit);
+    static void moveForward(long double dist, bool absolute = true, LinearExitConditions exitConditions = defaultLinearExit);
 
     static void addAction(std::function<void()>&& action, double dist, bool duringTurn = false);
   
@@ -143,7 +152,9 @@ namespace drive {
 
     using Path = Drivetrain::Path;
 
-    using ExitConditions = Drivetrain::ExitConditions;
+    using PurePursuitExitConditions = Drivetrain::PurePursuitExitConditions;
+    using LinearExitConditions = Drivetrain::LinearExitConditions;
+    using TurnExitConditions = Drivetrain::TurnExitConditions;
 
     extern Drivetrain::Path (*const generatePathTo)(Drivetrain::Point);
     extern Drivetrain::Path (*const generatePath)(Drivetrain::Point, Drivetrain::Point);
