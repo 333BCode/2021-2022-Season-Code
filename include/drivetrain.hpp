@@ -156,6 +156,45 @@ namespace drive {
     using LinearExitConditions = Drivetrain::LinearExitConditions;
     using TurnExitConditions = Drivetrain::TurnExitConditions;
 
+    template<
+        long maxDistance = 30000,
+        long derivativeStuckThreshhold = 500,
+        long maxTimeStuck = 1500
+    >
+    bool (*defaultPurePursuitExit)(long double, bool)
+        = Drivetrain::defaultPurePursuitExit<maxDistance, derivativeStuckThreshhold, maxTimeStuck>;
+    
+    template<
+
+        long maxLinearError = 1000,
+        long maxLinearDerivative = 500,
+        
+        long maxRotError = 10000,
+        long maxRotDerivative = 2000,
+
+        long minTime = 150,
+
+        long maxTimeStuck = 1500
+
+    >
+    bool (*defaultLinearExit)(long double, bool, bool)
+        = Drivetrain::defaultLinearExit<
+            maxLinearError, maxLinearDerivative, maxRotError, maxRotDerivative, minTime, maxTimeStuck
+        >;
+    
+    template<
+    
+        long maxError = 10000,
+        long maxDerivative = 2000,
+
+        long minTime = 150,
+
+        long maxTimeStuck = 1500
+
+    >
+    bool (*defaultTurnExit)(bool, bool)
+        = Drivetrain::defaultTurnExit<maxError, maxDerivative, minTime, maxTimeStuck>;
+
     extern Drivetrain::Path (*const generatePathTo)(Drivetrain::Point);
     extern Drivetrain::Path (*const generatePath)(Drivetrain::Point, Drivetrain::Point);
 

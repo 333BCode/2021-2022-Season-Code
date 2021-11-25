@@ -4,7 +4,7 @@ void skills() {
 
     lift::release();
 
-    LinearExitConditions specialExitConditions = Drivetrain::defaultLinearExit<
+    LinearExitConditions specialExitConditions = defaultLinearExit<
         
         750,
         50,
