@@ -185,7 +185,7 @@ void Drivetrain::moveTo(
 
         executeActions(curDist);
 
-        if (linearExitConditions(curDist, firstLoop, false)) {
+        if (linearExitConditions(curDist * (firstLoop ? 1 : cos(angleToPoint)), firstLoop, false)) {
             break;
         }
         firstLoop = false;
