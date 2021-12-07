@@ -4,7 +4,7 @@ void platformUpSide() {
 
     lift::release();
 
-    LinearExitConditions specialExitConditions = defaultLinearExit<
+    LinearExitConditions specialExitConditions = Drivetrain::defaultLinearExit<
         
         750,
         50,

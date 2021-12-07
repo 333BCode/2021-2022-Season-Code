@@ -66,7 +66,7 @@ Drivetrain& Drivetrain::operator<<(const Path& path) {
 
 Drivetrain& Drivetrain::operator<<(const Waypoint& p) {
 
-    p.exitConditions(0, false);
+    p.exitConditions(0, 0, false);
 
     stopped = false;
 
@@ -103,7 +103,7 @@ Drivetrain& Drivetrain::operator<<(const Waypoint& p) {
 
         executeActions(curDist);
 
-        if (p.exitConditions(curDist, false)) {
+        if (p.exitConditions(curDist, p.lookAheadDistance, false)) {
             break;
         }
 

@@ -14,7 +14,7 @@ public:
 
     class Path;
 
-    typedef bool (*PurePursuitExitConditions)(long double, bool);
+    typedef bool (*PurePursuitExitConditions)(long double, long double, bool);
     typedef bool (*LinearExitConditions)(long double, bool, bool);
     typedef bool (*TurnExitConditions)(bool, bool);
 
@@ -55,7 +55,7 @@ public:
     );
     static void moveTo(long double x, long double y, LinearExitConditions linearExitConditions);
     static void turnTo(long double heading, TurnExitConditions exitConditions = defaultTurnExit);
-    static void turnTo(XYPoint target, bool absolute = true, TurnExitConditions exitConditions = defaultTurnExit);
+    static void turnTo(XYPoint target, bool absolute = false, TurnExitConditions exitConditions = defaultTurnExit);
     static void moveForward(long double dist, bool absolute = true, LinearExitConditions exitConditions = defaultLinearExit);
 
     static void addAction(std::function<void()>&& action, double dist, bool duringTurn = false);
@@ -155,45 +155,6 @@ namespace drive {
     using PurePursuitExitConditions = Drivetrain::PurePursuitExitConditions;
     using LinearExitConditions = Drivetrain::LinearExitConditions;
     using TurnExitConditions = Drivetrain::TurnExitConditions;
-
-    template<
-        long maxDistance = 30000,
-        long derivativeStuckThreshhold = 500,
-        long maxTimeStuck = 1500
-    >
-    bool (*defaultPurePursuitExit)(long double, bool)
-        = Drivetrain::defaultPurePursuitExit<maxDistance, derivativeStuckThreshhold, maxTimeStuck>;
-    
-    template<
-
-        long maxLinearError = 1000,
-        long maxLinearDerivative = 500,
-        
-        long maxRotError = 10000,
-        long maxRotDerivative = 2000,
-
-        long minTime = 150,
-
-        long maxTimeStuck = 1500
-
-    >
-    bool (*defaultLinearExit)(long double, bool, bool)
-        = Drivetrain::defaultLinearExit<
-            maxLinearError, maxLinearDerivative, maxRotError, maxRotDerivative, minTime, maxTimeStuck
-        >;
-    
-    template<
-    
-        long maxError = 10000,
-        long maxDerivative = 2000,
-
-        long minTime = 150,
-
-        long maxTimeStuck = 1500
-
-    >
-    bool (*defaultTurnExit)(bool, bool)
-        = Drivetrain::defaultTurnExit<maxError, maxDerivative, minTime, maxTimeStuck>;
 
     extern Drivetrain::Path (*const generatePathTo)(Drivetrain::Point);
     extern Drivetrain::Path (*const generatePath)(Drivetrain::Point, Drivetrain::Point);

@@ -7,17 +7,16 @@
  * Pass args * 1000 as template arguments
  */
 template <
-    long maxDistance = 30000,
     long derivativeStuckThreshhold = 500,
     long maxTimeStuck = 1500
 >
-static bool defaultPurePursuitExit(long double curDist, bool reset) {
+static bool defaultPurePursuitExit(long double curDist, long double lookAheadDist, bool reset) {
     static uint16_t count = 0;
     if (reset) {
         count = 0;
         return false;
     }
-    if (curDist <= maxDistance / 1000.0) {
+    if (curDist <= lookAheadDist) {
         return true;
     } else if (linearPID.getDerivative() <= derivativeStuckThreshhold / 1000.0) {
         ++count;
