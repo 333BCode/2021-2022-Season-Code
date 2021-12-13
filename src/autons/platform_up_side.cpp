@@ -27,7 +27,6 @@ void platformUpSide() {
     // pros::delay(500);
     lift::clamp();
     pros::delay(200);
-    base.setReversed(true);
     base.moveForward(-2.75_ft, false);
     lift::release();
 
@@ -38,7 +37,6 @@ void platformUpSide() {
     intake::motor.move(85);
 
     pros::delay(3000);
-    base.setReversed(false);
     base.moveForward(18_in, false);
     intake::stop();
 

@@ -16,6 +16,10 @@ Drivetrain& Drivetrain::operator<<(const Path& path) {
 
     stopped = false;
 
+    if (autoDetermineReversed) {
+        determineFollowDirection(path.target.x, path.target.y);
+    }
+
     linearPID.setNewTarget(path.lookAheadDistance, true);
     rotPID.setNewTarget(0, true);
 
@@ -69,6 +73,10 @@ Drivetrain& Drivetrain::operator<<(const Waypoint& p) {
     p.exitConditions(0, 0, false);
 
     stopped = false;
+
+    if (autoDetermineReversed) {
+        determineFollowDirection(p.x, p.y);
+    }
 
     linearPID.setNewTarget(0);
     rotPID.setNewTarget(0);
@@ -130,6 +138,10 @@ void Drivetrain::moveTo(
     linearExitConditions(0, true, true);
 
     stopped = false;
+
+    if (autoDetermineReversed) {
+        determineFollowDirection(x, y);
+    }
 
     bool firstLoop = true;
 
@@ -281,6 +293,18 @@ void Drivetrain::moveForward(long double dist, bool absolute, LinearExitConditio
         long double currHeading = radians(pos.heading);
         moveTo(pos.x + dist * cos(currHeading), pos.y + dist * sin(currHeading), exitConditions);
     }
+}
+
+void Drivetrain::determineFollowDirection(long double xTarget, long double yTarget) {
+positionDataMutex.take(TIMEOUT_MAX);
+    double angleToPoint = degrees(atan2(yTarget - oldTargetY, xTarget - oldTargetX));
+    if (angleToPoint < 0) {angleToPoint += 360;}
+    if (fabs(angleToPoint - wrapAngle(angleToPoint)) > 180) {
+        driveReversed = true;
+    } else {
+        driveReversed = false;
+    }
+positionDataMutex.give();
 }
 
 void Drivetrain::executeActions(double currError, bool inTurn) {

@@ -18,13 +18,11 @@ void platformDownSide() {
     holder::toggleHolder();
     pros::delay(800);
 
-    base.setReversed(true);
     base.moveTo(40, 12, 180);
 
     holder::raise();
     pros::delay(800);
     intake::motor.move(85);
-    base.setReversed(false);
     base.moveTo(30, 12);
 
     pros::delay(3000);

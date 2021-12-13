@@ -1,5 +1,4 @@
 #include "autonomous.hpp"
-#include "pros/rtos.h"
 
 pros::Mutex autonSelectionMutex {};
 auton_t auton = skills;
@@ -23,7 +22,8 @@ autonSelectionMutex.take(TIMEOUT_MAX);
 autonSelectionMutex.give();
 
     Drivetrain::waitUntilCalibrated();
-    Drivetrain::setReversed(false);
+    Drivetrain::setBrakeMode(pros::E_MOTOR_BRAKE_COAST);
+    Drivetrain::setFollowDirection(Direction::autoDetermine);
 
     selectedAuton();
 

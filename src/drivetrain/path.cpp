@@ -91,7 +91,7 @@ void Path::add(long double linearVoltage, long double rotVoltage, long double xE
 
 }
 
-Path::Velocities Path::operator[](size_t index) const {
+const Path::Velocities& Path::operator[](size_t index) const {
     return data[index];
 }
 

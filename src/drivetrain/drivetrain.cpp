@@ -37,8 +37,20 @@ void Drivetrain::waitUntilCalibrated() {
     }
 }
 
-void Drivetrain::setReversed(bool reversed) {
-    driveReversed = reversed;
+void Drivetrain::setFollowDirection(Direction direction) {
+    switch (direction) {
+        case Direction::autoDetermine:
+            autoDetermineReversed = true;
+        break;
+        case Direction::forward:
+            autoDetermineReversed = false;
+            driveReversed = false;
+        break;
+        case Direction::reverse:
+            autoDetermineReversed = false;
+            driveReversed = true;
+        break;
+    }
 }
 
 Drivetrain::Point Drivetrain::getPosition() {
@@ -74,13 +86,6 @@ void Drivetrain::supplyVoltage(int linearPow, int rotPow) {
     backLeftMotor.move_voltage(linearPow + rotPow);
     frontRightMotor.move_voltage(linearPow - rotPow);
     backRightMotor.move_voltage(linearPow - rotPow);
-}
-
-void Drivetrain::supplyVoltagePerSide(int leftVoltage, int rightVoltage) {
-    frontLeftMotor.move_voltage(leftVoltage);
-    backLeftMotor.move_voltage(leftVoltage);
-    frontRightMotor.move_voltage(rightVoltage);
-    backRightMotor.move_voltage(rightVoltage);
 }
 
 void Drivetrain::stopMotion() {

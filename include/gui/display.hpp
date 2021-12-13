@@ -1,28 +1,47 @@
 #ifndef DISPLAY_HPP
 #define DISPLAY_HPP
 
-#include "display/lv_misc/lv_area.h"
 #include "display/lvgl.h"
 #include "api.h"
 #include "macros.h"
 
+/**
+ * Declares the DisplayControl class
+ *
+ * When constructed, the brain screen will be initialized
+ * When destructed, the brain screen will be deleted
+ */
+
 class DisplayControl final {
 public:
 
+    // initialize brain screen
     DisplayControl();
+    // disallow copy construction
     DisplayControl(const DisplayControl&) = delete;
+    // delete brain screen
     ~DisplayControl();
+    // disallow copy assignment
     void operator=(const DisplayControl&) = delete;
 
 #ifndef DISPLAY_DEBUG
+    // Deletes all of the screen except the auton selector to save on resources
     void cleanScreen();
 #endif
 
+    // Moves the virtual bot on the brain screen
+    // Updates the data displayed on the brain screen if updateValues
     void updateOdomData(bool updateValues);
+    // Allows changeTab to show / hide lvgl objects
     friend lv_res_t changeTab(lv_obj_t* tab);
+    // Allows setAuton to properly update the auton buttons
     friend lv_res_t setAuton(lv_obj_t* autonSwitch);
 
 private:
+
+    /**
+     * Objects
+     */
 
     lv_obj_t* tabSpace;
     lv_obj_t* tabSwitcher;
