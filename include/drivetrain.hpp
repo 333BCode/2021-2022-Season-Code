@@ -227,11 +227,13 @@ private:
      * State data
      *
      * Instantiated in src/drivetrain.drivetrain.cpp
-     *
-     * Used in field control tasks
      */
 
+    // NEEDS MUTEX COVER: used in field control and main tasks
     static bool calibrated;
+
+    /* Used in field control tasks */
+
     static bool autoDetermineReversed;
     static bool driveReversed;
 
