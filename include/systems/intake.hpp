@@ -1,5 +1,5 @@
-#ifndef INTAKE_HPP
-#define INTAKE_HPP
+#ifndef _INTAKE_HPP_
+#define _INTAKE_HPP_
 
 #include "api.h"
 

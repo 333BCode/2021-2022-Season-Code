@@ -10,8 +10,11 @@ namespace drive {
 
 } // namespace drive
 
-bool Drivetrain::calibrated     = false;
-bool Drivetrain::driveReversed  = false;
+bool Drivetrain::calibrated             = false;
+bool Drivetrain::autoDetermineReversed  = false;
+bool Drivetrain::driveReversed          = false;
+
+bool Drivetrain::stopped = false;
 
 pros::Mutex Drivetrain::positionDataMutex {};
 

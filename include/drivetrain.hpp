@@ -27,6 +27,10 @@
  * For the purposes of Drivetrain, some methods allow the user to specify whether a movement is absolute of not:
  *      Absolute: the final state is based off of where the bot was prior told to go
  *      Relative (not absolute): the final state is based off of where the bot starts the motion
+ *
+ * Drivetrain uses a mutex to protect its static member variables from data races (between the field control and main threads)
+ * Functions that lock the internal mutex are labeled: MUTEX LOCKING
+ * These functions can be freely used where there is not access to private members of Drivetrain (like when writing autons)
  */
 
 class Drivetrain final {
@@ -55,6 +59,7 @@ public:
     typedef bool (*TurnExitConditions)(bool, bool);
 
     // includes templated (with default template arguments) default exit condition functions
+    // In a separate file to save space / readability in this one
 #include "drivetrain/exit_conditions.hpp"
 
     // Blocks task until the Drivetrain IMU is calibrated (odom can start running)
@@ -88,36 +93,44 @@ public:
      * These execute precise movements using a variety of algorithms
      * All movements use real time position data (as determined by odometry) for mid motion feedback error correction
      *
-     * ALL Movement methods are MUTEX LOCKING
      */
 
     // Follows the motion profile, stored in the Path, uses feedback error correction during the motion
+    // MUTEX LOCKING
     Drivetrain& operator<<(const Path& path);
     // Uses pure pursuit to move towards the Waypoint; for optimal use utilize several pure pursuit movements in succession
+    // MUTEX LOCKING
     Drivetrain& operator<<(const Waypoint& p);
     // Invokes moveTo to move to the Point
+    // MUTEX LOCKING
     Drivetrain& operator>>(Point p);
 
     // If heading is a number (is specified), will invoke turnTo after reaching the desired position
+    // MUTEX LOCKING
     static void moveTo(
         long double x, long double y, long double heading = NAN,
         LinearExitConditions linearExitConditions = defaultLinearExit, TurnExitConditions turnExitConditions = defaultTurnExit
     );
     // Will turn to face targetForHeading using absolute coordinates after reaching the desired position
+    // MUTEX LOCKING
     static void moveTo(
         long double x, long double y, XYPoint targetForHeading,
         LinearExitConditions linearExitConditions = defaultLinearExit, TurnExitConditions turnExitConditions = defaultTurnExit
     );
     // Will move to the desired position
+    // MUTEX LOCKING
     static void moveTo(long double x, long double y, LinearExitConditions linearExitConditions);
 
     // Will turn to the desired heading
+    // MUTEX LOCKING
     static void turnTo(long double heading, TurnExitConditions exitConditions = defaultTurnExit);
     // Will turn to face target using the system specified by the bool absolute
+    // MUTEX LOCKING
     static void turnTo(XYPoint target, bool absolute = false, TurnExitConditions exitConditions = defaultTurnExit);
 
     // Moves forward, uses the system specified by the bool absolute to determine the desired final position
     // Does not invoke turnTo after the movement is complete
+    // MUTEX LOCKING
     static void moveForward(long double dist, bool absolute = true, LinearExitConditions exitConditions = defaultLinearExit);
 
     /**
@@ -152,48 +165,111 @@ private:
 
     };
 
+    /**
+     * Devices
+     *
+     * All devices are instantiated in src/devices.cpp
+     */
+
+    /* motors: used in field control tasks */
+
     static pros::Motor frontLeftMotor;
     static pros::Motor backLeftMotor;
     static pros::Motor frontRightMotor;
     static pros::Motor backRightMotor;
 
-    static bool calibrated;
-    static bool autoDetermineReversed;
-    static bool driveReversed;
+    /* sensors: used in main tasks */
 
     static pros::Imu inertial;
 
     static pros::ADIEncoder rightEncoder;
     static pros::ADIEncoder middleEncoder;
 
+    // Mutex: protects positional data, instantiated in src/drivetrain/drivetrain.cpp
     static pros::Mutex positionDataMutex;
 
+    /**
+     * Positional Data
+     *
+     * Instantiated in src/drivetrain/drivetrain.cpp
+     */
+    
+    /* current position: used in field control and main tasks */
+
+    // NEEDS MUTEX COVER
     static long double xPos;
+    // NEEDS MUTEX COVER
     static long double yPos;
+    // NEEDS MUTEX COVER
     static long double heading;
 
+    /* old targeted position: used in main task */
+
+    // Used to implement segmented pure pursuit
     static long double oldTargetX;
+    // Used to implement segmented pure pursuit
     static long double oldTargetY;
+    // Used to keep a consistent heading between motions (that may not specify a target heading)
     static long double targetHeading;
+
+    /**
+     * PID Controllers
+     *
+     * Instantiated in src/drivetrain/constants.cpp
+     *
+     * Used in field control tasks
+     */
 
     static motor_control::PIDController linearPID;
     static motor_control::PIDController rotPID;
 
+    /**
+     * State data
+     *
+     * Instantiated in src/drivetrain.drivetrain.cpp
+     *
+     * Used in field control tasks
+     */
+
+    static bool calibrated;
+    static bool autoDetermineReversed;
+    static bool driveReversed;
+
     static bool stopped;
 
+    /**
+     * Constants
+     *
+     * Instantiated in src/drivetrain/constants.cpp
+     */
+
+    // Used to implement pure pursuit, used in field control tasks
     static const long double defaultLookAheadDistance;
+    // Used to implement non linear moveTo functionality, used in field control tasks
     static const long double minDistForTurning;
+
+    /* odometry constants: used in main task */
 
     static const long double wheelSpacingParallel;
     static const long double wheelSpacingPerpendicular;
     static const long double trackingWheelDiameter;
 
+    /* motion profiling constants: used in field control tasks */
+
     static long double maxVelocity;
     static long double maxAcceleration;
     static const long double drivetrainWidth;
-    static long double profileDT;
+    // Time step used when generating a profile, should equal the time delay used in the loop that runs the profile
+    static const long double profileDT;
 
+    // Storage for actions to execute mid motion: used in field control tasks
     static std::vector<Action> actionList;
+
+    /**
+     * Private movement functions
+     *
+     * Used in field control tasks
+     */
 
     static void determineFollowDirection(long double xTarget, long double yTarget);
 
@@ -204,6 +280,7 @@ private:
     static void endMotion();
     static void endMotion(long double targetX, long double targetY);
 
+    // NEEDS MUTEX COVER: accesses positional data
     static long double wrapAngle(long double targetAngle);
 
     static int sign(long double num);

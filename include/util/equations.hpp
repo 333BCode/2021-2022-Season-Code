@@ -1,5 +1,5 @@
-#ifndef EQUATION_HPP
-#define EQUATION_HPP
+#ifndef _EQUATIONS_HPP_
+#define _EQUATIONS_HPP_
 
 namespace equations {
 

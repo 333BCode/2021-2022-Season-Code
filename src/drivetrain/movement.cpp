@@ -7,8 +7,6 @@ using namespace drive;
 using namespace conversions;
 using namespace equations;
 
-bool Drivetrain::stopped = false;
-
 Drivetrain::Action::Action(std::function<void()>&& newAction, double atError, bool duringTurn)
     : action {std::move(newAction)}, error {atError}, duringTurn {duringTurn} {}
 

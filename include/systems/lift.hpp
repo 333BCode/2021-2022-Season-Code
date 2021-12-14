@@ -1,5 +1,5 @@
-#ifndef LIFT_HPP
-#define LIFT_HPP
+#ifndef _LIFT_HPP_
+#define _LIFT_HPP_
 
 #include "api.h"
 

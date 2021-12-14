@@ -1,5 +1,5 @@
-#ifndef HOLDER_STICK_HPP
-#define HOLDER_STICK_HPP
+#ifndef _HOLDER_STICK_HPP_
+#define _HOLDER_STICK_HPP_
 
 #include "api.h"
 

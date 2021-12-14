@@ -1,5 +1,5 @@
-#ifndef PID_HPP
-#define PID_HPP
+#ifndef _PID_HPP_
+#define _PID_HPP_
 
 #include <cstdint>
 

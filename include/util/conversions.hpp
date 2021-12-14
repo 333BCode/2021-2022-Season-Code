@@ -1,5 +1,5 @@
-#ifndef CONVERSIONS_HPP
-#define CONVERSIONS_HPP
+#ifndef _CONVERSIONS_HPP_
+#define _CONVERSIONS_HPP_
 
 namespace conversions {
 

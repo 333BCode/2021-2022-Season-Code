@@ -28,18 +28,6 @@ motor_control::PIDController Drivetrain::rotPID {
 
 };
 
-/* const Drivetrain::ExitConditions Drivetrain::defaultExitConditions {
-
-    1,  // inches
-    0.5,  // inches / second
-
-    10, // degrees
-    2,  // degrees per second
-
-    0.15 // seconds
-
-}; */
-
 const long double Drivetrain::defaultLookAheadDistance      = 30;
 const long double Drivetrain::minDistForTurning             = 5;
 
@@ -50,4 +38,4 @@ const long double Drivetrain::trackingWheelDiameter         = 2.81;
 long double Drivetrain::maxVelocity             = 50;
 long double Drivetrain::maxAcceleration         = 50;
 const long double Drivetrain::drivetrainWidth   = 16;
-long double Drivetrain::profileDT               = 0.01;
+const long double Drivetrain::profileDT               = 0.01;
