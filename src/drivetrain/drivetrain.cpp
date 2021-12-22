@@ -79,16 +79,20 @@ positionDataMutex.give();
 
 void Drivetrain::supply(int linearPow, int rotPow) {
     frontLeftMotor.move(linearPow + rotPow);
-    backLeftMotor.move(linearPow + rotPow);
+    topBackLeftMotor.move(linearPow + rotPow);
+    bottomBackLeftMotor.move(linearPow + rotPow);
     frontRightMotor.move(linearPow - rotPow);
-    backRightMotor.move(linearPow - rotPow);
+    topBackRightMotor.move(linearPow - rotPow);
+    bottomBackRightMotor.move(linearPow - rotPow);
 }
 
 void Drivetrain::supplyVoltage(int linearPow, int rotPow) {
     frontLeftMotor.move_voltage(linearPow + rotPow);
-    backLeftMotor.move_voltage(linearPow + rotPow);
+    topBackLeftMotor.move_voltage(linearPow + rotPow);
+    bottomBackLeftMotor.move_voltage(linearPow + rotPow);
     frontRightMotor.move_voltage(linearPow - rotPow);
-    backRightMotor.move_voltage(linearPow - rotPow);
+    topBackRightMotor.move_voltage(linearPow - rotPow);
+    bottomBackRightMotor.move_voltage(linearPow - rotPow);
 }
 
 void Drivetrain::stopMotion() {
@@ -97,9 +101,11 @@ void Drivetrain::stopMotion() {
 
 void Drivetrain::setBrakeMode(const pros::motor_brake_mode_e_t brakeMode) {
     frontLeftMotor.set_brake_mode(brakeMode);
-    backLeftMotor.set_brake_mode(brakeMode);
+    topBackLeftMotor.set_brake_mode(brakeMode);
+    bottomBackLeftMotor.set_brake_mode(brakeMode);
     frontRightMotor.set_brake_mode(brakeMode);
-    backRightMotor.set_brake_mode(brakeMode);
+    topBackRightMotor.set_brake_mode(brakeMode);
+    bottomBackRightMotor.set_brake_mode(brakeMode);
 }
 
 void Drivetrain::addAction(std::function<void()>&& action, double dist, bool duringTurn) {

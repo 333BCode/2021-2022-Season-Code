@@ -1,19 +1,21 @@
 #include "systems/intake.hpp"
 
-namespace motor_control::intake {
+namespace motor_control {
 
-    constexpr int intakeSpeed = 77;
+    Intake intake {};
 
-    void intake() {
+    const int Intake::intakeSpeed = 127;
+
+    void Intake::intake() {
         motor.move(intakeSpeed);
     }
 
-    void reverse() {
+    void Intake::reverse() {
         motor.move(-intakeSpeed);
     }
 
-    void stop() {
+    void Intake::stop() {
         motor.move(0);
     }
 
-} // namespace motor_control::intake
+} // namespace motor_control

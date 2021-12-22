@@ -2,6 +2,8 @@
 
 void platformUpSide() {
 
+#ifdef COMMENT
+
     lift::release();
 
     LinearExitConditions specialExitConditions = Drivetrain::defaultLinearExit<
@@ -39,5 +41,7 @@ void platformUpSide() {
     pros::delay(3000);
     base.moveForward(18_in, false);
     intake::stop();
+
+#endif
 
 }

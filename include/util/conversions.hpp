@@ -1,6 +1,14 @@
 #ifndef _CONVERSIONS_HPP_
 #define _CONVERSIONS_HPP_
 
+/**
+ * File for conversion literals and functions, pi variable
+ *
+ * Since all variables and functions are constexpr, the definitions are in this file
+ *
+ * Conversion literals and functions convert everything to be in inches and degrees
+ */
+
 namespace conversions {
 
     constexpr long double pi = 3.1415926535L;

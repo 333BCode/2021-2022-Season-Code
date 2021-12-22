@@ -3,14 +3,23 @@
 
 #include "api.h"
 
-namespace motor_control::intake {
+namespace motor_control {
 
-    void intake();
-    void reverse();
-    void stop();
+    class Intake final {
+    public:
 
-    extern pros::Motor motor;
+        static void intake();
+        static void reverse();
+        static void stop();
+        
+        static pros::Motor motor;
 
-} // namespace motor_control::intake
+        static const int intakeSpeed;
+
+    };
+
+    extern Intake intake;
+
+} // namespace motor_control
 
 #endif

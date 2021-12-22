@@ -2,6 +2,8 @@
 
 void platformDownSide() {
 
+#ifdef COMMENT
+
     lift::release();
 
     /*holder::toggleHolder();
@@ -39,5 +41,7 @@ void platformDownSide() {
     base.setReversed(true);
     base.moveForward(2.5_ft);
 */
+
+#endif
 
 }

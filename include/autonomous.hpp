@@ -20,6 +20,8 @@ using namespace drive;
 using namespace motor_control;
 using namespace conversions;
 
+using Subposition = Lift::Subposition;
+
 // make a series of function calls usable by Drivetrain as actions
 #define bundle(funcs) []{funcs;}
 

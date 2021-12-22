@@ -2,6 +2,8 @@
 
 void skills() {
 
+#ifdef COMMENT
+
     /* lift::release();
 
     LinearExitConditions specialExitConditions = Drivetrain::defaultLinearExit<
@@ -156,5 +158,7 @@ void skills() {
     lift::release();
 
     base.moveForward(-2_ft, false);
+
+#endif
 
 }

@@ -75,10 +75,10 @@ Drivetrain::positionDataMutex.give();
 }
 
 void systemsTasks(void*) {
+    motor_control::Lift::init();
     while (true) {
         uint32_t startTime = pros::millis();
-        motor_control::powerLift();
-        motor_control::powerHolderAndStick();
+        motor_control::Lift::powerLift();
         pros::Task::delay_until(&startTime, 10);
     }
 }

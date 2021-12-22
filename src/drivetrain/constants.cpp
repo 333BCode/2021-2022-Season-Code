@@ -38,4 +38,4 @@ const long double Drivetrain::trackingWheelDiameter         = 2.81;
 long double Drivetrain::maxVelocity             = 50;
 long double Drivetrain::maxAcceleration         = 50;
 const long double Drivetrain::drivetrainWidth   = 16;
-const long double Drivetrain::profileDT               = 0.01;
+const long double Drivetrain::profileDT         = 0.01;

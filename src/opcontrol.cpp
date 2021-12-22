@@ -1,6 +1,5 @@
 #include "main.h"
 #include "drivetrain.hpp"
-#include "pros/misc.h"
 #include "systems.hpp"
 #include "pros/rtos.h"
 #include "macros.h"
@@ -27,13 +26,13 @@ void opcontrol() {
 
     using namespace drive;
     using namespace motor_control;
+    using Subposition = Lift::Subposition;
 	
     pros::Controller controller(pros::E_CONTROLLER_MASTER);
 
-    constexpr double power = 2;
-    bool usingExponential = false;
-
     bool intakeCommanded = false;
+
+    bool liftIsUp = lift.isUp();
 
     bool usingManualControl = false;
 
@@ -56,11 +55,6 @@ void opcontrol() {
             rotPow = 0;
         }
 
-        if (usingExponential) {
-            linearPow = (linearPow < 0 ? -1 : 1) * powf(abs(linearPow), power) / powf(127, power - 1);
-            rotPow = (rotPow < 0 ? -1 : 1) * powf(abs(rotPow), power) / powf(127, power - 1);
-        }
-
 #ifdef BRAIN_SCREEN_GAME_MODE
         Point position = base.getPosition();
         base.setPosition(
@@ -72,19 +66,15 @@ void opcontrol() {
         base.supply(linearPow, rotPow);
 #endif
 
-        if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_Y)) {
-            usingExponential = !usingExponential;
-        }
-
         if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A)) {
             
             usingManualControl = !usingManualControl;
-            lift::setManualControl(usingManualControl);
-            holder::setManualControl(usingManualControl);
+            lift.setManualControl(usingManualControl);
             
+            liftIsUp = false;
+
             if (!usingManualControl) {
-                lift::reset();
-                holder::reset();
+                lift.reset();
             }
 
         }
@@ -96,99 +86,62 @@ void opcontrol() {
                 count = 0;
             }
             ++count;
-/*
-            // shift key
-            if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_L2)) {
 
-                if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) {
-                    holder::motor.move(50);
-                } else if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R2)) {
-                    holder::motor.move(-50);
-                } else {
-                    holder::motor.move(0);
-                }
-
-            } else {
-
-                if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) {
-                    lift::motor.move(50);
-                } else if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R2)) {
-                    lift::motor.move(-50);
-                } else {
-                    lift::motor.move(0);
-                }
-
-            }
-*/
             if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_L1)) {
-                holder::motor.move(50);
+                lift.motor.move(50);
             } else if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_L2)) {
-                holder::motor.move(-50);
+                lift.motor.move(-50);
             } else {
-                holder::motor.move(0);
-            }
-
-            if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) {
-                lift::motor.move(50);
-            } else if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R2)) {
-                lift::motor.move(-50);
-            } else {
-                lift::motor.move(0);
+                lift.motor.move(0);
             }
 
         } else {
-            /*
-            // shift key
-            if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_L2)) {
-            
-                if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R1)) {
-                    holder::toggleHolder();
-                }
 
-                if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R2)) {
-                    stick::toggleStick();
+            if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R1)) {
+                liftIsUp = !liftIsUp;
+                lift.toggleLift();
+            }
+
+            if (!liftIsUp) {
+
+                if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L2)) {
+                    holder.toggle();
                 }
 
             } else {
 
-                if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R1)) {
-                    lift::toggleLift();
+                if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_L1)) {
+                    lift.setSubposition(Subposition::high);
+                } else if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_L2)) {
+                    lift.setSubposition(Subposition::low);
+                } else {
+                    lift.setSubposition(Subposition::neutral);
                 }
 
-                if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R2)) {
-                    lift::toggleClamp();
-                }
-
             }
-*/
-            if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L2)) {
-                holder::toggleHolder();
-            }
+            
+        }
 
-            if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_X)) {
-                stick::toggleStick();
-            }
-
-            if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R1)) {
-                lift::toggleLift();
-            }
-
-            if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R2)) {
-                lift::toggleClamp();
-            }
-
+        if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R2)) {
+            lift.toggleClamp();
         }
 
         if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_B)) {
-            intake::reverse();
+            intake.reverse();
             intakeCommanded = false;
-        } else if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L1)) {
+        } else if (!usingManualControl && controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L1)) {
             intakeCommanded = !intakeCommanded;
             if (intakeCommanded) {
-                intake::intake();
+                intake.intake();
+                if (!liftIsUp) {
+                    lift.setSubposition(Subposition::high);
+                }
             }
+        } else if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_X)) {
+            intake.intake();
+            intakeCommanded = false;
         } else if (!intakeCommanded) {
-            intake::stop();
+            intake.stop();
         }
 
         pros::Task::delay_until(&startTime, 10);

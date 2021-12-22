@@ -1,100 +1,114 @@
 #include "systems/lift.hpp"
 #include "pros/rtos.h"
-#include "util/pid_controller.hpp"
 
 namespace motor_control {
 
-    constexpr long double highAngle = 2750;
+    Lift lift {};
 
-    static bool liftIsUp            = false;
-    static bool usingManualControl  = false;
+    pros::Mutex Lift::mutex {};
 
-    static bool clamping            = true;
-    static bool autoClamp           = true;
+    Lift::Subposition Lift::subposition {Lift::Subposition::neutral};
 
-    static pros::Mutex mutex {};
+    const long double Lift::angles[5] = {0, 10, 45, 55, 65};
 
-    namespace lift {
+    bool Lift::liftIsUp            = false;
+    bool Lift::usingManualControl  = false;
 
-    void raise() {
-    mutex.take(TIMEOUT_MAX);
+    bool Lift::clamping            = true;
+
+    void Lift::init() {
+    mutex.take();
+        motor.set_encoder_units(pros::E_MOTOR_ENCODER_DEGREES);
+    mutex.give();
+    }
+
+    void Lift::raise() {
+    mutex.take();
         liftIsUp = true;
+        subposition = Subposition::neutral;
     mutex.give();
     }
 
-    void lower() {
-    mutex.take(TIMEOUT_MAX);
+    void Lift::lower() {
+    mutex.take();
         liftIsUp = false;
+        subposition = Subposition::neutral;
     mutex.give();
     }
 
-    void toggleLift() {
-    mutex.take(TIMEOUT_MAX);
+    void Lift::toggleLift() {
+    mutex.take();
         liftIsUp = !liftIsUp;
+        subposition = Subposition::neutral;
     mutex.give();
     }
 
-    void setManualControl(bool manualControl) {
-    mutex.take(TIMEOUT_MAX);
+    bool Lift::isUp() {
+    mutex.take();
+        bool liftState = liftIsUp;
+    mutex.give();
+        return liftState;
+    }
+
+    void Lift::setSubposition(Subposition subpos) {
+    mutex.take();
+        subposition = subpos;
+    mutex.give();
+    }
+
+    void Lift::setManualControl(bool manualControl) {
+    mutex.take();
         usingManualControl = manualControl;
         liftIsUp = false;
     mutex.give();
     }
 
-    void clamp() {
-    mutex.take(TIMEOUT_MAX);
+    void Lift::clamp() {
         claw.set_value(false);
         clamping = true;
-    mutex.give();
     }
 
-    void release() {
-    mutex.take(TIMEOUT_MAX);
+    void Lift::release() {
         claw.set_value(true);
         clamping = false;
-    mutex.give();
     }
 
-    void toggleClamp() {
-    mutex.take(TIMEOUT_MAX);
+    void Lift::toggleClamp() {
         claw.set_value(clamping);
         clamping = !clamping;
-    mutex.give();
     }
 
-    void setAutoClamp(bool autoClampEnabled) {
-    mutex.take(TIMEOUT_MAX);
-        if (!clamping) {
-            autoClamp = autoClampEnabled;
-        }
-    mutex.give();
+    bool Lift::isClamping() {
+        return clamping;
     }
 
-    bool isClamping() {
-    mutex.take(TIMEOUT_MAX);
-        bool clampState = clamping;
-    mutex.give();
-        return clampState;
-    }
-
-    void reset() {
-    mutex.take(TIMEOUT_MAX);
+    void Lift::reset() {
+    mutex.take();
         motor.tare_position();
     mutex.give();
     }
 
-    } // namespace lift
+    void Lift::powerLift() {
+    mutex.take();
 
-    void powerLift() {
-    mutex.take(TIMEOUT_MAX);
-        if (!usingManualControl) {
-            lift::motor.move_absolute(liftIsUp ? highAngle : 0, 100);
-        }
-        if (autoClamp) {
-            if (clamping) {
-                autoClamp = false;
+        size_t pos = 0;
+        if (liftIsUp) {
+            switch (subposition) {
+                case Subposition::neutral:
+                    pos = 3;
+                break;
+                case Subposition::high:
+                    pos = 4;
+                break;
+                default:
+                    pos = 2;
             }
+        } else if (subposition == Subposition::high) {
+            pos = 1;
         }
+
+        motor.move_absolute(angles[pos], 100);
+
     mutex.give();
     }
 

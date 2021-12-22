@@ -174,9 +174,11 @@ private:
     /* motors: used in field control tasks */
 
     static pros::Motor frontLeftMotor;
-    static pros::Motor backLeftMotor;
+    static pros::Motor topBackLeftMotor;
+    static pros::Motor bottomBackLeftMotor;
     static pros::Motor frontRightMotor;
-    static pros::Motor backRightMotor;
+    static pros::Motor topBackRightMotor;
+    static pros::Motor bottomBackRightMotor;
 
     /* sensors: used in main tasks */
 
@@ -273,25 +275,34 @@ private:
      * Used in field control tasks
      */
 
+    // Updates driveReversed if autoDetermineReversed
     static void determineFollowDirection(long double xTarget, long double yTarget);
 
+    // Converts encoder rotations to inches traveled
     static long double ticksToInches(int ticks);
 
+    // Executes actions stored in actionList if they are eligible to be executed
     static void executeActions(double currError, bool inTurn = false);
 
+    // Clears actionList, sets motor power to 0
     static void endMotion();
+    // Clears actionList, sets motor power to 0, updates old target variables
     static void endMotion(long double targetX, long double targetY);
 
+    // Converts the heading based off of targetAngle to minimize the distance between the two
     // NEEDS MUTEX COVER: accesses positional data
     static long double wrapAngle(long double targetAngle);
 
+    // Returns 1 if positive or 0, -1 if negative
     static int sign(long double num);
 
+    // Returns the point for the movement algorithm to target, as determined by pure pursuit
     static XYPoint purePursuitLookAhead(
         long double lookAheadDistance,
         XYPoint newEndpoint
     );
 
+    // Carry out one step of odometry calculations, called in main task
     static void trackPosition();
 
 };

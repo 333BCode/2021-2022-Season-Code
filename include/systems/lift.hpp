@@ -5,29 +5,56 @@
 
 namespace motor_control {
 
-namespace lift {
+    class Lift final {
+    public:
 
-    void raise();
-    void lower();
-    void toggleLift();
+        enum class Subposition {
+            high,
+            neutral,
+            low
+        };
 
-    void setManualControl(bool manualControl);
+        static void init();
 
-    void clamp();
-    void release();
-    void toggleClamp();
+        static void raise();
+        static void lower();
+        static void toggleLift();
 
-    void setAutoClamp(bool autoClampEnabled);
-    bool isClamping();
+        static bool isUp();
 
-    void reset();
+        static void setSubposition(Subposition subpos);
 
-    extern pros::Motor motor;
-    extern pros::ADIDigitalOut claw;
+        static void setManualControl(bool manualControl);
 
-} // namespace lift
+        static void clamp();
+        static void release();
+        static void toggleClamp();
 
-void powerLift();
+        static bool isClamping();
+
+        static void reset();
+
+        static void powerLift();
+
+        static pros::Motor motor;
+        
+    private:
+
+        static pros::ADIDigitalOut claw;
+
+        static pros::Mutex mutex;
+
+        static const long double angles[5];
+
+        static bool liftIsUp;
+        static Subposition subposition;
+        static bool usingManualControl;
+
+        static bool clamping;
+
+    };
+
+    extern Lift lift;
 
 } // namespace motor_control
 

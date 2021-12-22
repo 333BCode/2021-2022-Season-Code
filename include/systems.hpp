@@ -2,10 +2,10 @@
 #define _SYSTEMS_HPP_
 
 /**
- * Includes all systems/ header files
+ * Includes all systems/ header files, excluding systems/constants.hpp
  */
 
-#include "systems/holder_stick.hpp"
+#include "systems/holder.hpp"
 #include "systems/intake.hpp"
 #include "systems/lift.hpp"
 
