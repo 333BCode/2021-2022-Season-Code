@@ -56,6 +56,16 @@ namespace motor_control {
     mutex.give();
     }
 
+    void Lift::toggleSubposition() {
+    mutex.take();
+        if (subposition == Subposition::high) {
+            subposition = Subposition::low;
+        } else {
+            subposition = Subposition::high;
+        }
+    mutex.give();
+    }
+
     void Lift::setManualControl(bool manualControl) {
     mutex.take();
         usingManualControl = manualControl;
