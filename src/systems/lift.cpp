@@ -1,4 +1,5 @@
 #include "systems/lift.hpp"
+#include "pros/motors.h"
 #include "pros/rtos.h"
 
 namespace motor_control {
@@ -56,20 +57,19 @@ namespace motor_control {
     mutex.give();
     }
 
-    void Lift::toggleSubposition() {
-    mutex.take();
-        if (subposition == Subposition::high) {
-            subposition = Subposition::low;
-        } else {
-            subposition = Subposition::high;
-        }
-    mutex.give();
-    }
-
     void Lift::setManualControl(bool manualControl) {
     mutex.take();
+
         usingManualControl = manualControl;
         liftIsUp = false;
+        subposition = Subposition::neutral;
+
+        if (usingManualControl) {
+            motor.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+        } else {
+            motor.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+        }
+
     mutex.give();
     }
 
@@ -101,23 +101,18 @@ namespace motor_control {
     void Lift::powerLift() {
     mutex.take();
 
-        size_t pos = 0;
-        if (liftIsUp) {
-            switch (subposition) {
-                case Subposition::neutral:
-                    pos = 3;
-                break;
-                case Subposition::high:
-                    pos = 4;
-                break;
-                default:
-                    pos = 2;
-            }
-        } else if (subposition == Subposition::high) {
-            pos = 1;
-        }
+        if (!usingManualControl) {
 
-        motor.move_absolute(angles[pos], 100);
+            size_t pos = (liftIsUp ? 3 : 0);
+            if (subposition == Subposition::high) {
+                ++pos;
+            } else if (subposition == Subposition::low && pos != 0) {
+                --pos;
+            }
+
+            motor.move_absolute(angles[pos], 100);
+
+        }
 
     mutex.give();
     }

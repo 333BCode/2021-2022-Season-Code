@@ -1,5 +1,6 @@
 #include "main.h"
 #include "drivetrain.hpp"
+#include "pros/misc.h"
 #include "systems.hpp"
 #include "pros/rtos.h"
 #include "macros.h"
@@ -40,6 +41,8 @@ void opcontrol() {
 
     // sets break modes to coast
     base.setBrakeMode(pros::E_MOTOR_BRAKE_COAST);
+
+    holder.grabIfRequested();
 
     while (true) {
 
@@ -87,12 +90,16 @@ void opcontrol() {
             }
             ++count;
 
-            if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_L1)) {
+            if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) {
                 lift.motor.move(50);
-            } else if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_L2)) {
+            } else if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R2)) {
                 lift.motor.move(-50);
             } else {
                 lift.motor.move(0);
+            }
+
+            if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L2)) {
+                lift.toggleClamp();
             }
 
         } else {
@@ -105,11 +112,7 @@ void opcontrol() {
             if (!liftIsUp) {
 
                 if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L2)) {
-                    if (intakeCommanded) {
-                        lift.toggleSubposition();
-                    } else {
-                        holder.toggle();
-                    }
+                    holder.toggle();
                 }
                 
             } else {
@@ -123,27 +126,33 @@ void opcontrol() {
                 }
 
             }
+
+            if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R2)) {
+                lift.toggleClamp();
+            }
             
         }
 
-        if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R2)) {
-            lift.toggleClamp();
+        if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_X)) {
+            holder.toggle();
         }
 
         if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_B)) {
             intake.reverse();
             intakeCommanded = false;
-        } else if (!usingManualControl && controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L1)) {
+        } else if (
+            (!liftIsUp && controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L1))
+            || controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_Y)
+        ) {
             intakeCommanded = !intakeCommanded;
             if (intakeCommanded) {
                 intake.intake();
                 if (!liftIsUp) {
                     lift.setSubposition(Subposition::high);
                 }
+            } else if (!liftIsUp) {
+                lift.setSubposition(Subposition::neutral);
             }
-        } else if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_X)) {
-            intake.intake();
-            intakeCommanded = false;
         } else if (!intakeCommanded) {
             intake.stop();
         }
