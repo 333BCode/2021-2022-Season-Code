@@ -4,8 +4,6 @@ namespace motor_control {
 
     Intake intake {};
 
-    const int Intake::intakeSpeed = 127;
-
     void Intake::intake() {
         motor.move(intakeSpeed);
     }

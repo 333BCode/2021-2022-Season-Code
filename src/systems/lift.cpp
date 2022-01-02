@@ -10,8 +10,6 @@ namespace motor_control {
 
     Lift::Subposition Lift::subposition {Lift::Subposition::neutral};
 
-    const long double Lift::angles[5] = {0, 10, 45, 55, 65};
-
     bool Lift::liftIsUp            = false;
     bool Lift::usingManualControl  = false;
 
