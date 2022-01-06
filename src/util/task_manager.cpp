@@ -11,9 +11,9 @@
  */
 
 void mainTasks(void*);
-void systemsTasks(void*);
+// void systemsTasks(void*);
 pros::Task mainTask(mainTasks);
-pros::Task systemsTask(systemsTasks);
+// pros::Task systemsTask(systemsTasks);
 
 void mainTasks(void*) {
 
@@ -36,6 +36,8 @@ void mainTasks(void*) {
 Drivetrain::positionDataMutex.take(TIMEOUT_MAX);
     Drivetrain::calibrated = true;
 Drivetrain::positionDataMutex.give();
+
+    motor_control::Lift::init();
 
     while (true) {
 
@@ -68,12 +70,15 @@ Drivetrain::positionDataMutex.give();
         }
 #endif
 
+        motor_control::Lift::powerLift();
+
         pros::Task::delay_until(&startTime, 10);
 
     }
 
 }
 
+/*
 void systemsTasks(void*) {
     motor_control::Lift::init();
     while (true) {
@@ -82,3 +87,4 @@ void systemsTasks(void*) {
         pros::Task::delay_until(&startTime, 10);
     }
 }
+*/

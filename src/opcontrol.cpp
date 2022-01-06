@@ -34,10 +34,11 @@ void opcontrol() {
     bool intakeCommanded = false;
 
     bool liftIsUp = lift.isUp();
+    bool usingManualControl = true;
+    bool liftCommanded      = false;
+    double holdAngle        = 2;
 
-    bool usingManualControl = false;
-
-    int count = 0;
+    lift.setManualControl(true);
 
     // sets break modes to coast
     base.setBrakeMode(pros::E_MOTOR_BRAKE_COAST);
@@ -69,33 +70,39 @@ void opcontrol() {
         base.supply(linearPow, rotPow);
 #endif
 
-        if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A)) {
+        if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_RIGHT)) {
             
             usingManualControl = !usingManualControl;
             lift.setManualControl(usingManualControl);
             
             liftIsUp = false;
+            liftCommanded = true;
 
             if (!usingManualControl) {
                 lift.reset();
             }
 
+            controller.rumble(". .");
+
         }
 
         if (usingManualControl) {
 
-            if (count % 50 == 0) {
-                controller.rumble(".");
-                count = 0;
-            }
-            ++count;
-
             if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) {
-                lift.motor.move(50);
+                lift.motor.move(127);
+                liftCommanded = true;
             } else if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R2)) {
-                lift.motor.move(-50);
+                lift.motor.move(-127);
+                liftCommanded = true;
             } else {
-                lift.motor.move(0);
+
+                if (liftCommanded) {
+                    liftCommanded = false;
+                    holdAngle = lift.motor.get_position();
+                }
+
+                lift.motor.move_absolute(holdAngle, 100);
+            
             }
 
             if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L2)) {

@@ -57,17 +57,9 @@ namespace motor_control {
 
     void Lift::setManualControl(bool manualControl) {
     mutex.take();
-
         usingManualControl = manualControl;
         liftIsUp = false;
         subposition = Subposition::neutral;
-
-        if (usingManualControl) {
-            motor.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
-        } else {
-            motor.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
-        }
-
     mutex.give();
     }
 

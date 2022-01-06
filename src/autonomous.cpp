@@ -25,6 +25,8 @@ autonSelectionMutex.give();
     Drivetrain::setBrakeMode(pros::E_MOTOR_BRAKE_COAST);
     Drivetrain::setFollowDirection(Direction::autoDetermine);
 
+    lift.setManualControl(false);
+
     selectedAuton();
 
 }
