@@ -17,7 +17,7 @@ auton_t auton = skills;
 
 void autonomous() {
 
-autonSelectionMutex.take(TIMEOUT_MAX);
+autonSelectionMutex.take(20);
     auton_t selectedAuton = auton;
 autonSelectionMutex.give();
 

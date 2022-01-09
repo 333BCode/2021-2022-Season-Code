@@ -33,10 +33,10 @@ void opcontrol() {
 
     bool intakeCommanded = false;
 
-    bool liftIsUp = lift.isUp();
+    bool liftIsUp = false;
     bool usingManualControl = true;
-    bool liftCommanded      = false;
-    double holdAngle        = 2;
+    bool liftCommanded      = true;
+    double holdAngle        = 0;
 
     lift.setManualControl(true);
 

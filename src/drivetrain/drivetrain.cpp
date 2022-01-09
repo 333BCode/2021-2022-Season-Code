@@ -57,7 +57,7 @@ void Drivetrain::setFollowDirection(Direction direction) {
 }
 
 Drivetrain::Point Drivetrain::getPosition() {
-positionDataMutex.take(TIMEOUT_MAX);
+positionDataMutex.take(20);
     Point position = {xPos, yPos, heading};
 positionDataMutex.give();
     return position;

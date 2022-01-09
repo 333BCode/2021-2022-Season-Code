@@ -33,7 +33,7 @@ void mainTasks(void*) {
     Drivetrain::rightEncoder.reset();
     Drivetrain::middleEncoder.reset();
 
-Drivetrain::positionDataMutex.take(TIMEOUT_MAX);
+Drivetrain::positionDataMutex.take(20);
     Drivetrain::calibrated = true;
 Drivetrain::positionDataMutex.give();
 
@@ -41,7 +41,7 @@ Drivetrain::positionDataMutex.give();
 
     while (true) {
 
-    Drivetrain::positionDataMutex.take(TIMEOUT_MAX);
+    Drivetrain::positionDataMutex.take(20);
 
         uint32_t startTime = pros::millis();
 

@@ -89,7 +89,7 @@ namespace motor_control {
     }
 
     void Lift::powerLift() {
-    mutex.take();
+    mutex.take(20);
 
         if (!usingManualControl) {
 
