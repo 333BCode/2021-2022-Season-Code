@@ -25,7 +25,9 @@ autonSelectionMutex.give();
     Drivetrain::setBrakeMode(pros::E_MOTOR_BRAKE_COAST);
     Drivetrain::setFollowDirection(Direction::autoDetermine);
 
-    lift.setManualControl(false);
+#ifndef DEFAULT_TO_MACROS_IN_OPCONTROL
+    lift.setManualControl(false); // if macro defined, make sure to not enable manual control before auton (should not happen)
+#endif
 
     selectedAuton();
 

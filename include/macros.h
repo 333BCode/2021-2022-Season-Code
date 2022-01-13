@@ -6,10 +6,12 @@
  */
 
 // When not defined, the screen will clear, except for the auton selector, when the bot is enabled
-// #define DISPLAY_DEBUG
+#define DISPLAY_DEBUG
 
 // When defined, provided DISPLAY_DEBUG is as well,
 // the joysticks will move the virtual bot on the brain screen rather than the drivetrain
 // #define BRAIN_SCREEN_GAME_MODE
+
+#define DEFAULT_TO_MACROS_IN_OPCONTROL
 
 #endif

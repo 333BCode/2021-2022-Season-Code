@@ -121,25 +121,25 @@ void Drivetrain::trackPosition() {
     using conversions::radians;
     using conversions::degrees;
 
-    static int32_t lastRightValue       = 0;
-    static int32_t lastMiddleValue      = 0;
-    static double lastInertialAngle     = 0;
+    static int32_t lastParallelValue        = 0;
+    static int32_t lastPerpendicularValue   = 0;
+    static double lastInertialAngle         = 0;
     static int count = 0;
 
     /**
      * Main Calculations
      */
 
-    int32_t rightEncoderValue   = rightEncoder.get_value();
-    int32_t middleEncoderValue  = middleEncoder.get_value();
+    int32_t parallelValue       = parallelTrackingWheel.get_position();
+    int32_t perpendicularValue  = perpendicularTrackingWheel.get_value();
 
-    double inertialAngle        = -inertial.get_rotation();
+    double inertialAngle        = -(imu1.get_rotation() + imu2.get_rotation()) / 2.0;
 
-    long double rightDist   = ticksToInches(rightEncoderValue - lastRightValue);
-    long double middleDist  = ticksToInches(middleEncoderValue - lastMiddleValue);
+    long double parallelDist       = ticksToInches(parallelValue - lastParallelValue) / 100.0;
+    long double perpendicularDist  = ticksToInches(perpendicularValue - lastPerpendicularValue);
 
-    lastRightValue  = rightEncoderValue;
-    lastMiddleValue = middleEncoderValue;
+    lastParallelValue       = parallelValue;
+    lastPerpendicularValue  = perpendicularValue;
 
     long double angle = radians(inertialAngle - lastInertialAngle);
     lastInertialAngle = inertialAngle;
@@ -151,8 +151,8 @@ void Drivetrain::trackPosition() {
         lastInertialAngle = inertialAngle;
     }
 */
-    long double distMain    = angle == 0 ? rightDist : 2 * (rightDist / angle + wheelSpacingParallel) * sin(angle / 2);
-    long double distSlide   = angle == 0 ? middleDist : 2 * (middleDist / angle + wheelSpacingPerpendicular) * sin(angle / 2);
+    long double distMain    = angle == 0 ? parallelDist : 2 * (parallelDist / angle + wheelSpacingParallel) * sin(angle / 2);
+    long double distSlide   = angle == 0 ? perpendicularDist : 2 * (perpendicularDist / angle + wheelSpacingPerpendicular) * sin(angle / 2);
 
     long double theta = radians(heading) + angle / 2;
 

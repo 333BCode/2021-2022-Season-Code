@@ -7,10 +7,10 @@ namespace motor_control {
     const long double Lift::angles[5] = {
         
         0,  // fully lowered
-        10, // slightly raised to intake rings
-        45, // lower goal onto platform height
-        55, // put goal onto platform height
-        65  // fully raised
+        180, // slightly raised to intake rings
+        415, // lower goal onto platform height
+        495, // put goal onto platform height
+        820  // fully raised
     
     };
 

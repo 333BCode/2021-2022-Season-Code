@@ -182,10 +182,11 @@ private:
 
     /* sensors: used in main tasks */
 
-    static pros::Imu inertial;
+    static pros::Imu imu1;
+    static pros::Imu imu2;
 
-    static pros::ADIEncoder rightEncoder;
-    static pros::ADIEncoder middleEncoder;
+    static pros::Rotation parallelTrackingWheel;
+    static pros::ADIEncoder perpendicularTrackingWheel;
 
     // Mutex: protects positional data, instantiated in src/drivetrain/drivetrain.cpp
     static pros::Mutex positionDataMutex;

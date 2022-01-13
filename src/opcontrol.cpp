@@ -33,12 +33,20 @@ void opcontrol() {
 
     bool intakeCommanded = false;
 
-    bool liftIsUp = false;
+#ifdef DEFAULT_TO_MACROS_IN_OPCONTROL
+    bool liftIsUp           = lift.isUp();
+    bool usingManualControl = false;
+    bool liftCommanded      = true;
+#else
+    bool liftIsUp           = false;
     bool usingManualControl = true;
     bool liftCommanded      = true;
+#endif
     double holdAngle        = 0;
 
+#ifndef DEFAULT_TO_MACROS_IN_OPCONTROL
     lift.setManualControl(true);
+#endif
 
     // sets break modes to coast
     base.setBrakeMode(pros::E_MOTOR_BRAKE_COAST);
@@ -82,7 +90,7 @@ void opcontrol() {
                 lift.reset();
             }
 
-            controller.rumble(". .");
+            controller.rumble("..");
 
         }
 
@@ -149,7 +157,7 @@ void opcontrol() {
             intakeCommanded = false;
         } else if (
             (!liftIsUp && controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L1))
-            || controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_Y)
+            || controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A)
         ) {
             intakeCommanded = !intakeCommanded;
             if (intakeCommanded) {

@@ -31,8 +31,8 @@ motor_control::PIDController Drivetrain::rotPID {
 const long double Drivetrain::defaultLookAheadDistance      = 30;
 const long double Drivetrain::minDistForTurning             = 5;
 
-const long double Drivetrain::wheelSpacingParallel          = 4.5;
-const long double Drivetrain::wheelSpacingPerpendicular     = 0.2;
+const long double Drivetrain::wheelSpacingParallel          = 2.7;
+const long double Drivetrain::wheelSpacingPerpendicular     = 0.4;
 const long double Drivetrain::trackingWheelDiameter         = 2.81;
 
 long double Drivetrain::maxVelocity             = 50;

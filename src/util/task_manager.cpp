@@ -11,9 +11,11 @@
  */
 
 void mainTasks(void*);
-// void systemsTasks(void*);
 pros::Task mainTask(mainTasks);
-// pros::Task systemsTask(systemsTasks);
+#ifdef DEFAULT_TO_MACROS_IN_OPCONTROL
+void systemsTasks(void*);
+pros::Task systemsTask(systemsTasks);
+#endif
 
 void mainTasks(void*) {
 
@@ -25,19 +27,22 @@ void mainTasks(void*) {
 
     short frame = 0;
 
-    Drivetrain::inertial.reset();
-    while (Drivetrain::inertial.is_calibrating()) {
+    Drivetrain::imu1.reset();
+    Drivetrain::imu2.reset();
+    while (Drivetrain::imu1.is_calibrating() || Drivetrain::imu2.is_calibrating()) {
         pros::delay(10);
     }
 
-    Drivetrain::rightEncoder.reset();
-    Drivetrain::middleEncoder.reset();
+    Drivetrain::parallelTrackingWheel.reset_position();
+    Drivetrain::perpendicularTrackingWheel.reset();
 
 Drivetrain::positionDataMutex.take(20);
     Drivetrain::calibrated = true;
 Drivetrain::positionDataMutex.give();
 
+#ifndef DEFAULT_TO_MACROS_IN_OPCONTROL
     motor_control::Lift::init();
+#endif
 
     while (true) {
 
@@ -69,8 +74,9 @@ Drivetrain::positionDataMutex.give();
             }
         }
 #endif
-
+#ifndef DEFAULT_TO_MACROS_IN_OPCONTROL
         motor_control::Lift::powerLift();
+#endif
 
         pros::Task::delay_until(&startTime, 10);
 
@@ -78,7 +84,7 @@ Drivetrain::positionDataMutex.give();
 
 }
 
-/*
+#ifdef DEFAULT_TO_MACROS_IN_OPCONTROL
 void systemsTasks(void*) {
     motor_control::Lift::init();
     while (true) {
@@ -87,4 +93,4 @@ void systemsTasks(void*) {
         pros::Task::delay_until(&startTime, 10);
     }
 }
-*/
+#endif
