@@ -109,8 +109,10 @@ lv_res_t setAuton(lv_obj_t* autonSwitch) {
         uint32_t autonNum = lv_obj_get_free_num(autonSwitch);
         if (autonNum == 0) {
             auton = platformUpSide;
-        } else {
+        } else if (autonNum == 1) {
             auton = platformDownSide;
+        } else {
+            auton = awp;
         }
 
     autonSelectionMutex.give();

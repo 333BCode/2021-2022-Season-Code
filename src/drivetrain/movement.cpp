@@ -285,7 +285,8 @@ void Drivetrain::turnTo(XYPoint target, bool absolute, TurnExitConditions exitCo
 
 void Drivetrain::moveForward(long double dist, bool absolute, LinearExitConditions exitConditions) {
     if (absolute) {
-        moveTo(oldTargetX + dist * cos(targetHeading), oldTargetY + dist * sin(targetHeading), exitConditions);
+        long double curHeading = radians(heading);
+        moveTo(oldTargetX + dist * cos(curHeading), oldTargetY + dist * sin(curHeading), exitConditions);
     } else {
         Point pos = getPosition();
         long double currHeading = radians(pos.heading);
@@ -297,11 +298,13 @@ void Drivetrain::determineFollowDirection(long double xTarget, long double yTarg
 positionDataMutex.take(TIMEOUT_MAX);
     double angleToPoint = degrees(atan2(yTarget - oldTargetY, xTarget - oldTargetX));
     if (angleToPoint < 0) {angleToPoint += 360;}
-    if (fabs(angleToPoint - wrapAngle(angleToPoint)) > 180) {
+    std::cout << angleToPoint << '\n';
+    if (fabs(angleToPoint - wrapAngle(angleToPoint)) > 90) {
         driveReversed = true;
     } else {
         driveReversed = false;
     }
+    std::cout << fabs(angleToPoint - wrapAngle(angleToPoint)) << '\n';
 positionDataMutex.give();
 }
 

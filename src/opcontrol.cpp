@@ -127,7 +127,7 @@ void opcontrol() {
             if (!liftIsUp) {
 
                 if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L2)) {
-                    holder.toggle();
+                    lift.toggleSubposition();
                 }
                 
             } else {

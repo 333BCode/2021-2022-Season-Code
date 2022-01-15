@@ -2,12 +2,12 @@
 
 motor_control::PIDController Drivetrain::linearPID {
     
-    1.95,  // kP
-    0.2,  // kD
+    1.75,  // kP
+    0.08,  // kD
     0,  // kI
     4,  // integralCap      (volts)
     
-    0.5,  // timeToMaxVoltage (seconds)
+    0.75,  // timeToMaxVoltage (seconds)
     12, // maxVoltage       (volts)
     1,  // profilePower
     0   // startingVoltage  (volts)

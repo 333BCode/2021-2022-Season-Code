@@ -23,6 +23,7 @@ namespace motor_control {
         static bool isUp();
 
         static void setSubposition(Subposition subpos);
+        static void toggleSubposition();
 
         static void setManualControl(bool manualControl);
 

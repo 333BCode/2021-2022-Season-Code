@@ -45,5 +45,6 @@ extern auton_t auton;
 void skills();
 void platformUpSide();
 void platformDownSide();
+void awp();
 
 #endif

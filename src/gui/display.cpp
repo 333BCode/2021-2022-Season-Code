@@ -192,14 +192,14 @@ DisplayControl::DisplayControl()
     lv_btn_set_style(lowerRedAutonSwitch, LV_BTN_STYLE_PR, &autonBtnPr);
     lv_btn_set_style(lowerRedAutonSwitch, LV_BTN_STYLE_REL, &autonBtnRel);
 
-    upperBlueAutonSwitch = newButton(autonSelectionTab, 0, 0, tileLength * 2, tileLength * 2, 0, setAuton, false);
+    upperBlueAutonSwitch = newButton(autonSelectionTab, 0, 0, tileLength * 2, tileLength * 2, 2, setAuton, false);
     lv_obj_align(upperBlueAutonSwitch, NULL, LV_ALIGN_IN_TOP_RIGHT, -10, 10);
     lv_obj_set_free_ptr(upperBlueAutonSwitch, this);
     lv_btn_set_style(upperBlueAutonSwitch, LV_BTN_STYLE_TGL_PR, &autonBtnPr);
     lv_btn_set_style(upperBlueAutonSwitch, LV_BTN_STYLE_PR, &autonBtnPr);
     lv_btn_set_style(upperBlueAutonSwitch, LV_BTN_STYLE_REL, &autonBtnRel);
 
-    lowerBlueAutonSwitch = newButton(autonSelectionTab, 0, 0, tileLength * 2, tileLength * 2, 1, setAuton, false);
+    lowerBlueAutonSwitch = newButton(autonSelectionTab, 0, 0, tileLength * 2, tileLength * 2, 3, setAuton, false);
     lv_obj_align(lowerBlueAutonSwitch, NULL, LV_ALIGN_IN_BOTTOM_RIGHT, -10, -10);
     lv_obj_set_free_ptr(lowerBlueAutonSwitch, this);
     lv_btn_set_style(lowerBlueAutonSwitch, LV_BTN_STYLE_TGL_PR, &autonBtnPr);
