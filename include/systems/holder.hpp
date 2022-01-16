@@ -12,15 +12,11 @@ namespace motor_control {
         static void release();
         static void toggle();
 
-        static void requestGrabOnEnable();
-        static void grabIfRequested();
-
     private:
 
         static pros::ADIDigitalOut clamp;
 
         static bool clamping;
-        static bool clampRequested;
 
     };
 

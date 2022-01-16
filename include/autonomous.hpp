@@ -47,4 +47,6 @@ void platformUpSide();
 void platformDownSide();
 void awp();
 
+bool goalRushExitConditions(long double dist, bool firstLoop, bool reset);
+
 #endif

@@ -32,3 +32,15 @@ autonSelectionMutex.give();
     selectedAuton();
 
 }
+
+bool goalRushExitConditions(long double dist, bool firstLoop, bool reset) {
+
+    static int count = 0;
+    Point pos = base.getPosition();
+    ++count;
+    if (count > 250) {
+        return true;
+    }
+    return pos.y >= 55 || dist < 0.5;
+
+}

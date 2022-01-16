@@ -51,8 +51,6 @@ void opcontrol() {
     // sets break modes to coast
     base.setBrakeMode(pros::E_MOTOR_BRAKE_COAST);
 
-    holder.grabIfRequested();
-
     while (true) {
 
         uint32_t startTime = pros::millis();

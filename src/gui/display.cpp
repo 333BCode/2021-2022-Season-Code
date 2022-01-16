@@ -7,7 +7,7 @@
 
 #include <string>
 
-constexpr short defaultScreen = 0;
+constexpr short defaultScreen = 1;
 
 static lv_obj_t* newButton(lv_obj_t* parent, lv_coord_t xPos, lv_coord_t yPos, lv_coord_t width, lv_coord_t height,
     uint32_t freeNum, lv_res_t (*action)(lv_obj_t*), bool toggle)
