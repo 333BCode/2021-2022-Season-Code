@@ -105,7 +105,7 @@ Drivetrain& Drivetrain::operator<<(const Waypoint& p) {
 
     positionDataMutex.give();
 
-        supplyVoltage(std::clamp(linearOutput, -maxSpeed, maxSpeed) * cos(angleToPoint), -rotOutput);
+        supplyVoltage(std::clamp(linearOutput * cos(angleToPoint), -speedLimit, speedLimit), -rotOutput);
 
         executeActions(curDist);
 
@@ -191,7 +191,7 @@ void Drivetrain::moveTo(
 
     positionDataMutex.give();
 
-        supplyVoltage(std::clamp(linearOutput, -maxSpeed, maxSpeed) * cos(angleToPoint), -rotOutput);
+        supplyVoltage(std::clamp(linearOutput * cos(angleToPoint), -speedLimit, speedLimit), -rotOutput);
 
         executeActions(curDist);
 

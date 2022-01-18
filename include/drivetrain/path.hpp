@@ -19,8 +19,8 @@ public:
     // Feedback error correction uses similar ideas to pure pursuit
     struct Velocities {
 
-        long double linearVoltage;
-        long double rotVoltage;
+        int linearVoltage;
+        int rotVoltage;
         
         long double xExtension;
         long double yExtension;
@@ -84,7 +84,7 @@ private:
     const long double lookAheadDistance;
 
     // Adds a new Velocities to the internal array, reallocates memory if needed
-    void add(long double linearVoltage, long double rotVoltage, long double xExtension, long double yExtension);
+    void add(int linearVoltage, int rotVoltage, long double xExtension, long double yExtension);
 
 };
 

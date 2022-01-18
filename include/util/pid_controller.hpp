@@ -15,15 +15,14 @@ namespace motor_control {
             const long double kI;
             const long double integralCap;
 
-            const long double timeToMaxVoltage;
+            const long double voltageAcceleration;
             const long double maxVoltage;
-            const long double profilePower;
             const long double startingVoltage;
 
         };
 
         PIDController(long double kP, long double kD = 0, long double kI = 0, long double integralCap = 4,
-            long double timeToMaxVoltage = 0, long double maxVoltage = 12, long double profilePower = 1, long double startingVoltage = 0);
+            long double voltageAcceleration = 0, long double maxVoltage = 12, long double startingVoltage = 0);
 
         long double getError();
         long double getDerivative();
@@ -31,12 +30,13 @@ namespace motor_control {
         void setNewTarget(long double newTarget, bool ignoreProfile = false);
         void alterTarget(long double newTarget);
 
+        void updatePreviousSystemOutput(int previousSystemOutput);
+
         int calcPower(long double currPos);
 
         Constants getConstants();
         void setConstants(long double p, long double d, long double i, long double integralCap);
-        void setProfile(long double newTimeToMaxVoltage, long double newMaxVoltage,
-            long double newProfilePower, long double newStartingVoltage);
+        void setSlewConstants(long double newVoltageAcceleration, long double newMaxVoltage, long double newStartingVoltage);
 
     private:
 
@@ -51,15 +51,14 @@ namespace motor_control {
         long double derivative  {0};
         long double totalError  {0};
 
-        long double timeToMaxVoltage;
+        long double voltageAcceleration;
         long double maxVoltage;
-        long double profilePower;
         long double startingVoltage;
+        long double slewPower   {0};
         uint32_t startTime      {0};
-        long double elapsedTime {0};
 
-        bool usingProfile {false};
-        bool firstRun     {true};
+        bool usingSlew  {false};
+        bool firstRun   {true};
 
         long double previousOutput {0};
 

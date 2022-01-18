@@ -145,7 +145,9 @@ public:
     // Sets the brake mode of the motors
     static void setBrakeMode(const pros::motor_brake_mode_e_t brakeMode);
 
-    static void setMaxSpeed(int speed);
+    static void limitSpeed(long double speed);
+    static void unboundSpeed();
+    static const long double maxVelocity;
 
     // Allows mainTasks to calibrate IMU, reset tracking wheel encoders, mark when calibration is complete, and run odometry
     friend void mainTasks(void*);
@@ -261,12 +263,11 @@ private:
     static const long double wheelSpacingPerpendicular;
     static const long double trackingWheelDiameter;
 
-    static int maxSpeed;
+    static double speedLimit;
 
     /* motion profiling constants: used in field control tasks */
 
-    static long double maxVelocity;
-    static long double maxAcceleration;
+    static const long double maxAcceleration;
     static const long double drivetrainWidth;
     // Time step used when generating a profile, should equal the time delay used in the loop that runs the profile
     static const long double profileDT;

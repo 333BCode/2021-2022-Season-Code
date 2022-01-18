@@ -6,11 +6,10 @@
 namespace motor_control {
 
     PIDController::PIDController(long double kP, long double kD, long double kI, long double integralCap,
-        long double timeToMaxVoltage, long double maxVoltage, long double profilePower, long double startingVoltage)
+        long double voltageAcceleration, long double maxVoltage, long double startingVoltage)
         : kP {kP}, kD {kD}, kI {kI}, integralCap {integralCap},
-        timeToMaxVoltage {timeToMaxVoltage},
+        voltageAcceleration {voltageAcceleration},
         maxVoltage {(maxVoltage > 0 && maxVoltage <= 12 ? maxVoltage : 12)},
-        profilePower {(profilePower >= 1 ? profilePower : 1)},
         startingVoltage {startingVoltage} {}
 
     long double PIDController::getError() {
@@ -30,27 +29,8 @@ namespace motor_control {
 
         firstRun = true;
 
-        if (!ignoreProfile && timeToMaxVoltage > 0) {
-
-            if (previousOutput > startingVoltage) {
-
-                long double ceiling = maxVoltage - startingVoltage;
-                if (previousOutput - startingVoltage >= ceiling) {
-                    return;
-                }
-                long double denominator = pow(ceiling / 2, profilePower - 1);
-
-                usingProfile = true;
-
-                if (previousOutput < ceiling / 2) {
-                    elapsedTime = pow(previousOutput * denominator, 1 / profilePower) * timeToMaxVoltage / ceiling;
-                } else {
-                    elapsedTime = ceiling - pow((ceiling - previousOutput) * denominator, 1 / profilePower) * timeToMaxVoltage / ceiling;
-                }
-
-            }
-
-        }
+        usingSlew = (!ignoreProfile && voltageAcceleration > 0);
+        slewPower = previousOutput;
 
     }
 
@@ -58,12 +38,23 @@ namespace motor_control {
         target = newTarget;
     }
 
+    void PIDController::updatePreviousSystemOutput(int previousSystemOutput) {
+        previousOutput = previousSystemOutput / 1000.0;
+    }
+
     int PIDController::calcPower(long double currPos) {
+
+        static bool positiveSlewAcceleration = true;
 
         uint32_t currTime = pros::millis();
         long double dt = (currTime - startTime) / 1000.0L;
         if (firstRun) {
             dt = 0.01;
+            if (usingSlew) {
+                error = target - currPos;
+                positiveSlewAcceleration = (error >= 0);
+                slewPower += startingVoltage * (positiveSlewAcceleration ? 1 : -1);
+            }
             firstRun = false;
         } else if (dt == 0) {
             return previousOutput;
@@ -73,44 +64,25 @@ namespace motor_control {
         prevError = error;
         totalError += error * dt;
 
-        long double integralTerm = kI * totalError;
-        if (fabs(integralTerm) > integralCap) {
-            integralTerm = integralCap * (integralTerm > 0 ? 1 : -1);
-        }
+        long double integralTerm = std::clamp(kI * totalError, -integralCap, integralCap);
 
         error = target - currPos;
         derivative = (error - prevError) / dt;
-        long double pidOutput = kP * error + kD * derivative + integralTerm;
+        long double pidOutput = std::clamp(kP * error + kD * derivative + integralTerm, -maxVoltage, maxVoltage);
 
-        if (fabs(pidOutput) > maxVoltage) {
-            pidOutput = maxVoltage * (pidOutput > 0 ? 1 : -1);
-        }
+        if (usingSlew) {
 
-        if (usingProfile) {
+            slewPower += voltageAcceleration * dt * (positiveSlewAcceleration ? 1 : -1);
 
-            elapsedTime += dt;
-
-            long double profileOutput;
-            long double ceiling = maxVoltage - startingVoltage;
-            long double denominator = pow(ceiling / 2, profilePower - 1);
-
-            if (elapsedTime > timeToMaxVoltage / 2) {
-                profileOutput = ceiling - pow(ceiling - ceiling * elapsedTime / timeToMaxVoltage, profilePower) / denominator;
+            if (fabs(slewPower) >= fabs(pidOutput)) {
+                usingSlew = false;
             } else {
-                profilePower = pow(ceiling * elapsedTime / timeToMaxVoltage, profilePower) / denominator;
-            }
-
-            profileOutput += startingVoltage;
-
-            if (profileOutput > fabs(pidOutput) || elapsedTime > timeToMaxVoltage) {
-                usingProfile = false;
-            } else {
-                pidOutput = profileOutput * (pidOutput > 0 ? 1 : -1);
+                pidOutput = slewPower;
             }
 
         }
 
-        previousOutput = fabs(pidOutput);
+        previousOutput = pidOutput;
 
         return pidOutput * 1000;
 
@@ -119,7 +91,7 @@ namespace motor_control {
     PIDController::Constants PIDController::getConstants() {
         return {
             kP, kD, kI, integralCap,
-            timeToMaxVoltage, maxVoltage, profilePower, startingVoltage
+            voltageAcceleration, maxVoltage, startingVoltage
         };
     }
 
@@ -127,17 +99,15 @@ namespace motor_control {
         kP = newKP; kD = newKD; kI = newKI; integralCap = newIntegralCap;
     }
 
-    void PIDController::setProfile(long double newTimeToMaxVoltage, long double newMaxVoltage,
-        long double newProfilePower, long double newStartingVoltage)
+    void PIDController::setSlewConstants(long double newVoltageAcceleration, long double newMaxVoltage, long double newStartingVoltage)
     {
 
-        timeToMaxVoltage = newTimeToMaxVoltage;
-        if (newTimeToMaxVoltage <= 0) {
-            usingProfile = false;
+        voltageAcceleration = newVoltageAcceleration;
+        if (voltageAcceleration <= 0) {
+            usingSlew = false;
         }
 
         maxVoltage = (newMaxVoltage > 0 && newMaxVoltage <= 12 ? newMaxVoltage : 12);
-        profilePower = (newProfilePower >= 1 ? newProfilePower : 1);
         startingVoltage = newStartingVoltage;
 
     }

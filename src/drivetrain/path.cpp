@@ -70,7 +70,7 @@ Path& Path::withAction(std::function<void()>&& action, double dist) {
     return *this;
 }
 
-void Path::add(long double linearVoltage, long double rotVoltage, long double xExtension, long double yExtension) {
+void Path::add(int linearVoltage, int rotVoltage, long double xExtension, long double yExtension) {
 
     if (length == capacity) {
 

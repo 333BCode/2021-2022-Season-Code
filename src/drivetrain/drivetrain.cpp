@@ -16,7 +16,7 @@ bool Drivetrain::driveReversed          = false;
 
 bool Drivetrain::stopped = false;
 
-int Drivetrain::maxSpeed = 12000;
+double Drivetrain::speedLimit = 12000;
 
 pros::Mutex Drivetrain::positionDataMutex {};
 
@@ -58,8 +58,12 @@ void Drivetrain::setFollowDirection(Direction direction) {
     }
 }
 
-void Drivetrain::setMaxSpeed(int speed) {
-    maxSpeed = speed;
+void Drivetrain::limitSpeed(long double speed) {
+    speedLimit = 12000 * speed / maxVelocity;
+}
+
+void Drivetrain::unboundSpeed() {
+    speedLimit = 12000;
 }
 
 Drivetrain::Point Drivetrain::getPosition() {
