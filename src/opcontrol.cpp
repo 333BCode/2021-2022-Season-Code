@@ -111,7 +111,7 @@ void opcontrol() {
             
             }
 
-            if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L2)) {
+            if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L1)) {
                 lift.toggleClamp();
             }
 
@@ -154,8 +154,10 @@ void opcontrol() {
             intake.reverse();
             intakeCommanded = false;
         } else if (
-            (!liftIsUp && controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L1))
-            || controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A)
+            (!liftIsUp
+            && ((controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L1) && !usingManualControl)
+            || (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L2) && usingManualControl))
+            ) || controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A)
         ) {
             intakeCommanded = !intakeCommanded;
             if (intakeCommanded) {

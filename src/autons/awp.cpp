@@ -2,7 +2,7 @@
 
 void awp() {
 
-    base.setPosition(3_ft, 1_ft, 270_deg);
+    base.setPosition(3_ft, 1_ft, 180_deg);
 
     base.limitSpeed(24);
     base.moveForward(-10_in);
@@ -12,20 +12,17 @@ void awp() {
     base.addAction(intake.stop, 4_in);
     base.moveForward(16_in);
 
-    pros::delay(500);
-
     intake.intake();
-    pros::delay(2000);
+    pros::delay(1000);
     intake.stop();
 
     holder.release();
-    base.moveForward(8_in);
+    base.addAction(base.stopMotion, 4_in);
+    base.moveForward(12_in);
 
     base.unboundSpeed();
 
     base << Waypoint {4_ft, 3_ft} << Waypoint {10_ft, 3_ft} >> Point {10_ft, 3_ft, 270_deg}.withAction(base.stopMotion, 0.5_in);
-    base.limitSpeed(24);
-    base.moveForward(-8_in);
 
     holder.grab();
 
