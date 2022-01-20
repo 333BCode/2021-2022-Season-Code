@@ -147,6 +147,7 @@ public:
 
     static void limitSpeed(long double speed);
     static void unboundSpeed();
+    static void setLinearSlew(int slewPower);
     static const long double maxVelocity;
 
     // Allows mainTasks to calibrate IMU, reset tracking wheel encoders, mark when calibration is complete, and run odometry

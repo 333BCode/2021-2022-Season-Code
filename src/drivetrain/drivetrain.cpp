@@ -32,7 +32,7 @@ std::vector<Drivetrain::Action> Drivetrain::actionList {};
 
 void Drivetrain::waitUntilCalibrated() {
     while (true) {
-    positionDataMutex.take(TIMEOUT_MAX);
+    positionDataMutex.take();
         bool isCalibrated = calibrated;
     positionDataMutex.give();
         if (isCalibrated) {
@@ -66,6 +66,10 @@ void Drivetrain::unboundSpeed() {
     speedLimit = 12000;
 }
 
+void Drivetrain::setLinearSlew(int slewPower) {
+    linearPID.updatePreviousSystemOutput(slewPower);
+}
+
 Drivetrain::Point Drivetrain::getPosition() {
 positionDataMutex.take(20);
     Point position = {xPos, yPos, heading};
@@ -74,7 +78,7 @@ positionDataMutex.give();
 }
 
 void Drivetrain::setPosition(long double newX, long double newY, long double newHeading) {
-positionDataMutex.take(TIMEOUT_MAX);
+positionDataMutex.take();
     xPos = newX; yPos = newY;
     if (newHeading >= 360) {
         heading = newHeading - 360;

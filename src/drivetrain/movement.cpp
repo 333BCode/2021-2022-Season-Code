@@ -36,7 +36,7 @@ Drivetrain& Drivetrain::operator<<(const Path& path) {
 
         long double angleToPoint = rawAngle - radians(heading);
 
-        long double targetAngle = degrees(rawAngle);
+        long double targetAngle = degrees(rawAngle) - (driveReversed ? 180 : 0);
         if (targetAngle < 0) {
             targetAngle += 360;
         }
@@ -52,6 +52,11 @@ Drivetrain& Drivetrain::operator<<(const Path& path) {
 
         executeActions(overallDist);
         if (stopped) {
+            endMotion(path.target.x, path.target.y);
+            linearPID.updatePreviousSystemOutput(
+                velocitySet.linearVoltage * (driveReversed ? -1 : 1) + linearOutput * cos(angleToPoint)
+            );
+            rotPID.updatePreviousSystemOutput(rotOutput - velocitySet.rotVoltage);
             break;
         }
 
@@ -61,6 +66,8 @@ Drivetrain& Drivetrain::operator<<(const Path& path) {
     }
 
     endMotion(path.target.x, path.target.y);
+    linearPID.updatePreviousSystemOutput(0);
+    rotPID.updatePreviousSystemOutput(0);
 
     return *this;
 
@@ -79,7 +86,7 @@ Drivetrain& Drivetrain::operator<<(const Waypoint& p) {
     linearPID.setNewTarget(0);
     rotPID.setNewTarget(0);
 
-    while (!stopped) {
+    while (true) {
 
     positionDataMutex.take(TIMEOUT_MAX);
 
@@ -109,7 +116,7 @@ Drivetrain& Drivetrain::operator<<(const Waypoint& p) {
 
         executeActions(curDist);
 
-        if (p.exitConditions(curDist, p.lookAheadDistance, false)) {
+        if (p.exitConditions(curDist, p.lookAheadDistance, false) || stopped) {
             break;
         }
 
@@ -150,7 +157,7 @@ void Drivetrain::moveTo(
 
     bool canTurn = true;
 
-    while (!stopped) {
+    while (true) {
 
     positionDataMutex.take(TIMEOUT_MAX);
 
@@ -195,7 +202,7 @@ void Drivetrain::moveTo(
 
         executeActions(curDist);
 
-        if (linearExitConditions(curDist * (firstLoop ? 1 : cos(angleToPoint)), firstLoop, false)) {
+        if (linearExitConditions(curDist * (firstLoop ? 1 : cos(angleToPoint)), firstLoop, false) || stopped) {
             break;
         }
         firstLoop = false;
@@ -249,7 +256,7 @@ void Drivetrain::turnTo(long double heading, TurnExitConditions exitConditions) 
 
     rotPID.setNewTarget(targetHeading);
 
-    while (!stopped) {
+    while (true) {
 
     positionDataMutex.take(TIMEOUT_MAX);
         uint32_t startTime = pros::millis();
@@ -261,7 +268,7 @@ void Drivetrain::turnTo(long double heading, TurnExitConditions exitConditions) 
 
         executeActions(fabs(rotPID.getError()), true);
 
-        if (exitConditions(firstLoop, false)) {
+        if (exitConditions(firstLoop, false) || stopped) {
             break;
         }
         firstLoop = false;
