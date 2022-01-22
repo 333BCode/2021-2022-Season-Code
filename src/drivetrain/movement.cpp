@@ -112,7 +112,10 @@ Drivetrain& Drivetrain::operator<<(const Waypoint& p) {
 
     positionDataMutex.give();
 
-        supplyVoltage(std::clamp(linearOutput * cos(angleToPoint), -speedLimit, speedLimit), -rotOutput);
+        supplyVoltage(
+            std::clamp(static_cast<int>(linearOutput * cos(angleToPoint)), -linearSpeedLimit, linearSpeedLimit),
+            std::clamp(-rotOutput, -rotSpeedLimit, rotSpeedLimit)
+        );
 
         executeActions(curDist);
 
@@ -198,7 +201,10 @@ void Drivetrain::moveTo(
 
     positionDataMutex.give();
 
-        supplyVoltage(std::clamp(linearOutput * cos(angleToPoint), -speedLimit, speedLimit), -rotOutput);
+        supplyVoltage(
+            std::clamp(static_cast<int>(linearOutput * cos(angleToPoint)), -linearSpeedLimit, linearSpeedLimit),
+            std::clamp(-rotOutput, -rotSpeedLimit, rotSpeedLimit)
+        );
 
         executeActions(curDist);
 
@@ -264,7 +270,7 @@ void Drivetrain::turnTo(long double heading, TurnExitConditions exitConditions) 
         int rotOutput = rotPID.calcPower(wrapAngle(targetHeading));
     positionDataMutex.give();
 
-        supplyVoltage(0, -rotOutput);
+        supplyVoltage(0, std::clamp(-rotOutput, -rotSpeedLimit, rotSpeedLimit));
 
         executeActions(fabs(rotPID.getError()), true);
 

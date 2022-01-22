@@ -16,7 +16,8 @@ bool Drivetrain::driveReversed          = false;
 
 bool Drivetrain::stopped = false;
 
-double Drivetrain::speedLimit = 12000;
+int Drivetrain::linearSpeedLimit    = 12000;
+int Drivetrain::rotSpeedLimit       = 12000;
 
 pros::Mutex Drivetrain::positionDataMutex {};
 
@@ -59,11 +60,29 @@ void Drivetrain::setFollowDirection(Direction direction) {
 }
 
 void Drivetrain::limitSpeed(long double speed) {
-    speedLimit = 12000 * speed / maxVelocity;
+    linearSpeedLimit    = 12000 * speed / maxVelocity;
+    rotSpeedLimit       = linearSpeedLimit;
+}
+
+void Drivetrain::limitLinearSpeed(long double speed) {
+    linearSpeedLimit = 12000 * speed / maxVelocity;
+}
+
+void Drivetrain::limitTurnSpeed(int voltage) {
+    rotSpeedLimit = voltage;
 }
 
 void Drivetrain::unboundSpeed() {
-    speedLimit = 12000;
+    linearSpeedLimit    = 12000;
+    rotSpeedLimit       = 12000;
+}
+
+void Drivetrain::unboundLinearSpeed() {
+    linearSpeedLimit = 12000;
+}
+
+void Drivetrain::unboundTurnSpeed() {
+    rotSpeedLimit = 12000;
 }
 
 void Drivetrain::setLinearSlew(int slewPower) {

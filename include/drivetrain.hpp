@@ -146,7 +146,11 @@ public:
     static void setBrakeMode(const pros::motor_brake_mode_e_t brakeMode);
 
     static void limitSpeed(long double speed);
+    static void limitLinearSpeed(long double speed);
+    static void limitTurnSpeed(int voltage);
     static void unboundSpeed();
+    static void unboundLinearSpeed();
+    static void unboundTurnSpeed();
     static void setLinearSlew(int slewPower);
     static const long double maxVelocity;
 
@@ -264,7 +268,8 @@ private:
     static const long double wheelSpacingPerpendicular;
     static const long double trackingWheelDiameter;
 
-    static double speedLimit;
+    static int linearSpeedLimit;
+    static int rotSpeedLimit;
 
     /* motion profiling constants: used in field control tasks */
 
