@@ -4,6 +4,7 @@
 #include "drivetrain.hpp" // for drivetrain movement
 #include "systems.hpp" // for subsystem 3 movement
 #include "util/conversions.hpp" // for literals
+#include "gui/display.hpp"
 #include "main.h" // for forward declaration for autonomous
 
 /**
@@ -29,24 +30,26 @@ using Subposition = Lift::Subposition;
 // call ex: base << Waypoint {x0, y0} << endAt(x1, y1);
 #define endAt(x, y) Waypoint {x, y}; Drivetrain::moveTo(x, y)
 
-// protects auton function pointer
-extern pros::Mutex autonSelectionMutex;
+using Auton = DisplayControl::Auton;
+using auton_t = Auton::auton_t;
 
-using auton_t = void(*)();
-
-// function pointer to selected auton (updated in GUI, points to skills by default)
-// NEEDS MUTEX COVER: used in field control and lvgl tasks
+// function pointer to selected auton (updated in GUI, points to none by default)
 extern auton_t auton;
 
 /*
  * Autonomous function forward declarations
  */
 
+void none();
 void skills();
 void platformUpSide();
 void platformDownSide();
 void awp();
 
 bool goalRushExitConditions(long double dist, bool firstLoop, bool reset);
+
+extern bool targetTallNeutralMogo;
+extern bool targetShortNeutralMogo;
+extern bool targetRings;
 
 #endif

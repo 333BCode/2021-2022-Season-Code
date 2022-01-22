@@ -15,6 +15,18 @@
 class DisplayControl final {
 public:
 
+    struct Auton {
+
+        using auton_t = void(*)();
+
+        Auton(auton_t autonFunc, const char* name, bool showElements = false);
+
+        auton_t autonFunc;
+        const char* name;
+        bool showElements;
+
+    };
+
     // initialize brain screen
     DisplayControl();
     // disallow copy construction
@@ -32,12 +44,17 @@ public:
     // Moves the virtual bot on the brain screen
     // Updates the data displayed on the brain screen if updateValues
     void updateOdomData(bool updateValues);
+
     // Allows changeTab to show / hide lvgl objects
     friend lv_res_t changeTab(lv_obj_t* tab);
+    friend lv_res_t updateAutonTargets(lv_obj_t *target);
     // Allows setAuton to properly update the auton buttons
     friend lv_res_t setAuton(lv_obj_t* autonSwitch);
 
 private:
+
+    static const Auton upperAutons[3];
+    static const Auton lowerAutons[1];
 
     /**
      * Objects
@@ -51,8 +68,6 @@ private:
     lv_obj_t* odomSwitchText;
     lv_obj_t* autonSelectionSwitch;
     lv_obj_t* autonSelectionSwitchText;
-    lv_obj_t* debugSwitch;
-    lv_obj_t* debugSwitchText;
 
     lv_obj_t* odomTab;
     double tileLength;
@@ -62,16 +77,15 @@ private:
     lv_obj_t* positionData;
 
     lv_obj_t* autonSelectionTab;
-    lv_obj_t* upperRedAutonSwitch;
-    lv_obj_t* lowerRedAutonSwitch;
-    lv_obj_t* upperBlueAutonSwitch;
-    lv_obj_t* lowerBlueAutonSwitch;
-
-    lv_obj_t* debugTab;
+    lv_obj_t* selectedIndicator;
+    uint32_t selectedNum {500};
 
     lv_obj_t* field;
     lv_obj_t* redPlatform;
     lv_obj_t* bluePlatform;
+    lv_obj_t* tallNeutralMogo;
+    lv_obj_t* shortNeutralMogo;
+    lv_obj_t* rings;
 
     /**
      * Styles
@@ -92,8 +106,15 @@ private:
     lv_style_t redPlatformStyle;
     lv_style_t bluePlatformStyle;
 
-    lv_style_t autonBtnPr;
-    lv_style_t autonBtnRel;
+    lv_style_t autonBtnStyle;
+    lv_style_t autonBtnNameStyle;
+
+    lv_style_t selectedIndicatorStyle;
+
+    lv_style_t mogoSelectedStyle;
+    lv_style_t mogoStyle;
+    lv_style_t ringSelectedStyle;
+    lv_style_t ringStyle;
 
 };
 
