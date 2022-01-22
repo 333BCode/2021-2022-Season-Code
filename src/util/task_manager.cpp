@@ -27,11 +27,11 @@ void mainTasks(void*) {
 
     short frame = 0;
 
-    Drivetrain::imu1.reset();
+    /*Drivetrain::imu1.reset();
     Drivetrain::imu2.reset();
     while (Drivetrain::imu1.is_calibrating() || Drivetrain::imu2.is_calibrating()) {
         pros::delay(10);
-    }
+    }*/
 
     Drivetrain::parallelTrackingWheel.reset_position();
     Drivetrain::perpendicularTrackingWheel.reset();
@@ -51,7 +51,7 @@ Drivetrain::positionDataMutex.give();
         uint32_t startTime = pros::millis();
 
 #ifndef BRAIN_SCREEN_GAME_MODE
-        Drivetrain::trackPosition();
+        // Drivetrain::trackPosition();
 #endif
 
     Drivetrain::positionDataMutex.give();

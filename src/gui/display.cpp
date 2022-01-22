@@ -9,6 +9,9 @@
 
 constexpr short defaultScreen = 1;
 
+DisplayControl::Auton::Auton(auton_t autonFunc, const char* name, bool showElements)
+    : autonFunc {autonFunc}, name {name}, showElements {showElements} {}
+
 static lv_obj_t* newButton(lv_obj_t* parent, lv_coord_t xPos, lv_coord_t yPos, lv_coord_t width, lv_coord_t height,
     uint32_t freeNum, lv_res_t (*action)(lv_obj_t*), bool toggle)
 {
@@ -71,8 +74,7 @@ DisplayControl::DisplayControl()
     positionData {lv_label_create(odomTab, NULL)},
 
     autonSelectionTab {lv_obj_create(tabSpace, NULL)},
-
-    debugTab {lv_obj_create(tabSpace, NULL)},
+    selectedIndicator {lv_obj_create(autonSelectionTab, NULL)},
 
     field {lv_obj_create(tabSpace, NULL)},
     redPlatform {lv_obj_create(field, NULL)},
@@ -109,10 +111,24 @@ DisplayControl::DisplayControl()
     setupStyle(&redPlatformStyle, &lv_style_plain_color, LV_COLOR_RED);
     setupStyle(&bluePlatformStyle, &lv_style_plain_color, LV_COLOR_BLUE);
 
-    setupStyle(&autonBtnPr, &lv_style_plain_color, LV_COLOR_SILVER, 5, LV_COLOR_MAGENTA);
-    lv_style_copy(&autonBtnRel, &autonBtnPr);
-    autonBtnRel.body.border.color = LV_COLOR_WHITE;
+    setupStyle(&autonBtnStyle, &lv_style_plain_color, LV_COLOR_SILVER);
+    autonBtnStyle.body.radius = 3;
 
+    lv_style_copy(&autonBtnNameStyle, &lv_style_plain);
+    autonBtnNameStyle.text.color = LV_COLOR_MAGENTA;
+    autonBtnNameStyle.text.opa = LV_OPA_100;
+
+    setupStyle(&selectedIndicatorStyle, &lv_style_plain_color, LV_COLOR_TRANSP, 4, LV_COLOR_BLUE);
+    selectedIndicatorStyle.body.radius = 5;
+
+    setupStyle(&mogoSelectedStyle, &lv_style_plain, LV_COLOR_YELLOW);
+    mogoSelectedStyle.body.radius = LV_RADIUS_CIRCLE;
+
+    setupStyle(&mogoStyle, &lv_style_plain, LV_COLOR_BLACK);
+    mogoStyle.body.radius = LV_RADIUS_CIRCLE;
+
+    setupStyle(&ringSelectedStyle, &lv_style_plain_color, LV_COLOR_PURPLE);
+    setupStyle(&ringStyle, &lv_style_plain_color, LV_COLOR_BLACK);
 
     /*
      * Set up tab system
@@ -121,7 +137,7 @@ DisplayControl::DisplayControl()
     lv_obj_set_size(tabSwitcher, lv_obj_get_width(lv_scr_act()), tabBarHeight);
     lv_obj_set_style(tabSwitcher, &tabviewStyleIndic);
 
-    odomSwitch = newButton(tabSwitcher, 0, 0, lv_obj_get_width(tabSwitcher) / 3.1, tabBarHeight - 5, 
+    odomSwitch = newButton(tabSwitcher, 0, 0, lv_obj_get_width(tabSwitcher) / 2.05, tabBarHeight - 5, 
         0, changeTab, true);
     lv_obj_align(odomSwitch, NULL, LV_ALIGN_IN_LEFT_MID, 4, 0);
     lv_obj_set_free_ptr(odomSwitch, this);
@@ -132,9 +148,9 @@ DisplayControl::DisplayControl()
     lv_obj_align(odomSwitchText, NULL, LV_ALIGN_CENTER, 0, 0);
     lv_label_set_text(odomSwitchText, "Odom");
 
-    autonSelectionSwitch = newButton(tabSwitcher, 0, 0, lv_obj_get_width(tabSwitcher) / 3.1, tabBarHeight - 5, 
+    autonSelectionSwitch = newButton(tabSwitcher, 0, 0, lv_obj_get_width(tabSwitcher) / 2.05, tabBarHeight - 5, 
         1, changeTab, true);
-    lv_obj_align(autonSelectionSwitch, NULL, LV_ALIGN_CENTER, 0, 0);
+    lv_obj_align(autonSelectionSwitch, NULL, LV_ALIGN_IN_RIGHT_MID, -4, 0);
     lv_obj_set_free_ptr(autonSelectionSwitch, this);
     lv_btn_set_style(autonSelectionSwitch, LV_BTN_STYLE_TGL_PR, &tabviewBtnPressedStyle);
     lv_btn_set_style(autonSelectionSwitch, LV_BTN_STYLE_TGL_REL, &tabviewStyle);
@@ -142,17 +158,6 @@ DisplayControl::DisplayControl()
     autonSelectionSwitchText = lv_label_create(autonSelectionSwitch, NULL);
     lv_obj_align(autonSelectionSwitchText, NULL, LV_ALIGN_CENTER, 0, 0);
     lv_label_set_text(autonSelectionSwitchText, "Auton");
-
-    debugSwitch = newButton(tabSwitcher, 0, 0, lv_obj_get_width(tabSwitcher) / 3.1, tabBarHeight - 5, 
-        2, changeTab, true);
-    lv_obj_align(debugSwitch, NULL, LV_ALIGN_IN_RIGHT_MID, -4, 0);
-    lv_obj_set_free_ptr(debugSwitch, this);
-    lv_btn_set_style(debugSwitch, LV_BTN_STYLE_TGL_PR, &tabviewBtnPressedStyle);
-    lv_btn_set_style(debugSwitch, LV_BTN_STYLE_TGL_REL, &tabviewStyle);
-
-    debugSwitchText = lv_label_create(debugSwitch, NULL);
-    lv_obj_align(debugSwitchText, NULL, LV_ALIGN_CENTER, 0, 0);
-    lv_label_set_text(debugSwitchText, "Debug");
 
     lv_obj_set_size(tabSpace, lv_obj_get_width(lv_scr_act()), lv_obj_get_height(lv_scr_act()) - tabBarHeight);
     lv_obj_set_pos(tabSpace, 0, tabBarHeight);
@@ -178,46 +183,46 @@ DisplayControl::DisplayControl()
     lv_obj_set_size(autonSelectionTab, lv_obj_get_width(tabSpace), lv_obj_get_height(tabSpace));
     lv_obj_set_style(autonSelectionTab, &odomPageStyle);
 
-    upperRedAutonSwitch = newButton(autonSelectionTab, 0, 0, tileLength * 2, tileLength * 2, 1, setAuton, false);
-    lv_obj_align(upperRedAutonSwitch, NULL, LV_ALIGN_IN_TOP_LEFT, 10, 10);
-    lv_obj_set_free_ptr(upperRedAutonSwitch, this);
-    lv_btn_set_style(upperRedAutonSwitch, LV_BTN_STYLE_TGL_PR, &autonBtnPr);
-    lv_btn_set_style(upperRedAutonSwitch, LV_BTN_STYLE_PR, &autonBtnPr);
-    lv_btn_set_style(upperRedAutonSwitch, LV_BTN_STYLE_REL, &autonBtnRel);
+    for (size_t i = 0; i < std::size(upperAutons); ++i) {
 
-    lowerRedAutonSwitch = newButton(autonSelectionTab, 0, 0, tileLength * 2, tileLength * 2, 0, setAuton, false);
-    lv_obj_align(lowerRedAutonSwitch, NULL, LV_ALIGN_IN_BOTTOM_LEFT, 10, -10);
-    lv_obj_set_free_ptr(lowerRedAutonSwitch, this);
-    lv_btn_set_style(lowerRedAutonSwitch, LV_BTN_STYLE_TGL_PR, &autonBtnPr);
-    lv_btn_set_style(lowerRedAutonSwitch, LV_BTN_STYLE_PR, &autonBtnPr);
-    lv_btn_set_style(lowerRedAutonSwitch, LV_BTN_STYLE_REL, &autonBtnRel);
+        lv_obj_t* obj = newButton(autonSelectionTab, 0, 0, 1.5 * tileLength, tileLength, i, setAuton, false);
+        lv_obj_align(obj, NULL, LV_ALIGN_IN_TOP_LEFT, (0.25 + 2 * i) * tileLength, 0.25 * tileLength);
+        lv_obj_set_free_ptr(obj, this);
 
-    upperBlueAutonSwitch = newButton(autonSelectionTab, 0, 0, tileLength * 2, tileLength * 2, 2, setAuton, false);
-    lv_obj_align(upperBlueAutonSwitch, NULL, LV_ALIGN_IN_TOP_RIGHT, -10, 10);
-    lv_obj_set_free_ptr(upperBlueAutonSwitch, this);
-    lv_btn_set_style(upperBlueAutonSwitch, LV_BTN_STYLE_TGL_PR, &autonBtnPr);
-    lv_btn_set_style(upperBlueAutonSwitch, LV_BTN_STYLE_PR, &autonBtnPr);
-    lv_btn_set_style(upperBlueAutonSwitch, LV_BTN_STYLE_REL, &autonBtnRel);
+        lv_btn_set_style(obj, LV_BTN_STYLE_PR, &autonBtnStyle);
+        lv_btn_set_style(obj, LV_BTN_STYLE_REL, &autonBtnStyle);
 
-    lowerBlueAutonSwitch = newButton(autonSelectionTab, 0, 0, tileLength * 2, tileLength * 2, 3, setAuton, false);
-    lv_obj_align(lowerBlueAutonSwitch, NULL, LV_ALIGN_IN_BOTTOM_RIGHT, -10, -10);
-    lv_obj_set_free_ptr(lowerBlueAutonSwitch, this);
-    lv_btn_set_style(lowerBlueAutonSwitch, LV_BTN_STYLE_TGL_PR, &autonBtnPr);
-    lv_btn_set_style(lowerBlueAutonSwitch, LV_BTN_STYLE_PR, &autonBtnPr);
-    lv_btn_set_style(lowerBlueAutonSwitch, LV_BTN_STYLE_REL, &autonBtnRel);
-
-    /*
-     * Debug Tab
-     */
+        obj = lv_label_create(obj, NULL);
+        lv_label_set_text(obj, upperAutons[i].name);
+        lv_obj_set_style(obj, &autonBtnNameStyle);
     
-    lv_obj_set_size(debugTab, lv_obj_get_width(tabSpace), lv_obj_get_height(tabSpace));
-    lv_obj_set_style(debugTab, &odomPageStyle);
+    }
+
+    for (size_t i = 0; i < std::size(lowerAutons); ++i) {
+
+        lv_obj_t* obj = newButton(autonSelectionTab, 0, 0, 1.5 * tileLength, tileLength, 100 + i, setAuton, false);
+        lv_obj_align(obj, NULL, LV_ALIGN_IN_LEFT_MID, (0.25 + 2 * i) * tileLength, 0.25 * tileLength);
+        lv_obj_set_free_ptr(obj, this);
+
+        lv_btn_set_style(obj, LV_BTN_STYLE_PR, &autonBtnStyle);
+        lv_btn_set_style(obj, LV_BTN_STYLE_REL, &autonBtnStyle);
+
+        obj = lv_label_create(obj, NULL);
+        lv_label_set_text(obj, lowerAutons[i].name);
+        lv_obj_set_style(obj, &autonBtnNameStyle);
+    
+    }
+
+    lv_obj_set_size(selectedIndicator, 1.7 * tileLength, 1.2 * tileLength);
+    lv_obj_set_style(selectedIndicator, &selectedIndicatorStyle);
+    lv_obj_set_hidden(selectedIndicator, true);
 
     /*
      * Field
      */
 
     lv_obj_set_size(field, lv_obj_get_height(tabSpace), lv_obj_get_height(tabSpace));
+    lv_obj_align(field, NULL, LV_ALIGN_IN_RIGHT_MID, 0, 0);
     lv_obj_set_style(field, &fieldStyle);
 
     // Field Tiles
@@ -231,7 +236,7 @@ DisplayControl::DisplayControl()
             }
 
             lv_obj_t* newTile = newButton(field, tileLength * j, tileLength * i, tileLength, tileLength,
-                10 * (5 - i) + j, setVirtualBotPos, false);
+                10 * (5 - i) + j, nullptr, false);
             lv_btn_set_style(newTile, LV_BTN_STYLE_PR, &fieldStyle);
             lv_btn_set_style(newTile, LV_BTN_STYLE_REL, &fieldStyle);
         
@@ -256,22 +261,37 @@ DisplayControl::DisplayControl()
 
     lv_obj_set_style(virtualBotDirectionIndicator, &virtualBotDirectionIndicatorStyle);
 
+    tallNeutralMogo = newButton(field, 0, 0, 0.75 * tileLength, 0.75 * tileLength, 0, updateAutonTargets, false);
+    lv_obj_set_free_ptr(tallNeutralMogo, this);
+    lv_obj_align(tallNeutralMogo, NULL, LV_ALIGN_CENTER, 0, 0);
+    lv_btn_set_style(tallNeutralMogo, LV_BTN_STYLE_PR, &mogoStyle);
+    lv_btn_set_style(tallNeutralMogo, LV_BTN_STYLE_REL, &mogoStyle);
+    lv_obj_set_hidden(tallNeutralMogo, true);
+
+    shortNeutralMogo = newButton(field, 0, 0, 0.75 * tileLength, 0.75 * tileLength, 1, updateAutonTargets, false);
+    lv_obj_set_free_ptr(shortNeutralMogo, this);
+    lv_obj_align(shortNeutralMogo, NULL, LV_ALIGN_CENTER, 0, 1.5 * tileLength);
+    lv_btn_set_style(shortNeutralMogo, LV_BTN_STYLE_PR, &mogoStyle);
+    lv_btn_set_style(shortNeutralMogo, LV_BTN_STYLE_REL, &mogoStyle);
+    lv_obj_set_hidden(shortNeutralMogo, true);
+
+    rings = newButton(field, 0, 0, 0.75 * tileLength, 0.5 * tileLength, 2, updateAutonTargets, false);
+    lv_obj_set_free_ptr(rings, this);
+    lv_obj_align(rings, NULL, LV_ALIGN_CENTER, -tileLength, 2 * tileLength);
+    ringSelectedStyle.body.radius = lv_obj_get_height(rings) / 2;
+    ringStyle.body.radius = lv_obj_get_height(rings) / 2;
+    lv_btn_set_style(rings, LV_BTN_STYLE_PR, &ringStyle);
+    lv_btn_set_style(rings, LV_BTN_STYLE_REL, &ringStyle);
+    lv_obj_set_hidden(rings, true);
+
     /*
      * show default screen
      */
-    
-    switch (defaultScreen) {
-        
-        case 0:
-            changeTab(odomSwitch);
-            break;
-        case 1:
-            changeTab(autonSelectionSwitch);
-            break;
-        default:
-            changeTab(debugSwitch);
-            break;
 
+    if (defaultScreen) {
+        changeTab(autonSelectionSwitch);
+    } else {
+        changeTab(odomSwitch);
     }
 
 }
@@ -286,8 +306,6 @@ void DisplayControl::cleanScreen() {
     changeTab(autonSelectionSwitch);
     lv_obj_clean(tabSwitcher);
     lv_obj_del(odomTab);
-    lv_obj_del(debugTab);
-    lv_obj_del(field);
 
 }
 #endif

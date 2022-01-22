@@ -4,128 +4,143 @@
 #include "drivetrain.hpp"
 #include "pros/rtos.h"
 
-lv_res_t setVirtualBotPos(lv_obj_t* tile) {
-
-    if (!pros::competition::is_autonomous()) {
-        uint32_t tileID = lv_obj_get_free_num(tile);
-        Drivetrain::setPosition(tileID % 10 * 24.0 + 12.0, (tileID / 10) * 24.0 + 12.0, 90);
-    }
-
-    return LV_RES_OK;
-
-}
-
 lv_res_t changeTab(lv_obj_t* tab) {
 
     uint32_t tabID = lv_obj_get_free_num(tab);
     DisplayControl* displayControl = static_cast<DisplayControl*>(lv_obj_get_free_ptr(tab));
 
-    switch (tabID) {
+    lv_obj_t* newSwitch;
+    lv_obj_t* newTab;
+    lv_obj_t* newText;
 
-        case 0:
+    lv_obj_t* oldSwitch;
+    lv_obj_t* oldTab;
+    lv_obj_t* oldText;
 
-            lv_btn_set_state(displayControl->odomSwitch, LV_BTN_STATE_TGL_PR);
-            lv_btn_set_state(displayControl->autonSelectionSwitch, LV_BTN_STATE_TGL_REL);
-            lv_btn_set_state(displayControl->debugSwitch, LV_BTN_STATE_TGL_REL);
+    if (tabID) {
 
-            lv_obj_set_hidden(displayControl->odomTab, false);
-            lv_obj_set_hidden(displayControl->autonSelectionTab, true);
-            lv_obj_set_hidden(displayControl->debugTab, true);
+        newSwitch = displayControl->autonSelectionSwitch;
+        newTab = displayControl->autonSelectionTab;
+        newText = displayControl->autonSelectionSwitchText;
 
-            lv_obj_set_style(displayControl->odomSwitchText, &displayControl->pressedTextStyle);
-            lv_obj_set_style(displayControl->autonSelectionSwitchText, &displayControl->positionDataStyle);
-            lv_obj_set_style(displayControl->debugSwitchText, &displayControl->positionDataStyle);
+        oldSwitch = displayControl->odomSwitch;
+        oldTab = displayControl->odomTab;
+        oldText = displayControl->odomSwitchText;
 
-            lv_obj_set_hidden(displayControl->field, false);
-            lv_obj_align(displayControl->field, NULL, LV_ALIGN_IN_RIGHT_MID, 0, 0);
+    } else {
 
-            break;
-        case 1:
+        newSwitch = displayControl->odomSwitch;
+        newTab = displayControl->odomTab;
+        newText = displayControl->odomSwitchText;
 
-            lv_btn_set_state(displayControl->odomSwitch, LV_BTN_STATE_TGL_REL);
-            lv_btn_set_state(displayControl->autonSelectionSwitch, LV_BTN_STATE_TGL_PR);
-            lv_btn_set_state(displayControl->debugSwitch, LV_BTN_STATE_TGL_REL);
-
-            lv_obj_set_hidden(displayControl->odomTab, true);
-            lv_obj_set_hidden(displayControl->autonSelectionTab, false);
-            lv_obj_set_hidden(displayControl->debugTab, true);
-
-            lv_obj_set_style(displayControl->odomSwitchText, &displayControl->positionDataStyle);
-            lv_obj_set_style(displayControl->autonSelectionSwitchText, &displayControl->pressedTextStyle);
-            lv_obj_set_style(displayControl->debugSwitchText, &displayControl->positionDataStyle);
-
-            lv_obj_set_hidden(displayControl->field, false);
-            lv_obj_align(displayControl->field, NULL, LV_ALIGN_CENTER, 0, 0);
-
-            break;
-        case 2:
-
-            lv_btn_set_state(displayControl->odomSwitch, LV_BTN_STATE_TGL_REL);
-            lv_btn_set_state(displayControl->autonSelectionSwitch, LV_BTN_STATE_TGL_REL);
-            lv_btn_set_state(displayControl->debugSwitch, LV_BTN_STATE_TGL_PR);
-
-            lv_obj_set_hidden(displayControl->odomTab, true);
-            lv_obj_set_hidden(displayControl->autonSelectionTab, true);
-            lv_obj_set_hidden(displayControl->debugTab, false);
-
-            lv_obj_set_style(displayControl->odomSwitchText, &displayControl->positionDataStyle);
-            lv_obj_set_style(displayControl->autonSelectionSwitchText, &displayControl->positionDataStyle);
-            lv_obj_set_style(displayControl->debugSwitchText, &displayControl->pressedTextStyle);
-
-            lv_obj_set_hidden(displayControl->field, true);
-
-            break;
+        oldSwitch = displayControl->autonSelectionSwitch;
+        oldTab = displayControl->autonSelectionTab;
+        oldText = displayControl->autonSelectionSwitchText;
 
     }
 
+    lv_btn_set_state(newSwitch, LV_BTN_STATE_TGL_PR);
+    lv_btn_set_state(oldSwitch, LV_BTN_STATE_TGL_REL);
+
+    lv_obj_set_hidden(newTab, false);
+    lv_obj_set_hidden(oldTab, true);
+
+    lv_obj_set_style(newText, &displayControl->pressedTextStyle);
+    lv_obj_set_style(oldText, &displayControl->positionDataStyle);
+
+    lv_obj_set_hidden(displayControl->virtualBot, tabID);
+    lv_obj_set_hidden(displayControl->virtualBotDirectionIndicator, tabID);
+
+    return LV_RES_OK;
+
+}
+
+lv_res_t updateAutonTargets(lv_obj_t* target) {
+    
+    uint32_t freeNum = lv_obj_get_free_num(target);
+    DisplayControl* displayControl = static_cast<DisplayControl*>(lv_obj_get_free_ptr(target));
+
+    switch (freeNum) {
+
+        case 0:
+
+            targetTallNeutralMogo = !targetTallNeutralMogo;
+            if (targetTallNeutralMogo) {
+                lv_btn_set_style(target, LV_BTN_STYLE_PR, &displayControl->mogoSelectedStyle);
+                lv_btn_set_style(target, LV_BTN_STYLE_REL, &displayControl->mogoSelectedStyle);
+            } else {
+                lv_btn_set_style(target, LV_BTN_STYLE_PR, &displayControl->mogoStyle);
+                lv_btn_set_style(target, LV_BTN_STYLE_REL, &displayControl->mogoStyle);
+            }
+
+        break;
+        case 1:
+        
+            targetShortNeutralMogo = !targetShortNeutralMogo;
+            if (targetShortNeutralMogo) {
+                lv_btn_set_style(target, LV_BTN_STYLE_PR, &displayControl->mogoSelectedStyle);
+                lv_btn_set_style(target, LV_BTN_STYLE_REL, &displayControl->mogoSelectedStyle);
+            } else {
+                lv_btn_set_style(target, LV_BTN_STYLE_PR, &displayControl->mogoStyle);
+                lv_btn_set_style(target, LV_BTN_STYLE_REL, &displayControl->mogoStyle);
+            }
+        
+        break;
+        default:
+        
+            targetRings = !targetRings;
+            if (targetRings) {
+                lv_btn_set_style(target, LV_BTN_STYLE_PR, &displayControl->ringSelectedStyle);
+                lv_btn_set_style(target, LV_BTN_STYLE_REL, &displayControl->ringSelectedStyle);
+            } else {
+                lv_btn_set_style(target, LV_BTN_STYLE_PR, &displayControl->ringStyle);
+                lv_btn_set_style(target, LV_BTN_STYLE_REL, &displayControl->ringStyle);
+            }
+        
+        break;
+
+    }
+    
     return LV_RES_OK;
 
 }
 
 lv_res_t setAuton(lv_obj_t* autonSwitch) {
 
-    lv_btn_state_t state = lv_btn_get_state(autonSwitch);
+    uint32_t freeNum = lv_obj_get_free_num(autonSwitch);
     DisplayControl* displayControl = static_cast<DisplayControl*>(lv_obj_get_free_ptr(autonSwitch));
 
-    if(state == LV_BTN_STATE_REL) {
+    bool hideFieldElements = true;
 
-        lv_btn_set_state(autonSwitch, LV_BTN_STATE_TGL_PR);
+    if (displayControl->selectedNum == freeNum) {
+        
+        displayControl->selectedNum = 500;
+        lv_obj_set_hidden(displayControl->selectedIndicator, true);
 
-        if (displayControl->upperRedAutonSwitch != autonSwitch) {
-            lv_btn_set_state(displayControl->upperRedAutonSwitch, LV_BTN_STATE_REL);
-        }
-        if (displayControl->lowerRedAutonSwitch != autonSwitch) {
-            lv_btn_set_state(displayControl->lowerRedAutonSwitch, LV_BTN_STATE_REL);
-        }
-        if (displayControl->upperBlueAutonSwitch != autonSwitch) {
-            lv_btn_set_state(displayControl->upperBlueAutonSwitch, LV_BTN_STATE_REL);
-        }
-        if (displayControl->lowerBlueAutonSwitch != autonSwitch) {
-            lv_btn_set_state(displayControl->lowerBlueAutonSwitch, LV_BTN_STATE_REL);
-        }
-
-    autonSelectionMutex.take(TIMEOUT_MAX);
-
-        uint32_t autonNum = lv_obj_get_free_num(autonSwitch);
-        if (autonNum == 0) {
-            auton = platformUpSide;
-        } else if (autonNum == 1) {
-            auton = platformDownSide;
-        } else {
-            auton = awp;
-        }
-
-    autonSelectionMutex.give();
+        auton = none;
 
     } else {
 
-        lv_btn_set_state(autonSwitch, LV_BTN_STATE_REL);
+        displayControl->selectedNum = freeNum;
+        lv_obj_set_hidden(displayControl->selectedIndicator, false);
+        lv_obj_align(displayControl->selectedIndicator, autonSwitch, LV_ALIGN_CENTER, 0, 1);
 
-    autonSelectionMutex.take(TIMEOUT_MAX);
-        auton = skills;
-    autonSelectionMutex.give();
+        const Auton* autonButton;
+
+        if (freeNum < 100) {
+            autonButton = &displayControl->upperAutons[freeNum];
+        } else {
+            autonButton = &displayControl->lowerAutons[freeNum - 100];
+        }
+
+        auton = autonButton->autonFunc;
+        hideFieldElements = !autonButton->showElements;
 
     }
+
+    lv_obj_set_hidden(displayControl->tallNeutralMogo, hideFieldElements);
+    lv_obj_set_hidden(displayControl->shortNeutralMogo, hideFieldElements);
+    lv_obj_set_hidden(displayControl->rings, hideFieldElements);
 
     return LV_RES_OK;
 

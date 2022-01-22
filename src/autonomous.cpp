@@ -1,7 +1,7 @@
 #include "autonomous.hpp"
 
-pros::Mutex autonSelectionMutex {};
-auton_t auton = skills;
+void none() {}
+auton_t auton = none;
 
 /**
  * Runs the user autonomous code. This function will be started in its own task
@@ -15,11 +15,14 @@ auton_t auton = skills;
  * from where it left off.
  */
 
-void autonomous() {
+const Auton DisplayControl::upperAutons[] {{skills, "skills"}, {awp, "awp", true}, {platformDownSide, "base"}};
+const Auton DisplayControl::lowerAutons[] {{platformUpSide, "base"}};
 
-autonSelectionMutex.take(20);
-    auton_t selectedAuton = auton;
-autonSelectionMutex.give();
+bool targetTallNeutralMogo  {false};
+bool targetShortNeutralMogo {false};
+bool targetRings            {false};
+
+void autonomous() {
 
     Drivetrain::waitUntilCalibrated();
     Drivetrain::setBrakeMode(pros::E_MOTOR_BRAKE_COAST);
@@ -29,7 +32,7 @@ autonSelectionMutex.give();
     lift.setManualControl(false); // if macro defined, make sure to not enable manual control before auton (should not happen)
 #endif
 
-    selectedAuton();
+    auton();
 
 }
 
