@@ -163,12 +163,12 @@ void Drivetrain::trackPosition() {
      * Main Calculations
      */
 
-    int32_t parallelValue       = parallelTrackingWheel.get_position();
+    int32_t parallelValue       = parallelTrackingWheel.get_value();
     int32_t perpendicularValue  = perpendicularTrackingWheel.get_value();
 
     double inertialAngle        = -(imu1.get_rotation() + imu2.get_rotation()) / 2.0;
 
-    long double parallelDist       = ticksToInches(parallelValue - lastParallelValue) / 100.0;
+    long double parallelDist       = ticksToInches(parallelValue - lastParallelValue);
     long double perpendicularDist  = ticksToInches(perpendicularValue - lastPerpendicularValue);
 
     lastParallelValue       = parallelValue;

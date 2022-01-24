@@ -194,7 +194,7 @@ private:
     static pros::Imu imu1;
     static pros::Imu imu2;
 
-    static pros::Rotation parallelTrackingWheel;
+    static pros::ADIEncoder parallelTrackingWheel;
     static pros::ADIEncoder perpendicularTrackingWheel;
 
     // Mutex: protects positional data, instantiated in src/drivetrain/drivetrain.cpp
@@ -304,6 +304,7 @@ private:
     // Converts the heading based off of targetAngle to minimize the distance between the two
     // NEEDS MUTEX COVER: accesses positional data
     static long double wrapAngle(long double targetAngle);
+    static long double wrapTargetHeading(long double targetAngle);
 
     // Returns 1 if positive or 0, -1 if negative
     static int sign(long double num);

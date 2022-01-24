@@ -2,27 +2,24 @@
 
 void awp() {
 
-    base.setPosition(3_ft, 1_ft, 180_deg);
+    base.setPosition(2_ft, 1_ft, 0_deg);
 
-    base.limitSpeed(24);
-    base.moveForward(-10_in);
+    lift.setManualControl(true);
 
-    holder.grab();
-    base.addAction(intake.reverse, 8_in);
-    base.addAction(intake.stop, 4_in);
-    base.moveForward(16_in);
+    lift.motor.move(75);
+    do {
+        pros::delay(10);
+    } while (lift.motor.get_position() < 200);
+    lift.release();
+    pros::delay(200);
 
-    intake.intake();
-    pros::delay(1000);
-    intake.stop();
+    lift.setManualControl(false);
+    pros::delay(250);
+    base.addAction(base.stopMotion, 6_in);
+    base.addAction(base.stopMotion, 180_deg, true);
+    base.moveTo(1.5_ft, 3_ft, 235);
 
-    holder.release();
-    base.addAction(base.stopMotion, 4_in);
-    base.moveForward(12_in);
-
-    base.unboundSpeed();
-
-    base << Waypoint {4_ft, 3_ft} << Waypoint {10_ft, 3_ft} >> Point {10_ft, 3_ft, 270_deg}.withAction(base.stopMotion, 0.5_in);
+    base << Waypoint {3_ft, 3_ft} << Waypoint {8_ft, 3_ft} >> Point {10_ft, 3_ft, 270_deg}.withAction(base.stopMotion, 0.5_in);
 
     holder.grab();
 

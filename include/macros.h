@@ -12,6 +12,6 @@
 // the joysticks will move the virtual bot on the brain screen rather than the drivetrain
 // #define BRAIN_SCREEN_GAME_MODE
 
-#define DEFAULT_TO_MACROS_IN_OPCONTROL
+// #define DEFAULT_TO_MACROS_IN_OPCONTROL
 
 #endif

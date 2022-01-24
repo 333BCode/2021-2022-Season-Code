@@ -311,13 +311,11 @@ void Drivetrain::determineFollowDirection(long double xTarget, long double yTarg
 positionDataMutex.take(TIMEOUT_MAX);
     double angleToPoint = degrees(atan2(yTarget - oldTargetY, xTarget - oldTargetX));
     if (angleToPoint < 0) {angleToPoint += 360;}
-    std::cout << angleToPoint << '\n';
-    if (fabs(angleToPoint - wrapAngle(angleToPoint)) > 90) {
+    if (fabs(angleToPoint - wrapTargetHeading(angleToPoint)) > 90) {
         driveReversed = true;
     } else {
         driveReversed = false;
     }
-    std::cout << fabs(angleToPoint - wrapAngle(angleToPoint)) << '\n';
 positionDataMutex.give();
 }
 
@@ -359,6 +357,20 @@ long double Drivetrain::wrapAngle(long double targetAngle) {
         wrappedAngle = (heading - targetAngle >= 180 ? heading - 360 : heading);
     } else {
         wrappedAngle = (targetAngle - heading >= 180 ? heading + 360 : heading);
+    }
+
+    return wrappedAngle;
+
+}
+
+long double Drivetrain::wrapTargetHeading(long double targetAngle) {
+    
+    long double wrappedAngle;
+
+    if (targetAngle < 180) {
+        wrappedAngle = (targetHeading - targetAngle >= 180 ? targetHeading - 360 : targetHeading);
+    } else {
+        wrappedAngle = (targetAngle - targetHeading >= 180 ? targetHeading + 360 : targetHeading);
     }
 
     return wrappedAngle;

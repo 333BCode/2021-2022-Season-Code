@@ -102,9 +102,9 @@ template<
     long maxError = 10000,
     long maxDerivative = 2000,
 
-    long minTime = 15000,
+    long minTime = 150,
 
-    long maxTimeStuck = 150000
+    long maxTimeStuck = 1500
 
 >
 static bool defaultTurnExit(bool firstLoop, bool reset) {

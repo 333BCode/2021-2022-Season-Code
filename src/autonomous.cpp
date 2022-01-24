@@ -1,6 +1,6 @@
 #include "autonomous.hpp"
 
-void none() {}
+void none() {platformUpSide();}
 auton_t auton = none;
 
 /**

@@ -20,8 +20,8 @@ pros::Motor Drivetrain::bottomBackRightMotor    {7, pros::E_MOTOR_GEARSET_06, !R
 pros::Imu Drivetrain::imu1 {11};
 pros::Imu Drivetrain::imu2 {12};
 
-pros::Rotation      Drivetrain::parallelTrackingWheel       {1};
-pros::ADIEncoder    Drivetrain::perpendicularTrackingWheel  {'A', 'B', true};
+pros::ADIEncoder Drivetrain::parallelTrackingWheel      {'E', 'F', true};
+pros::ADIEncoder Drivetrain::perpendicularTrackingWheel {'A', 'B', true};
 
 /*
  * Non Drivetrain Devices
