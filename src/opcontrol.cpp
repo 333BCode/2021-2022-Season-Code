@@ -107,11 +107,10 @@ void opcontrol() {
                     holdAngle = lift.motor.get_position();
                 }
 
-                if (lift.motor.get_position() > 20) {
-                    lift.motor.move_absolute(holdAngle, 100);
-                } else {
-                    lift.motor.move(0);
+                if (holdAngle < 0) {
+                    holdAngle = 0;
                 }
+                lift.motor.move_absolute(holdAngle, 100);
             
             }
 

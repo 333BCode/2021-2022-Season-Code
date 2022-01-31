@@ -12,10 +12,9 @@
 
 void mainTasks(void*);
 pros::Task mainTask(mainTasks);
-#ifdef DEFAULT_TO_MACROS_IN_OPCONTROL
+
 void systemsTasks(void*);
 pros::Task systemsTask(systemsTasks);
-#endif
 
 void mainTasks(void*) {
 
@@ -39,10 +38,6 @@ void mainTasks(void*) {
 Drivetrain::positionDataMutex.take(20);
     Drivetrain::calibrated = true;
 Drivetrain::positionDataMutex.give();
-
-#ifndef DEFAULT_TO_MACROS_IN_OPCONTROL
-    motor_control::Lift::init();
-#endif
 
     while (true) {
 
@@ -84,7 +79,6 @@ Drivetrain::positionDataMutex.give();
 
 }
 
-#ifdef DEFAULT_TO_MACROS_IN_OPCONTROL
 void systemsTasks(void*) {
     motor_control::Lift::init();
     while (true) {
@@ -93,4 +87,3 @@ void systemsTasks(void*) {
         pros::Task::delay_until(&startTime, 10);
     }
 }
-#endif

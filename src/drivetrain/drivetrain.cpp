@@ -176,14 +176,7 @@ void Drivetrain::trackPosition() {
 
     long double angle = radians(inertialAngle - lastInertialAngle);
     lastInertialAngle = inertialAngle;
-/*
-    long double angle = (rightDist - leftDist) / (2 * wheelSpacingParallel);
 
-    if (!isnanf(inertialAngle)) {
-        angle = (angle + radians(inertialAngle - lastInertialAngle)) / 2;
-        lastInertialAngle = inertialAngle;
-    }
-*/
     long double distMain    = angle == 0 ? parallelDist : 2 * (parallelDist / angle + wheelSpacingParallel) * sin(angle / 2);
     long double distSlide   = angle == 0 ? perpendicularDist : 2 * (perpendicularDist / angle + wheelSpacingPerpendicular) * sin(angle / 2);
 

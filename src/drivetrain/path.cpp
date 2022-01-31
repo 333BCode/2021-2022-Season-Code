@@ -212,7 +212,7 @@ Path Path::generatePath(Point start, Point end, long double lookAheadDist) {
         long double theta = atan2(eqyd.at(t), eqxd.at(t));
         // add the left and right side velocities to the profile
         profile.add(
-            velocity * kv, (lVelocity - rVelocity) * kv,
+            velocity * kv, (lVelocity - rVelocity) * kv / 2,
             lookAheadDist * cos(theta), lookAheadDist * sin(theta)
         );
 

@@ -1,6 +1,6 @@
 #include "autonomous.hpp"
 
-void none() {platformUpSide();}
+void none() {awp();}
 auton_t auton = none;
 
 /**
@@ -15,8 +15,8 @@ auton_t auton = none;
  * from where it left off.
  */
 
-const Auton DisplayControl::upperAutons[] {{skills, "skills"}, {awp, "awp", true}, {platformDownSide, "base"}};
-const Auton DisplayControl::lowerAutons[] {{platformUpSide, "base"}};
+const Auton DisplayControl::upperAutons[] {{upperGoalRush, "rush", true}, {upperRing, "ring", true}, {awp, "awp", true}};
+const Auton DisplayControl::lowerAutons[] {{lowerGoalRush, "rush", true}, {wingsRush, "wings"}, {skills, "skills"}};
 
 bool targetTallNeutralMogo  {false};
 bool targetShortNeutralMogo {false};

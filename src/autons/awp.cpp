@@ -15,18 +15,28 @@ void awp() {
 
     lift.setManualControl(false);
     pros::delay(250);
-    base.addAction(base.stopMotion, 6_in);
+    base.endEarly(6_in);
     base.addAction(base.stopMotion, 180_deg, true);
-    base.moveTo(1.5_ft, 3_ft, 235);
+    base.moveTo(1.5_ft, 2.25_ft, 235_deg);
 
-    base << Waypoint {3_ft, 3_ft} << Waypoint {8_ft, 3_ft} >> Point {10_ft, 3_ft, 270_deg}.withAction(base.stopMotion, 0.5_in);
+    base << Waypoint {3_ft, 2.5_ft} << Waypoint {8_ft, 3_ft};
+    base.moveTo(10.75_ft, 3_ft, Drivetrain::defaultLinearExit<1000, 50000, 10000, 200000, 150, 200>);
 
     holder.grab();
 
-    base.limitSpeed(48);
-    base << Waypoint {9.5_ft, 3_ft} << Waypoint {10_ft, 5.5_ft}.withAction(intake.intake, 12_ft);
-    
-    base.moveTo(10_ft, 1.5_ft);
-    intake.stop();
+    pros::delay(500);
+
+    lift.setSubposition(Subposition::high);
+
+    base.moveTo(9.9_ft, 2.65_ft, 90_deg);
+    intake.intake();
+
+    base.limitLinearSpeed(20);
+    base.moveForward(3_ft);
+
+    base.unboundLinearSpeed();
+
+    base.addAction(bundle(intake.stop(); holder.release(); lift.setSubposition(Subposition::neutral)), 0.25);
+    base.moveTo(10_ft, 2.25_ft);
     
 }

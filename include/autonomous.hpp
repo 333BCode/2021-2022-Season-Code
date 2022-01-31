@@ -26,6 +26,8 @@ using Subposition = Lift::Subposition;
 // make a series of function calls usable by Drivetrain as actions
 #define bundle(funcs) []{funcs;}
 
+#define endEarly(dist) addAction(Drivetrain::stopMotion, dist)
+
 // end a pure pursuit movement with precision (finish with moveTo)
 // call ex: base << Waypoint {x0, y0} << endAt(x1, y1);
 #define endAt(x, y) Waypoint {x, y}; Drivetrain::moveTo(x, y)
@@ -42,8 +44,10 @@ extern auton_t auton;
 
 void none();
 void skills();
-void platformUpSide();
-void platformDownSide();
+void lowerGoalRush();
+void upperGoalRush();
+void upperRing();
+void wingsRush();
 void awp();
 
 bool goalRushExitConditions(long double dist, bool firstLoop, bool reset);

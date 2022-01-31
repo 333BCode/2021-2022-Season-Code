@@ -17,7 +17,9 @@ namespace motor_control {
 
     void Lift::init() {
     mutex.take();
+        motor.tare_position();
         motor.set_encoder_units(pros::E_MOTOR_ENCODER_DEGREES);
+        std::cout << motor.get_position() << '\n';
     mutex.give();
     }
 

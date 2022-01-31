@@ -1,6 +1,6 @@
 #include "autonomous.hpp"
 
-void platformDownSide() {
+void upperGoalRush() {
 
     base.setPosition(0, 12_in, 90_deg);
     lift.release();

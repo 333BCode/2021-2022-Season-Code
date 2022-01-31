@@ -7,7 +7,7 @@
 
 #include <string>
 
-constexpr short defaultScreen = 1;
+constexpr short defaultScreen = 0;
 
 DisplayControl::Auton::Auton(auton_t autonFunc, const char* name, bool showElements)
     : autonFunc {autonFunc}, name {name}, showElements {showElements} {}

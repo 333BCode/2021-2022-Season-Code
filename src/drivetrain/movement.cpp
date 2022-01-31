@@ -21,9 +21,9 @@ Drivetrain& Drivetrain::operator<<(const Path& path) {
     linearPID.setNewTarget(path.lookAheadDistance, true);
     rotPID.setNewTarget(0, true);
 
-    uint32_t startTime = pros::millis();
-
     for (const Path::Velocities& velocitySet : path) {
+
+        uint32_t startTime = pros::millis();
 
     positionDataMutex.take(TIMEOUT_MAX);
 
@@ -42,7 +42,7 @@ Drivetrain& Drivetrain::operator<<(const Path& path) {
         }
         rotPID.alterTarget(targetAngle);
         int rotOutput = rotPID.calcPower(wrapAngle(targetAngle));
-        
+       
     positionDataMutex.give();
 
         supplyVoltage(
@@ -61,7 +61,6 @@ Drivetrain& Drivetrain::operator<<(const Path& path) {
         }
 
         pros::Task::delay_until(&startTime, 10);
-        startTime += 10;
 
     }
 
