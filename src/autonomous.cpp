@@ -16,7 +16,7 @@ auton_t auton = none;
  */
 
 const Auton DisplayControl::upperAutons[] {{upperGoalRush, "rush", true}, {upperRing, "ring", true}, {awp, "awp", true}};
-const Auton DisplayControl::lowerAutons[] {{lowerGoalRush, "rush", true}, {wingsRush, "wings"}, {skills, "skills"}};
+const Auton DisplayControl::lowerAutons[] {{lowerGoalRush, "rush", true}, {skills, "skills"}};
 
 bool targetTallNeutralMogo  {false};
 bool targetShortNeutralMogo {false};

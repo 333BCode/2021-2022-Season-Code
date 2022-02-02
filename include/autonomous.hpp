@@ -47,7 +47,6 @@ void skills();
 void lowerGoalRush();
 void upperGoalRush();
 void upperRing();
-void wingsRush();
 void awp();
 
 bool goalRushExitConditions(long double dist, bool firstLoop, bool reset);

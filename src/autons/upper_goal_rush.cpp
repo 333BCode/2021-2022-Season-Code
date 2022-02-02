@@ -2,12 +2,18 @@
 
 void upperGoalRush() {
 
-    base.setPosition(0, 12_in, 90_deg);
+    base.setPosition(2_ft, 12_in, 90_deg);
     lift.release();
 
-    base.moveTo(0, 57_in, goalRushExitConditions);
+    base.moveTo(3_ft, 57_in, goalRushExitConditions);
     lift.clamp();
 
-    base.moveForward(-3.5_ft);
+    base.setLinearSlew(0);
+
+    if (!targetRings) {
+        base.moveForward(-2_ft, true, Drivetrain::defaultLinearExit<0, 0, 0, 0, 15000, 15000>);
+    }
+
+    base.moveForward(-2_ft);
 
 }

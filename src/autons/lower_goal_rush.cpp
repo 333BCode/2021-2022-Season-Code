@@ -10,6 +10,10 @@ void lowerGoalRush() {
 
     base.setLinearSlew(0);
 
+    if (!targetRings) {
+        base.moveTo(9_ft, 2.8_ft, 180_deg, Drivetrain::defaultLinearExit<0, 0, 0, 0, 15000, 15000>);
+    }
+
     base.moveTo(9_ft, 2.8_ft, 180_deg);
     lift.release();
 

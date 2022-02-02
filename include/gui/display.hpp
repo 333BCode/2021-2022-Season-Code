@@ -54,7 +54,7 @@ public:
 private:
 
     static const Auton upperAutons[3];
-    static const Auton lowerAutons[3];
+    static const Auton lowerAutons[2];
 
     /**
      * Objects
