@@ -30,6 +30,7 @@ void opcontrol() {
     using Subposition = Lift::Subposition;
 	
     pros::Controller controller(pros::E_CONTROLLER_MASTER);
+    pros::Controller secondaryController(pros::E_CONTROLLER_PARTNER);
 
     bool intakeCommanded = false;
 
@@ -153,14 +154,17 @@ void opcontrol() {
             holder.toggle();
         }
 
-        if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_B)) {
+        if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_B)
+            || secondaryController.get_digital(pros::E_CONTROLLER_DIGITAL_B)
+        ) {
             intake.reverse();
             intakeCommanded = false;
         } else if (
             (!liftIsUp
             && ((controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L1) && !usingManualControl)
             || (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L2) && usingManualControl))
-            ) || controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A)
+            ) || secondaryController.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L1)
+            || secondaryController.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A)
         ) {
             intakeCommanded = !intakeCommanded;
             if (intakeCommanded) {

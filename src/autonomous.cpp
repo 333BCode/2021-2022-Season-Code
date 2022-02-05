@@ -1,6 +1,6 @@
 #include "autonomous.hpp"
 
-void none() {awp();}
+void none() {skills();}
 auton_t auton = none;
 
 /**
@@ -44,6 +44,6 @@ bool goalRushExitConditions(long double dist, bool firstLoop, bool reset) {
     if (count > 250) {
         return true;
     }
-    return pos.y >= 55 || dist < 0.5;
+    return pos.y >= 57 || dist < 0.5;
 
 }

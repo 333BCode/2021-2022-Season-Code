@@ -2,7 +2,7 @@
 
 void awp() {
 
-    base.setPosition(2_ft, 1_ft, 0_deg);
+    base.setPosition(targetTallNeutralMogo ? 22.5_in : 24_in, 1_ft, 0_deg);
 
     lift.setManualControl(true);
 
@@ -19,7 +19,7 @@ void awp() {
     base.addAction(base.stopMotion, 180_deg, true);
     base.moveTo(1.5_ft, 2.25_ft, 235_deg);
 
-    base << Waypoint {3_ft, 2.5_ft} << Waypoint {8_ft, 3_ft};
+    base << Waypoint {3_ft, 2.5_ft} << Waypoint {8_ft, 2.75_ft};
     base.moveTo(10.75_ft, 3_ft, Drivetrain::defaultLinearExit<1000, 50000, 10000, 200000, 150, 200>);
 
     holder.grab();
@@ -36,7 +36,7 @@ void awp() {
 
     base.unboundLinearSpeed();
 
-    base.addAction(bundle(intake.stop(); holder.release(); lift.setSubposition(Subposition::neutral)), 0.25);
+    base.addAction(bundle(intake.stop(); holder.release(); lift.setSubposition(Subposition::neutral)), 1);
     base.moveTo(10_ft, 2.25_ft);
     
 }
