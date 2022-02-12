@@ -27,6 +27,7 @@ using Subposition = Lift::Subposition;
 #define bundle(funcs) []{funcs;}
 
 #define endEarly(dist) addAction(Drivetrain::stopMotion, dist)
+#define endTurnEarly(dist) addAction(Drivetrain::stopMotion, dist, true)
 
 // end a pure pursuit movement with precision (finish with moveTo)
 // call ex: base << Waypoint {x0, y0} << endAt(x1, y1);

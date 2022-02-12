@@ -109,7 +109,7 @@ public:
     // MUTEX LOCKING
     static void moveTo(
         long double x, long double y, long double heading = NAN,
-        LinearExitConditions linearExitConditions = defaultLinearExit, TurnExitConditions turnExitConditions = defaultTurnExit
+        LinearExitConditions linearExitConditions = defaultLinearExit, TurnExitConditions turnExitConditions = defaultTurnExit, bool debug = false
     );
     // Will turn to face targetForHeading using absolute coordinates after reaching the desired position
     // MUTEX LOCKING

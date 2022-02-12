@@ -139,7 +139,7 @@ Drivetrain& Drivetrain::operator>>(Point p) {
 
 void Drivetrain::moveTo(
     long double x, long double y, long double heading,
-    LinearExitConditions linearExitConditions, TurnExitConditions turnExitConditions
+    LinearExitConditions linearExitConditions, TurnExitConditions turnExitConditions, bool debug
 ) {
 
     linearExitConditions(0, true, true);
@@ -152,10 +152,8 @@ void Drivetrain::moveTo(
 
     bool firstLoop = true;
 
-    uint16_t count = 0;
-
     linearPID.setNewTarget(0);
-    rotPID.setNewTarget(targetHeading);
+    rotPID.setNewTarget(targetHeading, true);
 
     bool canTurn = true;
 
@@ -174,7 +172,9 @@ void Drivetrain::moveTo(
 
         if (canTurn == curDist < minDistForTurning) {
             if (canTurn) {
-                targetHeading = Drivetrain::heading;
+                if (!firstLoop) {
+                    targetHeading = Drivetrain::heading;
+                }
                 if (targetHeading >= 360) {targetHeading -= 360;}
                 rotPID.alterTarget(targetHeading);
                 canTurn = false;
@@ -257,8 +257,6 @@ void Drivetrain::turnTo(long double heading, TurnExitConditions exitConditions) 
 
     targetHeading = heading;
 
-    uint16_t count = 0;
-
     rotPID.setNewTarget(targetHeading);
 
     while (true) {
@@ -297,7 +295,7 @@ void Drivetrain::turnTo(XYPoint target, bool absolute, TurnExitConditions exitCo
 
 void Drivetrain::moveForward(long double dist, bool absolute, LinearExitConditions exitConditions) {
     if (absolute) {
-        long double curHeading = radians(heading);
+        long double curHeading = radians(targetHeading);
         moveTo(oldTargetX + dist * cos(curHeading), oldTargetY + dist * sin(curHeading), exitConditions);
     } else {
         Point pos = getPosition();

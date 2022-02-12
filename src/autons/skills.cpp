@@ -1,141 +1,145 @@
 #include "autonomous.hpp"
 
+#define releaseMogoMotion()                                                         \
+    lift.release(); pros::delay(200);                                               \
+    base.addAction(bundle(lift.setSubposition(Subposition::neutral)), 0.65_ft);     \
+    base.moveForward(-0.75_ft)
+
 void skills() {
 
-    /**
-     * If you need assistance, look at the header files
-     *
-     * include/drivetrain.hpp
-     * include/systems/
-     */
+    // get alliance on platform, leftmost neutral mogo
 
-    // start right side, 2nd to last tile, aligned with field perimeter
-    base.setPosition(9_ft, 1_ft, 90_deg);
-    intake.intake();
+    base.setPosition(28.5_in, 1_ft, 0_deg);
 
-    // open claw
+    base.limitSpeed(20);
+    base.moveForward(-6_in);
+    
+    holder.grab();
     lift.release();
+    pros::delay(250);
 
-    // limit speed to grab goal
-    base.limitSpeed(20); // max 60
+    base.setFollowDirection(Direction::forward);
 
-    // grab far right neutral mogo after slightly pushing it
-    base.addAction(bundle(lift.clamp()), 5_in);
-    base.moveTo(9_ft, 6.25_ft);
+    base.limitSpeed(40);
+    base.addAction(lift.clamp, 3.75_ft);
+    base.addAction(base.unboundTurnSpeed, 1_ft);
+    base << Waypoint {3.25_ft, 9_ft}.withAction(intake.intake, 5_ft);
 
-    // slightly raise lift to prevent dragging
+    // drop alliance mogo, put neutral on platform
+    // base.endEarly(0.25_ft);
+    // base.endTurnEarly(10_deg);
+    base.moveTo(3_ft, 9_ft, 180_deg);
+    intake.stop();
+    base.setFollowDirection(Direction::autoDetermine);
+
+    holder.release();
+
+    base.limitLinearSpeed(20);
+    lift.raise();
     lift.setSubposition(Subposition::high);
-    // give lift time to raise
-    pros::delay(200);
+    base.moveTo(6_ft, 9_ft, 90_deg);
+    base.moveForward(0.65_ft, false);
+    lift.setSubposition(Subposition::low);
+    pros::delay(1000);
+    releaseMogoMotion();
 
-    // move back, turn left, align with platform
-    base.limitSpeed(40); // max 60
-    base.moveTo(9_ft, 3_ft);
+////////////////////////////////////////////////////////////////////////
+
+    // get dropped alliance mogo, place on platform
+    lift.lower();
+    base.limitLinearSpeed(40);
+    base.endTurnEarly(10_deg);
+    base.turnTo(180_deg);
+    base.endEarly(0.25_ft);
+    base.addAction(lift.clamp, 0.75_ft);
+    base.moveTo(3_ft, 9_ft);
+
+    base.limitLinearSpeed(20);
+    lift.raise();
+    base.moveTo(6_ft, 9_ft, 90_deg);
+    base.moveForward(0.65_ft, false);
+    lift.setSubposition(Subposition::low);
+    pros::delay(1000);
+    releaseMogoMotion();
+
+    base.unboundLinearSpeed();
+
+    lift.lower();
+    base.endTurnEarly(10_deg);
+    base.turnTo(0_deg);
+
+    // pick up alliance mogo, tall netural mogo, place on platform
+    base << Waypoint {1.25_ft, 9_ft};
+    base.moveTo(1.25_ft, 9_ft, Drivetrain::defaultLinearExit<1000, 50000, 10000, 200000, 150, 200>);
+    holder.grab();
+    pros::delay(500);
+
+    base.limitLinearSpeed(40);
+    intake.intake();
+    base << Waypoint {3.5_ft, 9_ft} << Waypoint {9_ft, 3_ft}.withAction(lift.clamp, 3_ft);
+    lift.raise();
+    base.endTurnEarly(10_deg);
+    base.turnTo({6_ft, 3_ft});
+
+    base.limitLinearSpeed(20);
+    base.moveTo(6_ft, 3.35_ft);
+    intake.stop();
+    lift.setSubposition(Subposition::low);
+    pros::delay(1500);
+    releaseMogoMotion();
+
+    base.limitLinearSpeed(40);
+
+    // drop alliance mogo, put on platform
+    lift.lower();
+    base.turnTo(180_deg);
+    holder.release();
+    base.endEarly(0.25_ft);
+    base.moveForward(1_ft, false);
+    base.endTurnEarly(5_deg);
+    base.turnTo(0_deg);
+
+    base.endEarly(0.25_ft);
+    base.addAction(lift.clamp, 0.5_ft);
+    base.moveForward(1.5_ft);
+
+    lift.raise();
+    base.limitLinearSpeed(20);
+    base.turnTo(-90_deg);
+
+    base.moveForward(0.75_ft);
+    lift.setSubposition(Subposition::low);
+    pros::delay(250);
+    releaseMogoMotion();
+
+    // get alliance mogo, rightmost neutral mogo
+    base.unboundLinearSpeed();
+
+    lift.lower();
+    base.endTurnEarly(10_deg);
     base.turnTo(180_deg);
 
-    base.moveTo(6_ft, 3_ft);
-    
-    // put mogo on platform
-    lift.raise();
-    // give lift time to raise before turning
-    pros::delay(1000);
-
-    // provide stability
-    base.limitSpeed(20);
-
-    // drive into platform
-    base.turnTo(270_deg);
-    base.supply(20, 0);
-    pros::delay(200);
-    lift.setSubposition(Subposition::low);
-    pros::delay(200);
-    lift.release();
-    pros::delay(200);
-
-    // move back from platform, raise lift over edge of platform
-    base.limitSpeed(40);
-    base.addAction(bundle(lift.setSubposition(Subposition::neutral)), 4_in); // if lift does not lift before getting stuck on platform, increase distance from target at which lift raises
-    base.moveTo(6_ft, 3_ft);
-
-    // face alliance mogo on win point tape line
-    base.turnTo(0_deg);
-    lift.lower();
-    pros::delay(200);
-
-    // grab far right neutral mogo after slightly pushing it
-    base.limitSpeed(20);
-    base.addAction(bundle(lift.clamp()), 3_in);
-    base.moveTo(10.25_ft, 3_ft);
-
-    // slightly raise lift to prevent dragging
-    lift.setSubposition(Subposition::high);
-    base.limitSpeed(40);
-    
-    // back up to align with where neutral mogo was, go to opposite side platform
-    base.moveTo(9_ft, 3_ft);
-    base.turnTo(90_deg);
-    base.moveTo(9_ft, 9_ft);
-    base.turnTo(0_deg);
-    base.moveTo(6_ft, 9_ft);
-
-    // put second mogo on platform
-    lift.raise();
-    // give lift time to raise before turning
-    pros::delay(1000);
-
-    // provide stability
-    base.limitSpeed(20);
-
-    // drive into platform
-    base.turnTo(90_deg);
-    base.supply(20, 0);
-    pros::delay(200);
-    lift.setSubposition(Subposition::low);
-    pros::delay(200);
-    lift.release();
-    pros::delay(200);
-
-    // move back from platform, raise lift over edge of platform
-    base.limitSpeed(40);
-    base.addAction(bundle(lift.setSubposition(Subposition::neutral)), 4_in); // if lift does not lift before getting stuck on platform, increase distance from target at which lift raises
-    base.moveTo(6_ft, 9_ft);
-
-    // turn holder towards alliance mogo
-    base.turnTo(0_deg);
-    lift.lower();
-    pros::delay(500);
-
-    /**
-    * Additional holder grab, start of comment section out if this is too much
-    */
-
-    // get alliance mogo in holder
-    base.limitSpeed(20);
-    base.moveTo(1.5_ft, 9_ft);
+    base << Waypoint {10.75_ft, 3_ft};
+    base.moveTo(10.75_ft, 3_ft, Drivetrain::defaultLinearExit<1000, 50000, 10000, 200000, 150, 200>);
     holder.grab();
-
-    // wait to allow holder to get a good grab
     pros::delay(500);
 
-    base.limitSpeed(60);
-    
-    /**
-    * Additional holder grab, end of comment section out if this is too much
-    */
+    base.endTurnEarly(10_deg);
+    base.moveTo(9_ft, 3_ft, 90_deg);
 
-    // align with far left neutral mogo
-    base.moveTo(3_ft, 9_ft);
-    base.turnTo(270_deg);
+    base.limitLinearSpeed(40);
+    base.endEarly(0.25_ft);
+    base.addAction(lift.clamp, 2.25_ft);
+    base.moveForward(5.25_ft);
+    lift.raise();
+    base.turnTo({6_ft, 9.5_ft});
+    intake.intake();
+    base.limitLinearSpeed(20);
+    base.moveTo(6_ft, 9.5_ft);
 
-    // grab neutral mogo after slightly pushing it
-    base.limitSpeed(40);
-    base.addAction(bundle(lift.clamp()), 5_in);
-    base.moveTo(3_ft, 5.75_ft);
+    lift.release();
+    base.moveForward(-0.75_ft);
 
-    lift.setSubposition(Subposition::high);
-    base.limitSpeed(60);
-
-    // drive into corner, avoid alliance mogo that was holding down the (now balanced) platform
-    base.moveTo(1_ft, 1_ft);
+    // mogo still in holder
 
 }

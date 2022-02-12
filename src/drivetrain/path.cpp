@@ -129,7 +129,7 @@ Path Path::generatePath(Point start, Point end, long double lookAheadDist) {
     long double vx2 = totalDist * cos(radians(end.heading));
     long double vy2 = totalDist * sin(radians(end.heading));
 
-    PolynomialEquation eqx {PATH_POLYNOMIAL_ARGS(start.x, end.y, vx1, vx2)};
+    PolynomialEquation eqx {PATH_POLYNOMIAL_ARGS(start.x, end.x, vx1, vx2)};
     PolynomialEquation eqxd = eqx.derivative();
 
     PolynomialEquation eqy {PATH_POLYNOMIAL_ARGS(start.y, end.y, vy1, vy2)};
@@ -213,7 +213,7 @@ Path Path::generatePath(Point start, Point end, long double lookAheadDist) {
         // add the left and right side velocities to the profile
         profile.add(
             velocity * kv, (lVelocity - rVelocity) * kv / 2,
-            lookAheadDist * cos(theta), lookAheadDist * sin(theta)
+            eqx.at(t) + lookAheadDist * cos(theta), eqy.at(t) + lookAheadDist * sin(theta)
         );
 
         // update the distance traveled
