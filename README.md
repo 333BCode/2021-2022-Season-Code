@@ -14,13 +14,15 @@ Update src/devices.cpp.
 
 ## Adding a New Auton
 
-Add autonomous functions to files in src/autons, and forward declare them in autonomous.hpp. Then update button freeNums (or add buttons) in display.cpp, and update the setAuton method in button_callbacks.cpp.
+Add autonomous functions to files in src/autons, and forward declare them in include/autonomous.hpp. In src/autonomous.cpp, add a DisplayControl::Auton (declared in include/gui/display.hpp), with autonFunc pointing to the auton function, to either the upperAutons or lowerAutons arrays. Update the respective array length in include/gui/display.hpp.
 
 ## Macros
 
 In include/macros.h: #define BRAIN_SCREEN_GAME_MODE to drive the virtual bot on the brain screen, #define DISPLAY_DEBUG to prevent deletion of most of the gui once the bot is enabled by field control.
 
 ## Locations of Code Components
+
+Drivetrain Movement Methods to Call -> include/drivetrain.hpp, include/drivetrain/path.hpp, include/drivetrain/point.hpp
 
 PID -> src/util/pid_controller.cpp, include/util/pid_controller.hpp
 
