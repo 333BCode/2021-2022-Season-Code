@@ -15,14 +15,19 @@
 class DisplayControl final {
 public:
 
+    // struct to specify lvgl button construction for the auton selector
     struct Auton {
 
         using auton_t = void(*)();
 
+        // constructor
         Auton(auton_t autonFunc, const char* name, bool showElements = false);
 
+        // function pointer to the auton function that should be called if this button is selected
         auton_t autonFunc;
+        // displayed name of the auton button
         const char* name;
+        // determines if the additional auton target buttons will be displayed
         bool showElements;
 
     };
@@ -47,12 +52,17 @@ public:
 
     // Allows changeTab to show / hide lvgl objects
     friend lv_res_t changeTab(lv_obj_t* tab);
+    // Allows updateAutonTargets to update the auton target buttons
     friend lv_res_t updateAutonTargets(lv_obj_t *target);
-    // Allows setAuton to properly update the auton buttons
+    // Allows setAuton to properly update the auton buttons, selection indicator,
+    // and set auton to point to the proper auton function
     friend lv_res_t setAuton(lv_obj_t* autonSwitch);
 
 private:
 
+    /**
+     * arrays of Autons to specify creation of auton selection buttons on the gui
+     */ 
     static const Auton upperAutons[3];
     static const Auton lowerAutons[2];
 
@@ -78,6 +88,7 @@ private:
 
     lv_obj_t* autonSelectionTab;
     lv_obj_t* selectedIndicator;
+    // keeps track of which auton button is selected
     uint32_t selectedNum {500};
 
     lv_obj_t* field;

@@ -12,6 +12,7 @@
 // the joysticks will move the virtual bot on the brain screen rather than the drivetrain
 // #define BRAIN_SCREEN_GAME_MODE
 
+// When defined, driver control will default to make use of autonomous functions for subsystem 3
 // #define DEFAULT_TO_MACROS_IN_OPCONTROL
 
 #endif

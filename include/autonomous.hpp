@@ -33,8 +33,8 @@ using Subposition = Lift::Subposition;
 // call ex: base << Waypoint {x0, y0} << endAt(x1, y1);
 #define endAt(x, y) Waypoint {x, y}; Drivetrain::moveTo(x, y)
 
-using Auton = DisplayControl::Auton;
-using auton_t = Auton::auton_t;
+using Auton     = DisplayControl::Auton;
+using auton_t   = Auton::auton_t;
 
 // function pointer to selected auton (updated in GUI, points to none by default)
 extern auton_t auton;
