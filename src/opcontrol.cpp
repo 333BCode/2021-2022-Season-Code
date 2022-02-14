@@ -52,6 +52,10 @@ void opcontrol() {
     // sets break modes to coast
     base.setBrakeMode(pros::E_MOTOR_BRAKE_COAST);
 
+    bool holderOpen = true;
+    secondaryController.clear();
+    secondaryController.print(0, 0, "open");
+
     while (true) {
 
         uint32_t startTime = pros::millis();
@@ -119,6 +123,10 @@ void opcontrol() {
                 lift.toggleClamp();
             }
 
+            if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_Y)) {
+                lift.reset();
+            }
+
         } else {
 
             if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R1)) {
@@ -152,6 +160,8 @@ void opcontrol() {
 
         if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_X)) {
             holder.toggle();
+            holderOpen = !holderOpen;
+            secondaryController.print(0, 0, holderOpen ? "open" : "closed");
         }
 
         if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_B)

@@ -1,15 +1,15 @@
 #include "autonomous.hpp"
 
-#define releaseMogoMotion()                                                         \
-    lift.release(); pros::delay(200);                                               \
-    base.addAction(bundle(lift.setSubposition(Subposition::neutral)), 0.65_ft);     \
+#define releaseMogoMotion()                     \
+    lift.release(); pros::delay(200);           \
+    lift.setSubposition(Subposition::neutral);  \
     base.moveForward(-0.75_ft)
 
 void skills() {
 
     // get alliance on platform, leftmost neutral mogo
 
-    base.setPosition(28.5_in, 1_ft, 0_deg);
+    base.setPosition(28.5_in, 1_ft, 180_deg);
 
     base.limitSpeed(20);
     base.moveForward(-6_in);
@@ -28,38 +28,37 @@ void skills() {
     // drop alliance mogo, put neutral on platform
     // base.endEarly(0.25_ft);
     // base.endTurnEarly(10_deg);
-    base.moveTo(3_ft, 9_ft, 180_deg);
+    base.endTurnEarly(10_deg);
+    base.moveTo(3_ft, 9_ft, 0_deg);
     intake.stop();
     base.setFollowDirection(Direction::autoDetermine);
-
-    holder.release();
 
     base.limitLinearSpeed(20);
     lift.raise();
     lift.setSubposition(Subposition::high);
-    base.moveTo(6_ft, 9_ft, 90_deg);
+    base.endEarly(0.5_ft);
+    base.endTurnEarly(10_deg);
+    base.addAction(holder.release, 2_ft);
+    base.moveTo(5.5_ft, 9_ft, 90_deg);
     base.moveForward(0.65_ft, false);
     lift.setSubposition(Subposition::low);
     pros::delay(1000);
     releaseMogoMotion();
 
-////////////////////////////////////////////////////////////////////////
-
     // get dropped alliance mogo, place on platform
-    lift.lower();
     base.limitLinearSpeed(40);
     base.endTurnEarly(10_deg);
     base.turnTo(180_deg);
+    lift.lower();
     base.endEarly(0.25_ft);
     base.addAction(lift.clamp, 0.75_ft);
-    base.moveTo(3_ft, 9_ft);
+    base.moveTo(3_ft, 9.5_ft);
 
     base.limitLinearSpeed(20);
     lift.raise();
-    base.moveTo(6_ft, 9_ft, 90_deg);
+    base.endTurnEarly(10_deg);
+    base.moveTo(6_ft, 8.5_ft, 90_deg);
     base.moveForward(0.65_ft, false);
-    lift.setSubposition(Subposition::low);
-    pros::delay(1000);
     releaseMogoMotion();
 
     base.unboundLinearSpeed();
@@ -68,15 +67,17 @@ void skills() {
     base.endTurnEarly(10_deg);
     base.turnTo(0_deg);
 
+////////////////////////////////////////////////////////////////////////
+
     // pick up alliance mogo, tall netural mogo, place on platform
-    base << Waypoint {1.25_ft, 9_ft};
-    base.moveTo(1.25_ft, 9_ft, Drivetrain::defaultLinearExit<1000, 50000, 10000, 200000, 150, 200>);
+    base.moveTo(1.25_ft, 9_ft);
     holder.grab();
     pros::delay(500);
 
     base.limitLinearSpeed(40);
     intake.intake();
-    base << Waypoint {3.5_ft, 9_ft} << Waypoint {9_ft, 3_ft}.withAction(lift.clamp, 3_ft);
+    base.endEarly(0.25_ft);
+    base << Waypoint {3.5_ft, 9_ft} << Waypoint {6_ft, 6_ft}.withAction(lift.clamp, 0.5_ft);
     lift.raise();
     base.endTurnEarly(10_deg);
     base.turnTo({6_ft, 3_ft});
@@ -107,7 +108,7 @@ void skills() {
     base.limitLinearSpeed(20);
     base.turnTo(-90_deg);
 
-    base.moveForward(0.75_ft);
+    base.moveForward(0.75_ft, true);
     lift.setSubposition(Subposition::low);
     pros::delay(250);
     releaseMogoMotion();
@@ -140,6 +141,40 @@ void skills() {
     lift.release();
     base.moveForward(-0.75_ft);
 
-    // mogo still in holder
+    // drop alliance mogo, place on platform
+    lift.lower();
+    base.turnTo(180_deg);
+    holder.release();
+    base.endEarly(0.25_ft);
+    base.moveForward(1_ft, false);
+    base.endTurnEarly(5_deg);
+    base.turnTo(0_deg);
+
+    base.endEarly(0.25_ft);
+    base.addAction(lift.clamp, 0.5_ft);
+    base.moveForward(1.5_ft);
+
+    lift.raise();
+    base.limitLinearSpeed(20);
+    base.turnTo(-90_deg);
+
+    base.moveForward(0.75_ft, false);
+    base.limitLinearSpeed(40);
+    lift.release();
+    base.endEarly(0.25_ft);
+    base.moveForward(-0.75_ft);
+
+    // get final alliance mogo
+    base.unboundLinearSpeed();
+    lift.lower();
+    base << Waypoint {12_ft, 9_ft};
+    pros::delay(500);
+    base.turnTo({9_ft, 11_ft});
+    base.limitLinearSpeed(40);
+    base.endEarly(0.5_ft);
+    base.addAction(lift.clamp, 0.75_ft);
+    base.moveTo(9_ft, 11_ft);
+
+    // put final mogo on platform
 
 }
