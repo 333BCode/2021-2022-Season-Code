@@ -95,20 +95,34 @@ namespace motor_control {
         
     private:
 
+        // pneumatic solinoid for the two claw cylinders
+        // defined in src/devices.cpp
         static pros::ADIDigitalOut claw;
 
+        // mutex to protect the pros::Motor motor when manual control is disabled
         static pros::Mutex mutex;
 
+        // preset angles to target depending on lift states
+        // heights are lowered, high enough for rings to pass under, lowered onto platform, above platform, and all the way up
         static const long double angles[5];
 
+        // state variable to store whether the lift is currently up
+        // NEEDS MUTEX COVER, used by field control and systems tasks
         static bool liftIsUp;
+        // state variable to store the desired subposition of the lift
+        // NEEDS MUTEX COVER, used by field control and systems tasks
         static Subposition subposition;
+        // stores whether manual control is enabled
+        // if true, the state machine will not power the lift
+        // NEEDS MUTEX COVER, used by field control and systems tasks
         static bool usingManualControl;
 
+        // stores whether the claw is currently closed or not, used by the toggle method
         static bool clamping;
 
     };
 
+    // instance of Lift
     extern Lift lift;
 
 } // namespace motor_control
