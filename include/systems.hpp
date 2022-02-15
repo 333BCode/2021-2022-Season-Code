@@ -2,7 +2,7 @@
 #define _SYSTEMS_HPP_
 
 /**
- * Includes all systems/ header files, excluding systems/constants.hpp
+ * Includes all systems/ header files
  */
 
 #include "systems/holder.hpp"
