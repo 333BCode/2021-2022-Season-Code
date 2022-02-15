@@ -17,6 +17,8 @@
  * PIDController also implements slew control, which is a one dimensional trapezoidal motion profile for the start of motions
  * Without slew control, at the start of most motions (new requested target state)
  * PIDController will immediately suggest that the motors run at max voltage
+ *
+ * Unless otherwise noted, units used for voltage are volts
  */
 
 namespace motor_control {
@@ -24,6 +26,7 @@ namespace motor_control {
     class PIDController final {
     public:
 
+        // struct to contain current PID and slew constants
         struct Constants {
 
             const long double kP;
@@ -40,12 +43,16 @@ namespace motor_control {
         PIDController(long double kP, long double kD = 0, long double kI = 0, long double integralCap = 4,
             long double voltageAcceleration = 0, long double maxVoltage = 12, long double startingVoltage = 0);
 
+        // returns the error of the system when calcPower was last run
         long double getError();
+        // returns the derivative of the system when calc power was last run
         long double getDerivative();
 
         void setNewTarget(long double newTarget, bool ignoreProfile = false);
+        // changes the target, does not reset slew, derivative, or integral terms
         void alterTarget(long double newTarget);
 
+        // inform the PIDController of updates to the system's output since calcPower was last ran (example: after a motion that does not utilize PID)
         void updatePreviousSystemOutput(int previousSystemOutput);
 
         int calcPower(long double currPos);
