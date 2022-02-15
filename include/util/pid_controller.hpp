@@ -3,6 +3,22 @@
 
 #include <cstdint>
 
+/**
+ * This file contains the declaration of a PID controller
+ *
+ * PID stands for proportional-integral-derivative (all taken with respect to error in position)
+ * PID is used to accurately settle systems at target positions
+ * PIDController does this by providing a suggestion of what voltage the motors should run at
+ *
+ * Drivetrain uses two PID controllers, one for distance from the target and one for heading
+ * Lift uses the motor's integrated PID control; this is accurate for our purposes,
+ * so there is no need to use this PIDController for Lift
+ *
+ * PIDController also implements slew control, which is a one dimensional trapezoidal motion profile for the start of motions
+ * Without slew control, at the start of most motions (new requested target state)
+ * PIDController will immediately suggest that the motors run at max voltage
+ */
+
 namespace motor_control {
 
     class PIDController final {

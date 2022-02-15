@@ -90,15 +90,26 @@ namespace equations {
         // a higher time step will yield a more accurate answer at the expense of computation time
         DistanceToTime(const PolynomialEquation& xd, const PolynomialEquation& yd, long double step);
 
+        // Converts a distance along a parametric path to the value of the parametric parameter
+        // at which that distance has been traveled (starting from t = 0)
+        // For optimization, it is assumed that the values of dist subsequently
+        // passed to atDistance of an instance of DistanceToTime are always increasing
+        // A value from 0 to 1 is returned
         long double atDistance(long double dist);
 
     private:
 
+        // references to the first derivatives of x and y components of the path
+        // These are references for optimization purposes,
+        // since the derivatives are used elsewhere in trajectory generation used by motion profiling 
         const PolynomialEquation& xd;
         const PolynomialEquation& yd;
+        // the amount the guessed parametric parameter is incremented by (smaller step is more accurate)
         const long double step;
 
+        // the current guess at the value of the parametric parameter
         long double time;
+        // the current distance along the path that has been transversed (from t = 0 to t = time)
         long double accumulatedDistance;
 
     };
