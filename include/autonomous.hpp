@@ -4,7 +4,7 @@
 #include "drivetrain.hpp" // for drivetrain movement
 #include "systems.hpp" // for subsystem 3 movement
 #include "util/conversions.hpp" // for literals
-#include "gui/display.hpp"
+#include "gui/display.hpp" // for DisplayControl::Auton, upperAutons, lowerAutons
 #include "main.h" // for forward declaration for autonomous
 
 /**
@@ -12,9 +12,8 @@
  *
  * Additional macros are included to simplify auton writing
  *
- * Contains auton_t alias, forward declarations for autonomous functions
+ * Contains forward declarations for autonomous functions
  * auton points to the autonomous to be run
- * auton is protected by autonSelectionMutex
  */
 
 using namespace drive;
@@ -26,7 +25,9 @@ using Subposition = Lift::Subposition;
 // make a series of function calls usable by Drivetrain as actions
 #define bundle(funcs) []{funcs;}
 
+// end a linear motion at a certain distance from the target
 #define endEarly(dist) addAction(Drivetrain::stopMotion, dist)
+// end a turn at a certain angle from the target
 #define endTurnEarly(dist) addAction(Drivetrain::stopMotion, dist, true)
 
 // end a pure pursuit movement with precision (finish with moveTo)
@@ -44,14 +45,16 @@ extern auton_t auton;
  */
 
 void none();
-void skills();
-void lowerGoalRush();
 void upperGoalRush();
 void upperRing();
 void awp();
+void lowerGoalRush();
+void skills();
 
+// speciallized exit conditions for the goal rush
 bool goalRushExitConditions(long double dist, bool firstLoop, bool reset);
 
+// additional auton specifications to be used when relavent to autonomous functions
 extern bool targetTallNeutralMogo;
 extern bool targetShortNeutralMogo;
 extern bool targetRings;
