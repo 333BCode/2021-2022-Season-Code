@@ -145,14 +145,26 @@ public:
     // Sets the brake mode of the motors
     static void setBrakeMode(const pros::motor_brake_mode_e_t brakeMode);
 
+    /**
+     * Limits the voltage supplied to the motors during a motion
+     * This is used to control top speed
+     * Unless if otherwise noted, speed is in inches per second
+     */
+    
+    // Limits linear and turn speeds
     static void limitSpeed(long double speed);
     static void limitLinearSpeed(long double speed);
+    // voltage is in millivolts (out of 12000)
     static void limitTurnSpeed(int voltage);
+    // Unbounds linear and turn speeds
     static void unboundSpeed();
     static void unboundLinearSpeed();
     static void unboundTurnSpeed();
-    static void setLinearSlew(int slewPower);
+    // The max speed of the bot in inches per second
     static const long double maxVelocity;
+    
+    // When called between motions, sets the starting voltage of the linearPID slew controller during the next motion
+    static void setLinearSlew(int slewPower);
 
     // Allows mainTasks to calibrate IMU, reset tracking wheel encoders, mark when calibration is complete, and run odometry
     friend void mainTasks(void*);
@@ -246,9 +258,11 @@ private:
 
     /* Used in field control tasks */
 
+    // state variables to help determine target heading during motions
     static bool autoDetermineReversed;
     static bool driveReversed;
 
+    // state variable used to end motions early
     static bool stopped;
 
     /**
@@ -268,6 +282,7 @@ private:
     static const long double wheelSpacingPerpendicular;
     static const long double trackingWheelDiameter;
 
+    // current max voltages to supply as linear and turn components of movements, units are millivolts
     static int linearSpeedLimit;
     static int rotSpeedLimit;
 
@@ -320,11 +335,15 @@ private:
 
 };
 
+// includes Drivetrain::Point and Drivetrain::Path classes
+// In separate files to save space / readability in this one
 #include "drivetrain/point.hpp"
 #include "drivetrain/path.hpp"
 
+// namespace drive and using statements is an easy way to bring Drivetrain classes and methods into the current namespace
 namespace drive {
 
+    // instance of Drivetrain
     extern Drivetrain base;
     
     using XYPoint   = Drivetrain::XYPoint;
