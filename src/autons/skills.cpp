@@ -3,6 +3,7 @@
 #define releaseMogoMotion()                     \
     lift.release(); pros::delay(200);           \
     lift.setSubposition(Subposition::neutral);  \
+    base.endEarly(1_in);                        \
     base.moveForward(-0.75_ft)
 
 #define transfer()                      \
@@ -20,11 +21,15 @@
 
 void skills() {
 
+    LinearExitConditions quickLinearExit = Drivetrain::defaultLinearExit<1000, 1000, 1000, 2000, 0, 1500>;
+
     base.setPosition(28.5_in, 1_ft, 180_deg);
 
     base.limitSpeed(20);
-    base.moveForward(-6_in);
-    
+    do {
+        base.moveForward(-6_in);
+    } while (30.5 - base.getPosition().x > 0.25);
+
     holder.grab();
     lift.release();
     pros::delay(250);
@@ -32,27 +37,28 @@ void skills() {
     base.setFollowDirection(Direction::forward);
 
     base.limitSpeed(40);
-    base.addAction(lift.clamp, 3.75_ft);
+    base.addAction(lift.clamp, 3.65_ft);
     base.addAction(base.unboundTurnSpeed, 1_ft);
-    base << Waypoint {3_ft, 9_ft}.withAction(intake.intake, 5_ft);
+    base << Waypoint {3_ft, 8.5_ft}.withAction(intake.intake, 5_ft);
 
     // drop alliance mogo, put neutral on platform
     // base.endEarly(0.25_ft);
     // base.endTurnEarly(10_deg);
-    base.endTurnEarly(10_deg);
+/*    base.endTurnEarly(10_deg);
     base.endEarly(2_in);
     base.moveTo(3_ft, 9_ft, 0_deg);
     intake.stop();
-    base.setFollowDirection(Direction::autoDetermine);
-
+*/
     base.limitLinearSpeed(20);
     lift.raise();
     lift.setSubposition(Subposition::high);
+    // base << Waypoint {5.25_ft, 9_ft};
     base.endEarly(0.5_ft);
     base.endTurnEarly(10_deg);
     // base.addAction(holder.release, 2_ft);
-    base.moveTo(5.5_ft, 9_ft, 90_deg);
-    base.moveForward(0.75_ft, false);
+    base.moveTo(5.25_ft, 9_ft, 90_deg);
+    base.setFollowDirection(Direction::autoDetermine);
+    base.moveForward(0.75_ft, false, quickLinearExit);
     lift.setSubposition(Subposition::low);
     pros::delay(1000);
     releaseMogoMotion();
@@ -69,7 +75,7 @@ void skills() {
     base.limitLinearSpeed(20);
     base.endTurnEarly(10_deg);
     base.turnTo(90_deg);
-    base.moveForward(0.75_ft, false);
+    base.moveForward(0.75_ft, false, quickLinearExit);
     lift.setSubposition(Subposition::low);
     pros::delay(200);
     releaseMogoMotion();
@@ -97,15 +103,17 @@ void skills() {
     base.limitLinearSpeed(20);
     base.endEarly(0.25_ft);
     base.moveForward(base.getPosition().y - 2.65_ft, false);
-    intake.stop();
     lift.setSubposition(Subposition::low);
     pros::delay(1500);
     lift.release();
+    intake.reverse();
     pros::delay(200);
     base.supply(-40, 0);
     pros::delay(200);
     lift.setSubposition(Subposition::neutral);
-    base.moveForward(-1_ft);
+    base.moveForward(-1_ft, true, quickLinearExit);
+
+    intake.stop();
 
     base.limitLinearSpeed(40);
 
@@ -125,9 +133,9 @@ void skills() {
     lift.raise();
     pros::delay(500);
     base.limitLinearSpeed(20);
-    base.turnTo(-90_deg);
+    base.moveTo(6.5_ft, 3_ft, -90_deg);
 
-    base.moveForward(0.75_ft, false);
+    base.moveForward(0.75_ft, false, quickLinearExit);
     lift.setSubposition(Subposition::low);
     pros::delay(250);
     releaseMogoMotion();
@@ -145,21 +153,45 @@ void skills() {
     pros::delay(500);
 
     base.endTurnEarly(10_deg);
-    base.moveTo(9_ft, 3_ft, 90_deg);
+    base.moveTo(9_ft, 3.5_ft, 90_deg, quickLinearExit);
 
 ///////////////////////////////////////////////////////////////
 
-    base.limitLinearSpeed(40);
+    base.setFollowDirection(Direction::forward);
+
+    base.limitSpeed(40);
+    base.addAction(lift.clamp, 0.75_ft);
+    base.endEarly(0.5_ft);
+    base.moveTo(9_ft, 7_ft);
+
+    lift.raise();
+    lift.setSubposition(Subposition::high);
+    base.limitLinearSpeed(20);
+    // base << Waypoint {6_ft, 9_ft};
+    base.endEarly(0.5_ft);
+    base.endTurnEarly(10_deg);
+    base.moveTo(6_ft, 9_ft, 90_deg);
+    base.setFollowDirection(Direction::autoDetermine);
+    base.moveForward(0.5_ft, false, quickLinearExit);
+
+
+/////////////////////////////////////////////////
+
+    /*base.limitLinearSpeed(40);
     base.endEarly(0.25_ft);
     base.addAction(lift.clamp, 2.25_ft);
     base.moveForward(4.75_ft);
     lift.raise();
-    base.turnTo(135_deg);
+    base.turnTo(145_deg);
+    intake.intake();
     base.limitLinearSpeed(20);
-    base.moveForward(2.75_ft, false);
+    base.moveForward(2.5_ft, false);*/
 
-    lift.release();
-    base.moveForward(-0.75_ft);
+    /*lift.release();
+    base.moveForward(-0.75_ft);*/
+    lift.setSubposition(Subposition::low);
+    pros::delay(200);
+    releaseMogoMotion();
 
     // drop alliance mogo, place on platform
     lift.lower();
@@ -175,20 +207,22 @@ void skills() {
     base.moveForward(1.5_ft);
 
     lift.raise();
+    pros::delay(500);
     base.limitLinearSpeed(20);
     base.turnTo(90_deg);
 
     base.moveForward(0.75_ft, false);
     base.limitLinearSpeed(40);
-    lift.release();
-    base.endEarly(0.25_ft);
-    base.moveForward(-0.75_ft);
+    lift.setSubposition(Subposition::low);
+    pros::delay(200);
+    releaseMogoMotion();
 
     // get final alliance mogo
+    base.setFollowDirection(Direction::reverse);
     base.unboundLinearSpeed();
     lift.lower();
     base << Waypoint {12_ft, 9_ft};
-    pros::delay(500);
+    base.setFollowDirection(Direction::autoDetermine);
     base.turnTo({8.8_ft, 11_ft});
     base.limitLinearSpeed(40);
     base.endEarly(0.5_ft);
@@ -197,6 +231,18 @@ void skills() {
 
     // put final mogo on platform
     base.unboundLinearSpeed();
-    base.moveTo(9_ft, 3_ft);
+    base << Waypoint {9_ft, 6_ft} << endAt(6_ft, 3_ft);
+
+    base.limitLinearSpeed(20);
+    lift.raise();
+    base.turnTo(-90_deg);
+
+    base.moveForward(0.75_ft, false);
+    lift.setSubposition(Subposition::low);
+    pros::delay(250);
+    
+    lift.release(); pros::delay(200);
+    lift.setSubposition(Subposition::neutral);
+    base.moveForward(-1.75_ft);
 
 }
