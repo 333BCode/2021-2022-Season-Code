@@ -9,6 +9,8 @@
 #include "util/conversions.hpp"
 #endif
 
+void autonomous();
+
 /**
  * Runs the operator control code. This function will be started in its own task
  * with the default priority and stack size whenever the robot is enabled via
@@ -55,7 +57,6 @@ void opcontrol() {
 
     bool holderOpen = true;
     secondaryController.clear();
-    secondaryController.print(0, 0, "open");
 
     while (true) {
 

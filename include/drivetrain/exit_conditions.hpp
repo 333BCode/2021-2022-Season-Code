@@ -52,7 +52,7 @@ template <
 
     long minTime = 150,
 
-    long maxTimeStuck = 1500
+    long maxTimeStuck = 300
 
 >
 static bool defaultLinearExit(long double curDist, bool firstLoop, bool reset) {
