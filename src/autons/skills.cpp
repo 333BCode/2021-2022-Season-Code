@@ -73,6 +73,7 @@ void skills() {
     base.addAction(lift.clamp, 0.75_ft);
     base.moveTo(3_ft, 9.5_ft);*/
     transfer();
+    pros::delay(200);
     base.limitLinearSpeed(30);
     base.endTurnEarly(10_deg);
     base.turnTo(90_deg);

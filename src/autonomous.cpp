@@ -1,6 +1,6 @@
 #include "autonomous.hpp"
 
-void none() {skills();}
+void none() {}
 auton_t auton = none;
 
 /**
