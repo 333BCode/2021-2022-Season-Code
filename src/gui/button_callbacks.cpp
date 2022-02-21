@@ -4,8 +4,10 @@
 #include "drivetrain.hpp"
 #include "pros/rtos.h"
 
+// updates the displayed tab on the GUI
 lv_res_t changeTab(lv_obj_t* tab) {
 
+    // get the tab to switch to, the DisplayControl object
     uint32_t tabID = lv_obj_get_free_num(tab);
     DisplayControl* displayControl = static_cast<DisplayControl*>(lv_obj_get_free_ptr(tab));
 
@@ -17,6 +19,7 @@ lv_res_t changeTab(lv_obj_t* tab) {
     lv_obj_t* oldTab;
     lv_obj_t* oldText;
 
+    // point to correct old and new tabs
     if (tabID) {
 
         newSwitch = displayControl->autonSelectionSwitch;
@@ -39,6 +42,7 @@ lv_res_t changeTab(lv_obj_t* tab) {
 
     }
 
+    // show the new tab, hide the old one
     lv_btn_set_state(newSwitch, LV_BTN_STATE_TGL_PR);
     lv_btn_set_state(oldSwitch, LV_BTN_STATE_TGL_REL);
 
@@ -55,11 +59,14 @@ lv_res_t changeTab(lv_obj_t* tab) {
 
 }
 
+// updates global variables that are used by autons to specify behavior
 lv_res_t updateAutonTargets(lv_obj_t* target) {
     
+    // get the selected target, DisplayControl object
     uint32_t freeNum = lv_obj_get_free_num(target);
     DisplayControl* displayControl = static_cast<DisplayControl*>(lv_obj_get_free_ptr(target));
 
+    // toggle the correct specification and the corresponding gui object
     switch (freeNum) {
 
         case 0:
@@ -105,19 +112,21 @@ lv_res_t updateAutonTargets(lv_obj_t* target) {
 
 }
 
+// updates the auton that will be run at the start of the autonomous period
 lv_res_t setAuton(lv_obj_t* autonSwitch) {
 
+    // get the auton button free number to index auton arrays, the DisplayControl object
     uint32_t freeNum = lv_obj_get_free_num(autonSwitch);
     DisplayControl* displayControl = static_cast<DisplayControl*>(lv_obj_get_free_ptr(autonSwitch));
 
     bool hideFieldElements = true;
 
-    if (displayControl->selectedNum == freeNum) {
+    if (displayControl->selectedNum == freeNum) { // if pressing the currently selected button, deselect it
         
         displayControl->selectedNum = 500;
         lv_obj_set_hidden(displayControl->selectedIndicator, true);
 
-        auton = none;
+        auton = none; // no auton selected
 
     } else {
 
@@ -127,17 +136,20 @@ lv_res_t setAuton(lv_obj_t* autonSwitch) {
 
         const Auton* autonButton;
 
+        // assign autonButton to the right auton
         if (freeNum < 100) {
             autonButton = &displayControl->upperAutons[freeNum];
         } else {
             autonButton = &displayControl->lowerAutons[freeNum - 100];
         }
 
+        // point the auton function pointer to the correct auton function
         auton = autonButton->autonFunc;
         hideFieldElements = !autonButton->showElements;
 
     }
 
+    // show or hide auton target specification as necessary
     lv_obj_set_hidden(displayControl->tallNeutralMogo, hideFieldElements);
     lv_obj_set_hidden(displayControl->shortNeutralMogo, hideFieldElements);
     lv_obj_set_hidden(displayControl->rings, hideFieldElements);

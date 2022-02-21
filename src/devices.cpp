@@ -1,7 +1,9 @@
 #include "drivetrain.hpp"
-#include "pros/adi.hpp"
-#include "pros/motors.h"
 #include "systems.hpp"
+
+/**
+ * This file initializes all electronic devices (all motors, sensors, and pneumatic solenoids)
+ */
 
 /*
  * Drivetrain Devices

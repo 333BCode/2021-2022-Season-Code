@@ -82,7 +82,7 @@ public:
     // MUTEX LOCKING
     static void setPosition(long double newX, long double newY, long double newHeading);
 
-    // Supply power to the Drivetrain motors
+    // Supply power to the Drivetrain motors [-127, 127] and [-12000, 12000] for the respective functions
     // Forward and clockwise (due to controller joystick notation) are positive
     static void supply(int linearPow, int rotPow);
     static void supplyVoltage(int linearPow, int rotPow);
@@ -95,7 +95,7 @@ public:
      *
      */
 
-    // Follows the motion profile, stored in the Path, uses feedback error correction during the motion
+    // Follows the motion profile stored in the Path, uses feedback error correction during the motion
     // MUTEX LOCKING
     Drivetrain& operator<<(const Path& path);
     // Uses pure pursuit to move towards the Waypoint; for optimal use utilize several pure pursuit movements in succession
@@ -109,7 +109,7 @@ public:
     // MUTEX LOCKING
     static void moveTo(
         long double x, long double y, long double heading = NAN,
-        LinearExitConditions linearExitConditions = defaultLinearExit, TurnExitConditions turnExitConditions = defaultTurnExit, bool debug = false
+        LinearExitConditions linearExitConditions = defaultLinearExit, TurnExitConditions turnExitConditions = defaultTurnExit
     );
     // Will turn to face targetForHeading using absolute coordinates after reaching the desired position
     // MUTEX LOCKING
@@ -302,7 +302,7 @@ private:
      * Used in field control tasks
      */
 
-    // Updates driveReversed if autoDetermineReversed
+    // Updates driveReversed, call if autoDetermineReversed
     static void determineFollowDirection(long double xTarget, long double yTarget);
 
     // Converts encoder rotations to inches traveled
@@ -311,26 +311,29 @@ private:
     // Executes actions stored in actionList if they are eligible to be executed
     static void executeActions(double currError, bool inTurn = false);
 
-    // Clears actionList, sets motor power to 0
+    // Sets motor power to 0, clears actionList
     static void endMotion();
-    // Clears actionList, sets motor power to 0, updates old target variables
+    // Sets motor power to 0, updates old target variables, clears actionList
     static void endMotion(long double targetX, long double targetY);
 
-    // Converts the heading based off of targetAngle to minimize the distance between the two
+    // Wraps the heading based off of targetAngle to minimize the distance between the two
     // NEEDS MUTEX COVER: accesses positional data
     static long double wrapAngle(long double targetAngle);
+    // Wraps the targetHeading based off of targetAngle to minimize the distance between the two
     static long double wrapTargetHeading(long double targetAngle);
 
     // Returns 1 if positive or 0, -1 if negative
     static int sign(long double num);
 
     // Returns the point for the movement algorithm to target, as determined by pure pursuit
+    // NEEDS MUTEX COVER: accesses positional data
     static XYPoint purePursuitLookAhead(
         long double lookAheadDistance,
         XYPoint newEndpoint
     );
 
     // Carry out one step of odometry calculations, called in main task
+    // NEEDS MUTEX COVER: accesses positional data
     static void trackPosition();
 
 };

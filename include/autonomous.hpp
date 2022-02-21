@@ -1,11 +1,11 @@
 #ifndef _AUTONOMOUS_HPP_
 #define _AUTONOMOUS_HPP_
 
+#include "main.h" // for forward declaration for autonomous
 #include "drivetrain.hpp" // for drivetrain movement
 #include "systems.hpp" // for subsystem 3 movement
 #include "util/conversions.hpp" // for literals
 #include "gui/display.hpp" // for DisplayControl::Auton, upperAutons, lowerAutons
-#include "main.h" // for forward declaration for autonomous
 
 /**
  * File to contain all includes needed for autonomous functions
@@ -37,8 +37,19 @@ using Subposition = Lift::Subposition;
 using Auton     = DisplayControl::Auton;
 using auton_t   = Auton::auton_t;
 
+/**
+ * auton and auton specification globals are accessed by the field control and lvgl tasks
+ *
+ * they are not protected by a mutex as the user should never (in general) be touching the brain screen as auton starts
+ */
+
 // function pointer to selected auton (updated in GUI, points to none by default)
 extern auton_t auton;
+
+// additional auton specifications to be used when relavent to autonomous functions
+extern bool targetTallNeutralMogo;
+extern bool targetShortNeutralMogo;
+extern bool targetRings;
 
 /*
  * Autonomous function forward declarations
@@ -51,12 +62,7 @@ void awp();
 void lowerGoalRush();
 void skills();
 
-// speciallized exit conditions for the goal rush
+// specialized exit conditions for the goal rush
 bool goalRushExitConditions(long double dist, bool firstLoop, bool reset);
-
-// additional auton specifications to be used when relavent to autonomous functions
-extern bool targetTallNeutralMogo;
-extern bool targetShortNeutralMogo;
-extern bool targetRings;
 
 #endif

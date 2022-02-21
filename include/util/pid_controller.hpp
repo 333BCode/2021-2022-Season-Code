@@ -59,7 +59,8 @@ namespace motor_control {
         // changes the target, does not reset slew, derivative, or integral terms
         void alterTarget(long double newTarget);
 
-        // inform the PIDController of updates to the system's output since calcPower was last ran (example: after a motion that does not utilize PID)
+        // Inform the PIDController of updates to the system's output since calcPower was last ran
+        // (example: after a motion that does not utilize PID)
         // units are millivolts for consistency with calcPower
         void updatePreviousSystemOutput(int previousSystemOutput);
 
@@ -70,8 +71,8 @@ namespace motor_control {
         // returns the current gains for both PID and slew
         Constants getConstants();
         // sets the PID gains
-        // note the derivative gain (d) comes before the integral gain (i)
-        void setConstants(long double p, long double d, long double i, long double integralCap);
+        // note the derivative gain (newKD) comes before the integral gain (newKI)
+        void setConstants(long double newKP, long double newKD, long double newKI, long double newIntegralCap);
         // sets the slew constants with units of volts/s^s, volts, and volts respectively
         // if voltageAcceleration <= 0, slew control will not be used
         void setSlewConstants(long double newVoltageAcceleration, long double newMaxVoltage, long double newStartingVoltage);

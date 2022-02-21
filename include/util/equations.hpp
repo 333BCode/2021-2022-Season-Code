@@ -58,11 +58,11 @@ namespace equations {
     class CurvatureEquation final {
     public:
 
-        // constructor, takes references to the derivative and second derivative of the x and y components 
+        // constructor, takes references to the derivative and second derivative of the x and y components
         CurvatureEquation(const PolynomialEquation& xd, const PolynomialEquation& xdd,
             const PolynomialEquation& yd, const PolynomialEquation& ydd);
 
-        // returns the curvature (which is equivalent to 1 / r) at a current value along a parametric curve 
+        // returns the curvature (which is equivalent to 1 / r) at a current value along a parametric curve
         long double at(long double value) const;
 
     private:

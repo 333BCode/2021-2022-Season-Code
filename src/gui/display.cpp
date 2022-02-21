@@ -7,11 +7,14 @@
 
 #include <string>
 
+// if 0, default screen is odom tab, otherwise is auton selection tab
 constexpr short defaultScreen = 0;
 
+// initialize brain screen
 DisplayControl::Auton::Auton(auton_t autonFunc, const char* name, bool showElements)
     : autonFunc {autonFunc}, name {name}, showElements {showElements} {}
 
+// function to more easily set up a lvgl button
 static lv_obj_t* newButton(lv_obj_t* parent, lv_coord_t xPos, lv_coord_t yPos, lv_coord_t width, lv_coord_t height,
     uint32_t freeNum, lv_res_t (*action)(lv_obj_t*), bool toggle)
 {
@@ -30,6 +33,7 @@ static lv_obj_t* newButton(lv_obj_t* parent, lv_coord_t xPos, lv_coord_t yPos, l
 
 }
 
+// function to more easily set up a lvgl style with a border
 static void setupStyle(lv_style_t* style, lv_style_t* copy, lv_color_t bodyColor,
     int16_t borderWidth, lv_color_t borderColor)
 {
@@ -49,6 +53,7 @@ static void setupStyle(lv_style_t* style, lv_style_t* copy, lv_color_t bodyColor
 
 }
 
+// function to more easily set up a lvgl style
 static void setupStyle(lv_style_t* style, lv_style_t* copy, lv_color_t bodyColor){
 
     lv_style_copy(style, copy);
@@ -64,6 +69,7 @@ static void setupStyle(lv_style_t* style, lv_style_t* copy, lv_color_t bodyColor
 
 }
 
+// initialize brain screen
 DisplayControl::DisplayControl()
 
     : tabSpace {lv_obj_create(lv_scr_act(), NULL)}, tabSwitcher {lv_obj_create(lv_scr_act(), NULL)},
@@ -183,7 +189,7 @@ DisplayControl::DisplayControl()
     lv_obj_set_size(autonSelectionTab, lv_obj_get_width(tabSpace), lv_obj_get_height(tabSpace));
     lv_obj_set_style(autonSelectionTab, &odomPageStyle);
 
-    for (size_t i = 0; i < std::size(upperAutons); ++i) {
+    for (size_t i = 0; i < std::size(upperAutons); ++i) { // set up upper auton selection buttons
 
         lv_obj_t* obj = newButton(autonSelectionTab, 0, 0, 1.5 * tileLength, tileLength, i, setAuton, false);
         lv_obj_align(obj, NULL, LV_ALIGN_IN_TOP_LEFT, (0.25 + 2 * i) * tileLength, 0.25 * tileLength);
@@ -198,7 +204,7 @@ DisplayControl::DisplayControl()
     
     }
 
-    for (size_t i = 0; i < std::size(lowerAutons); ++i) {
+    for (size_t i = 0; i < std::size(lowerAutons); ++i) { // set up lower auton selection buttons
 
         lv_obj_t* obj = newButton(autonSelectionTab, 0, 0, 1.5 * tileLength, tileLength, 100 + i, setAuton, false);
         lv_obj_align(obj, NULL, LV_ALIGN_IN_LEFT_MID, (0.25 + 2 * i) * tileLength, 0.25 * tileLength);
@@ -232,7 +238,7 @@ DisplayControl::DisplayControl()
 
             // platform tiles
             if ((j == 0 || j == 5) && (i == 2 || i == 3)) {
-                continue;
+                continue; // skip over platforms
             }
 
             lv_obj_t* newTile = newButton(field, tileLength * j, tileLength * i, tileLength, tileLength,
@@ -261,6 +267,7 @@ DisplayControl::DisplayControl()
 
     lv_obj_set_style(virtualBotDirectionIndicator, &virtualBotDirectionIndicatorStyle);
 
+    // Specialized auton target selection buttons
     tallNeutralMogo = newButton(field, 0, 0, 0.75 * tileLength, 0.75 * tileLength, 0, updateAutonTargets, false);
     lv_obj_set_free_ptr(tallNeutralMogo, this);
     lv_obj_align(tallNeutralMogo, NULL, LV_ALIGN_CENTER, 0, 0);
@@ -296,11 +303,13 @@ DisplayControl::DisplayControl()
 
 }
 
+// delete brain screen
 DisplayControl::~DisplayControl() {
     lv_obj_clean(lv_scr_act());
 }
 
 #ifndef DISPLAY_DEBUG
+// Deletes all of the screen except the auton selector to save on resources
 void DisplayControl::cleanScreen() {
 
     changeTab(autonSelectionSwitch);
@@ -310,11 +319,14 @@ void DisplayControl::cleanScreen() {
 }
 #endif
 
+// Moves the virtual bot on the brain screen
+// Updates the data displayed on the brain screen if updateValues
 void DisplayControl::updateOdomData(bool updateValues) {
 
+    // get the current position
     Drivetrain::Point odomData = Drivetrain::getPosition();
 
-    if (updateValues) {
+    if (updateValues) { // update the displayed position values, show three decimal places
         
         std::string newOdomReadout = "Values in inches\nand degrees:\n\n"
             "X Position: " + std::to_string(round(odomData.x        * 1000) / 1000).substr(0, 6) + "\n"
@@ -332,7 +344,8 @@ void DisplayControl::updateOdomData(bool updateValues) {
     lv_coord_t y = 186 - (odomData.y / 24) * tileLength;
 
     lv_obj_set_pos(virtualBot, x, y);
-    
+
+    // point the direction indicator in the right direction    
     directionIndicatorEndpoints[0] = {static_cast<lv_coord_t>(x + 12), static_cast<lv_coord_t>(y + 12)};
     directionIndicatorEndpoints[1] = {
         static_cast<lv_coord_t>(x + 12 + tileLength * cos(odomData.heading) * 0.75),

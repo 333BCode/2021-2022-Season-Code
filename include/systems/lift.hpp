@@ -38,13 +38,13 @@ namespace motor_control {
         // MUTEX LOCKING
         static void init();
 
-        // raises the lift, sets the subposition to neutral
+        // sets the lift to raise, the subposition to neutral
         // MUTEX LOCKING
         static void raise();
-        // lowers the lift, sets the subposition to neutral
+        // sets the lift to lower, the subposition to neutral
         // MUTEX LOCKING
         static void lower();
-        // lowers the lift if it is raised, otherwise raises it, sets the subposition to neutral
+        // sets the lift to lower if it is raised, otherwise sets it to raise, sets the subposition to neutral
         // MUTEX LOCKING
         static void toggleLift();
 
@@ -65,9 +65,9 @@ namespace motor_control {
         // MUTEX LOCKING
         static void setManualControl(bool manualControl);
 
-        // closes the claw at the top of the lift
+        // closes the claw
         static void clamp();
-        // opens the claw at the top of the lift
+        // opens the claw
         static void release();
         // if the claw is open, closes it, otherwise opens it
         static void toggleClamp();

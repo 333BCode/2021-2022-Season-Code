@@ -1,5 +1,6 @@
 #include "autonomous.hpp"
 
+// default auton to one that does nothing
 void none() {}
 auton_t auton = none;
 
@@ -15,8 +16,12 @@ auton_t auton = none;
  * from where it left off.
  */
 
+/* Initialize array to determine GUI auton button creation */
+
 const Auton DisplayControl::upperAutons[] {{upperGoalRush, "rush", true}, {upperRing, "ring", true}, {awp, "awp", true}};
 const Auton DisplayControl::lowerAutons[] {{lowerGoalRush, "rush", true}, {skills, "skills"}};
+
+/* Initialize auton specifiers */
 
 bool targetTallNeutralMogo  {false};
 bool targetShortNeutralMogo {false};
@@ -24,26 +29,26 @@ bool targetRings            {false};
 
 void autonomous() {
 
+    // set Drivetrain to standard states
     Drivetrain::waitUntilCalibrated();
     Drivetrain::setBrakeMode(pros::E_MOTOR_BRAKE_COAST);
     Drivetrain::setFollowDirection(Direction::autoDetermine);
 
-#ifndef DEFAULT_TO_MACROS_IN_OPCONTROL
-    lift.setManualControl(false); // if macro defined, make sure to not enable manual control before auton (should not happen)
-#endif
+    lift.setManualControl(false); // allow state machine to power the lift
 
-    auton();
+    auton(); // run the selected autonomous function
 
 }
 
+// specialized exit conditions for the goal rush
 bool goalRushExitConditions(long double dist, bool firstLoop, bool reset) {
 
     static int count = 0;
     Point pos = base.getPosition();
     ++count;
-    if (count > 250) {
+    if (count > 250) { // stop if 2.5 seconds have elapsed
         return true;
     }
-    return pos.y >= 57 || dist < 0.5;
+    return pos.y >= 57 || dist < 0.5; // stop if close enough to target or far enough forward
 
 }

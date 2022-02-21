@@ -55,7 +55,7 @@ public:
     // Index the internal array
     const Velocities& operator[](size_t index) const;
 
-    // Get iterators, implement for each loop functionality
+    // Get iterators, implements for each loop functionality
     const Velocities* begin() const;
     const Velocities* end() const;
 
