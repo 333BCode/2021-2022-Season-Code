@@ -287,8 +287,8 @@ DisplayControl::DisplayControl()
     lv_obj_align(rings, NULL, LV_ALIGN_CENTER, -tileLength, 2 * tileLength);
     ringSelectedStyle.body.radius = lv_obj_get_height(rings) / 2;
     ringStyle.body.radius = lv_obj_get_height(rings) / 2;
-    lv_btn_set_style(rings, LV_BTN_STYLE_PR, &ringStyle);
-    lv_btn_set_style(rings, LV_BTN_STYLE_REL, &ringStyle);
+    lv_btn_set_style(rings, LV_BTN_STYLE_PR, &mogoStyle);
+    lv_btn_set_style(rings, LV_BTN_STYLE_REL, &mogoStyle);
     lv_obj_set_hidden(rings, true);
 
     /*

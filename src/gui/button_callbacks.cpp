@@ -97,11 +97,11 @@ lv_res_t updateAutonTargets(lv_obj_t* target) {
         
             targetRings = !targetRings;
             if (targetRings) {
-                lv_btn_set_style(target, LV_BTN_STYLE_PR, &displayControl->ringSelectedStyle);
-                lv_btn_set_style(target, LV_BTN_STYLE_REL, &displayControl->ringSelectedStyle);
+                lv_btn_set_style(target, LV_BTN_STYLE_PR, &displayControl->mogoSelectedStyle);
+                lv_btn_set_style(target, LV_BTN_STYLE_REL, &displayControl->mogoSelectedStyle);
             } else {
-                lv_btn_set_style(target, LV_BTN_STYLE_PR, &displayControl->ringStyle);
-                lv_btn_set_style(target, LV_BTN_STYLE_REL, &displayControl->ringStyle);
+                lv_btn_set_style(target, LV_BTN_STYLE_PR, &displayControl->mogoStyle);
+                lv_btn_set_style(target, LV_BTN_STYLE_REL, &displayControl->mogoStyle);
             }
         
         break;

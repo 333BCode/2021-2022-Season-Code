@@ -18,7 +18,7 @@ Subsystem 3 controls are found in the header files in include/systems. Drivetrai
 
 ### Custom Exit Conditions
 
-If the logic of the default exit conditions works, just pass different template arguments. Otherwise, create a new function with the function signature of the respective exit condition function pointer (found in include/drivetrain.hpp), and possible have Drivetrain friend that function.
+If the logic of the default exit conditions works, just pass different template arguments. Otherwise, create a new function with the function signature of the respective exit condition function pointer (found in include/drivetrain.hpp), and possibly have Drivetrain friend that function.
 
 ## Updating Devices
 

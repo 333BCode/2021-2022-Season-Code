@@ -1,8 +1,8 @@
 #include "autonomous.hpp"
 
 // default auton to one that does nothing
-void none() {}
-auton_t auton = none;
+void none() {upperGoalRush();}
+auton_t auton = upperGoalRush;
 
 /**
  * Runs the user autonomous code. This function will be started in its own task

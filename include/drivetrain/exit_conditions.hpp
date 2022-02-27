@@ -15,7 +15,7 @@
  */
 
 template <
-    long derivativeStuckThreshhold = 500,
+    long derivativeStuckThreshold = 500,
     long maxTimeStuck = 1500
 >
 static bool defaultPurePursuitExit(long double curDist, long double lookAheadDist, bool reset) {
@@ -29,7 +29,7 @@ static bool defaultPurePursuitExit(long double curDist, long double lookAheadDis
     }
     if (curDist <= lookAheadDist) {
         return true; // exit if within look ahead distance of target
-    } else if (linearPID.getDerivative() <= derivativeStuckThreshhold / 1000.0) {
+    } else if (linearPID.getDerivative() <= derivativeStuckThreshold / 1000.0) {
         ++count; // increment time stuck
         count += noiseCount; // increment by time where derivative noise disrupted the exit conditions
         noiseCount = 0; // derivative noise is not currently significant enough to wrongfully stop exit
@@ -38,7 +38,7 @@ static bool defaultPurePursuitExit(long double curDist, long double lookAheadDis
         }
     } else if (count > 0) {
         ++noiseCount; // account for derivative noise
-        if (noiseCount >= 5) { // if derivative is likely indeed outside acceptable threshholds, reset the counts
+        if (noiseCount >= 5) { // if derivative is likely indeed outside acceptable thresholds, reset the counts
             count = 0;
             noiseCount = 0;
         }
@@ -102,7 +102,7 @@ static bool defaultLinearExit(long double curDist, bool firstLoop, bool reset) {
         noiseCount = 0; // derivative noise is not currently significant enough to wrongfully stop exit
     } else if (stuckCount > 0) {
         ++noiseCount; // account for derivative noise
-        if (noiseCount >= 5) { // if derivative is likely indeed outside acceptable threshholds, reset the counts
+        if (noiseCount >= 5) { // if derivative is likely indeed outside acceptable thresholds, reset the counts
             count = 0;
             stuckCount = 0;
             noiseCount = 0;
@@ -159,7 +159,7 @@ static bool defaultTurnExit(bool firstLoop, bool reset) {
         noiseCount = 0; // derivative noise is not currently significant enough to wrongfully stop exit
     } else if (stuckCount > 0) {
         ++noiseCount; // account for derivative noise
-        if (noiseCount >= 5) { // if derivative is likely indeed outside acceptable threshholds, reset the counts
+        if (noiseCount >= 5) { // if derivative is likely indeed outside acceptable thresholds, reset the counts
             count = 0;
             stuckCount = 0;
             noiseCount = 0;

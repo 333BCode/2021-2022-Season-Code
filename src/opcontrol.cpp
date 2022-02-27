@@ -177,6 +177,12 @@ void opcontrol() {
             secondaryController.print(0, 0, holderOpen ? "open" : "closed");
         }
 
+        if (secondaryController.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) {
+            holder.grab();
+        } else if (secondaryController.get_digital(pros::E_CONTROLLER_DIGITAL_R2)) {
+            holder.release();
+        }
+
         // Toggle the Drivetrain between brake types hold (useful for climbing the platform) and coast,
         // update data displayed on the secondary controller
         if (secondaryController.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_X)) {

@@ -125,7 +125,7 @@ namespace motor_control {
 
         if (!usingManualControl) { // if other tasks are not controlling the lift
 
-            size_t pos = (liftIsUp ? 3 : 0); // set index to high and netural subposition if liftIsUp
+            size_t pos = (liftIsUp ? 3 : 0); // set index to high and neutral subposition if liftIsUp
             if (subposition == Subposition::high) { // go up an angle in angles if high subposition
                 ++pos;
             } else if (subposition == Subposition::low && pos != 0) { // if raised and low subposition, go down an angle in angles

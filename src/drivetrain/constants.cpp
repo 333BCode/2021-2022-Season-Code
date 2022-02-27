@@ -11,7 +11,7 @@ motor_control::PIDController Drivetrain::linearPID {
     0,  // kI
     4,  // integralCap          (volts)
     
-    16,  // voltageAcceleration (volts / seconds)
+    0,  // voltageAcceleration (volts / seconds) ------------ was 16
     12, // maxVoltage           (volts)
     0   // startingVoltage      (volts)
 

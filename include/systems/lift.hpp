@@ -95,7 +95,7 @@ namespace motor_control {
         
     private:
 
-        // pneumatic solinoid for the two claw cylinders
+        // pneumatic solenoid for the two claw cylinders
         // defined in src/devices.cpp
         static pros::ADIDigitalOut claw;
 
