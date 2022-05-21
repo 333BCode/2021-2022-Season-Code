@@ -32,7 +32,7 @@ namespace motor_control {
 
     pros::ADIDigitalOut Holder::clamp {'D'};
 
-    pros::Motor Intake::motor {8, pros::E_MOTOR_GEARSET_06, false};
+    pros::Motor Intake::motor {8, pros::E_MOTOR_GEARSET_06, true};
 
     pros::Motor         Lift::motor   {10, pros::E_MOTOR_GEARSET_36, false};
     pros::ADIDigitalOut Lift::claw    {'C'};

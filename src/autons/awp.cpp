@@ -29,7 +29,7 @@ void awp() {
 
         base.moveTo(9_ft, 3.1_ft, 180_deg);
         base.limitLinearSpeed(30);
-        base.moveForward(-2_ft);
+        base.moveForward(-1.65_ft);
         holder.grab();
         pros::delay(500);
 
@@ -47,7 +47,7 @@ void awp() {
 
         base << Waypoint {3_ft, 2.5_ft} << endAt(9_ft, 3_ft);
         base.limitLinearSpeed(30);
-        base.moveTo(11.75_ft, 3_ft); // , Drivetrain::defaultLinearExit<1000, 50000, 10000, 200000, 150, 200>);
+        base.moveTo(11.4_ft, 3_ft); // , Drivetrain::defaultLinearExit<1000, 50000, 10000, 200000, 150, 200>);
 
         holder.grab();
 

@@ -93,7 +93,9 @@ void skills() {
 ////////////////////////////////////////////////////////////////////////
 
     // pick up alliance mogo, tall netural mogo, place on platform
-    base.moveTo(1_ft, 9_ft);
+    
+    base.addAction(holder.grab, 1.5_in);
+    base.moveTo(1.25_ft, 9_ft);
     holder.grab();
     pros::delay(500);
 
@@ -153,8 +155,8 @@ void skills() {
     base.endTurnEarly(10_deg);
     base.turnTo(180_deg);
 
-    base << Waypoint {11.75_ft, 3_ft};
-    base.moveTo(11.75_ft, 3_ft, Drivetrain::defaultLinearExit<1000, 50000, 10000, 200000, 150, 200>);
+    base << Waypoint {11.25_ft, 3_ft};
+    base.moveTo(11.25_ft, 3_ft, Drivetrain::defaultLinearExit<1000, 50000, 10000, 200000, 150, 200>);
     holder.grab();
     pros::delay(500);
 
